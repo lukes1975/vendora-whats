@@ -8,16 +8,13 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
@@ -25,7 +22,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { X } from "lucide-react";
+import ImageUpload from "./ImageUpload";
 
 interface Product {
   id?: string;
@@ -81,9 +78,36 @@ const ProductForm: React.FC<ProductFormProps> = ({
     }
   }, [product, open]);
 
+  const handleImageUpload = (url: string) => {
+    setFormData({ ...formData, image_url: url });
+  };
+
+  const handleImageRemove = () => {
+    setFormData({ ...formData, image_url: "" });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    // Validation
+    if (!formData.name.trim()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Product name is required.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (formData.price <= 0) {
+      toast({
+        title: 'Validation Error',
+        description: 'Price must be greater than 0.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -110,11 +134,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
         const { error } = await supabase
           .from('products')
           .update({
-            name: formData.name,
+            name: formData.name.trim(),
             price: formData.price,
-            description: formData.description,
-            image_url: formData.image_url,
-            category: formData.category,
+            description: formData.description?.trim() || null,
+            image_url: formData.image_url || null,
+            category: formData.category?.trim() || null,
             updated_at: new Date().toISOString(),
           })
           .eq('id', product.id);
@@ -130,11 +154,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
         const { error } = await supabase
           .from('products')
           .insert({
-            name: formData.name,
+            name: formData.name.trim(),
             price: formData.price,
-            description: formData.description,
-            image_url: formData.image_url,
-            category: formData.category,
+            description: formData.description?.trim() || null,
+            image_url: formData.image_url || null,
+            category: formData.category?.trim() || null,
             vendor_id: user.id,
             store_id: storeId,
             status: 'active',
@@ -163,9 +187,15 @@ const ProductForm: React.FC<ProductFormProps> = ({
   };
 
   const FormContent = () => (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <ImageUpload
+        currentImageUrl={formData.image_url}
+        onImageUpload={handleImageUpload}
+        onImageRemove={handleImageRemove}
+      />
+
       <div className="space-y-2">
-        <Label htmlFor="name">Product Name</Label>
+        <Label htmlFor="name">Product Name *</Label>
         <Input
           id="name"
           value={formData.name}
@@ -176,13 +206,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="price">Price</Label>
+        <Label htmlFor="price">Price *</Label>
         <Input
           id="price"
           type="number"
           step="0.01"
-          min="0"
-          value={formData.price}
+          min="0.01"
+          value={formData.price || ""}
           onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
           placeholder="0.00"
           required
@@ -196,17 +226,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
           value={formData.category}
           onChange={(e) => setFormData({ ...formData, category: e.target.value })}
           placeholder="e.g., Electronics, Clothing"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="image_url">Image URL</Label>
-        <Input
-          id="image_url"
-          type="url"
-          value={formData.image_url}
-          onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-          placeholder="https://example.com/image.jpg"
         />
       </div>
 
@@ -240,7 +259,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent>
+        <DrawerContent className="max-h-[90vh]">
           <DrawerHeader className="text-left">
             <DrawerTitle>
               {product?.id ? 'Edit Product' : 'Add New Product'}
@@ -249,7 +268,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               {product?.id ? 'Update your product details' : 'Fill in the details for your new product'}
             </DrawerDescription>
           </DrawerHeader>
-          <div className="px-4 pb-4">
+          <div className="px-4 pb-4 overflow-y-auto">
             <FormContent />
           </div>
         </DrawerContent>
@@ -259,7 +278,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {product?.id ? 'Edit Product' : 'Add New Product'}
