@@ -9,6 +9,75 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      orders: {
+        Row: {
+          created_at: string | null
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string
+          id: string
+          order_notes: string | null
+          product_id: string
+          quantity: number
+          status: string | null
+          store_id: string
+          total_price: number
+          unit_price: number
+          updated_at: string | null
+          vendor_id: string
+          whatsapp_message: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name: string
+          customer_phone: string
+          id?: string
+          order_notes?: string | null
+          product_id: string
+          quantity?: number
+          status?: string | null
+          store_id: string
+          total_price: number
+          unit_price: number
+          updated_at?: string | null
+          vendor_id: string
+          whatsapp_message?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          order_notes?: string | null
+          product_id?: string
+          quantity?: number
+          status?: string | null
+          store_id?: string
+          total_price?: number
+          unit_price?: number
+          updated_at?: string | null
+          vendor_id?: string
+          whatsapp_message?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string | null
