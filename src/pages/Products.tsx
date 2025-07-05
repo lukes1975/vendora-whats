@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,53 +7,77 @@ import { Input } from "@/components/ui/input";
 import { Plus, Search, Edit, MessageSquare, Eye, Package } from "lucide-react";
 import { Link } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image_url?: string;
+  status: string;
+  views: number;
+  whatsapp_clicks: number;
+  category?: string;
+}
 
 const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  
-  // Mock data - replace with real data from Supabase
-  const [products] = useState([
-    {
-      id: 1,
-      name: "Handmade Leather Bag",
-      price: 89.99,
-      image: "/placeholder.svg",
-      status: "active",
-      views: 234,
-      whatsappClicks: 12,
-      category: "Accessories"
-    },
-    {
-      id: 2,
-      name: "Ceramic Mug Set",
-      price: 24.99,
-      image: "/placeholder.svg",
-      status: "active",
-      views: 156,
-      whatsappClicks: 8,
-      category: "Home & Kitchen"
-    },
-    {
-      id: 3,
-      name: "Vintage Scarf",
-      price: 45.00,
-      image: "/placeholder.svg",
-      status: "draft",
-      views: 67,
-      whatsappClicks: 3,
-      category: "Fashion"
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (user) {
+      fetchProducts();
     }
-  ]);
+  }, [user]);
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('vendor_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch products',
+          variant: 'destructive',
+        });
+      } else {
+        setProducts(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
+    (product.category && product.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const generateWhatsAppLink = (product: any) => {
+  const generateWhatsAppLink = (product: Product) => {
     const message = `Hi! I'm interested in your ${product.name} for $${product.price}. Can you tell me more about it?`;
     return `https://wa.me/1234567890?text=${encodeURIComponent(message)}`;
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -64,12 +88,10 @@ const Products = () => {
             <h1 className="text-3xl font-bold text-gray-900">Products</h1>
             <p className="text-gray-600">Manage your product catalog</p>
           </div>
-          <Link to="/dashboard/products/new">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Product
-            </Button>
-          </Link>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Product
+          </Button>
         </div>
 
         {/* Search and Filters */}
@@ -96,7 +118,7 @@ const Products = () => {
             <Card key={product.id} className="hover:shadow-md transition-shadow">
               <div className="aspect-square overflow-hidden rounded-t-lg">
                 <img
-                  src={product.image}
+                  src={product.image_url || "/placeholder.svg"}
                   alt={product.name}
                   className="w-full h-full object-cover hover:scale-105 transition-transform"
                 />
@@ -121,17 +143,15 @@ const Products = () => {
                     </span>
                     <span className="flex items-center">
                       <MessageSquare className="mr-1 h-3 w-3" />
-                      {product.whatsappClicks} clicks
+                      {product.whatsapp_clicks} clicks
                     </span>
                   </div>
                   
                   <div className="flex gap-2">
-                    <Link to={`/dashboard/products/${product.id}/edit`} className="flex-1">
-                      <Button variant="outline" size="sm" className="w-full">
-                        <Edit className="mr-1 h-3 w-3" />
-                        Edit
-                      </Button>
-                    </Link>
+                    <Button variant="outline" size="sm" className="flex-1">
+                      <Edit className="mr-1 h-3 w-3" />
+                      Edit
+                    </Button>
                     <a
                       href={generateWhatsAppLink(product)}
                       target="_blank"
@@ -159,12 +179,10 @@ const Products = () => {
                 <p className="mb-4">
                   {searchTerm ? "Try adjusting your search terms" : "Get started by adding your first product"}
                 </p>
-                <Link to="/dashboard/products/new">
-                  <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Your First Product
-                  </Button>
-                </Link>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Your First Product
+                </Button>
               </div>
             </CardContent>
           </Card>
