@@ -1,9 +1,15 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import ImageUpload from "@/components/ImageUpload";
 import {
   Dialog,
   DialogContent,
@@ -19,275 +25,200 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
-import ImageUpload from "./ImageUpload";
 
-interface Product {
-  id?: string;
-  name: string;
-  price: number;
-  description?: string;
-  image_url?: string;
-  category?: string;
-}
+const productSchema = z.object({
+  name: z.string().min(1, "Product name is required"),
+  price: z.number().min(0.01, "Price must be greater than 0"),
+  description: z.string().optional(),
+  image_url: z.string().optional(),
+});
+
+type ProductFormData = z.infer<typeof productSchema>;
 
 interface ProductFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  product?: Product | null;
+  product?: {
+    id: string;
+    name: string;
+    price: number;
+    description: string;
+    image_url: string;
+    store_id: string;
+  } | null;
   onSuccess: () => void;
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({
-  open,
-  onOpenChange,
-  product,
-  onSuccess,
-}) => {
-  const [formData, setFormData] = useState<Product>({
-    name: "",
-    price: 0,
-    description: "",
-    image_url: "",
-    category: "",
-  });
-  const [loading, setLoading] = useState(false);
+const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProps) => {
   const { user } = useAuth();
-  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(product?.image_url || "");
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    if (product) {
-      setFormData({
-        name: product.name,
-        price: product.price,
-        description: product.description || "",
-        image_url: product.image_url || "",
-        category: product.category || "",
-      });
-    } else {
-      setFormData({
-        name: "",
-        price: 0,
-        description: "",
-        image_url: "",
-        category: "",
-      });
-    }
-  }, [product, open]);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<ProductFormData>({
+    resolver: zodResolver(productSchema),
+    defaultValues: {
+      name: product?.name || "",
+      price: product?.price || 0,
+      description: product?.description || "",
+      image_url: product?.image_url || "",
+    },
+  });
 
-  const handleImageUpload = (url: string) => {
-    setFormData({ ...formData, image_url: url });
-  };
-
-  const handleImageRemove = () => {
-    setFormData({ ...formData, image_url: "" });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-
-    // Validation
-    if (!formData.name.trim()) {
-      toast({
-        title: 'Validation Error',
-        description: 'Product name is required.',
-        variant: 'destructive',
-      });
+  const onSubmit = async (data: ProductFormData) => {
+    if (!user?.id) {
+      toast.error("You must be logged in to create products");
       return;
     }
 
-    if (formData.price <= 0) {
-      toast({
-        title: 'Validation Error',
-        description: 'Price must be greater than 0.',
-        variant: 'destructive',
-      });
-      return;
-    }
+    setIsLoading(true);
 
-    setLoading(true);
     try {
-      // Get user's store
-      const { data: stores } = await supabase
+      // First, ensure the user has a store
+      const { data: storeData, error: storeError } = await supabase
         .from('stores')
         .select('id')
         .eq('vendor_id', user.id)
-        .limit(1);
+        .maybeSingle();
 
-      if (!stores || stores.length === 0) {
-        toast({
-          title: 'Error',
-          description: 'No store found. Please create a store first.',
-          variant: 'destructive',
-        });
+      if (storeError) {
+        console.error('Error checking store:', storeError);
+        toast.error("Error checking store information");
         return;
       }
 
-      const storeId = stores[0].id;
+      let storeId = storeData?.id;
 
-      if (product?.id) {
+      // If no store exists, create one automatically
+      if (!storeId) {
+        const defaultStoreName = user.email?.split('@')[0] || 'My Store';
+        
+        const { data: newStore, error: createStoreError } = await supabase
+          .from('stores')
+          .insert({
+            vendor_id: user.id,
+            name: defaultStoreName,
+            slug: `${defaultStoreName.toLowerCase().replace(/[^a-z0-9]/g, '')}-${Date.now()}`,
+            description: '',
+            whatsapp_number: '',
+            is_active: true
+          })
+          .select('id')
+          .single();
+
+        if (createStoreError) {
+          console.error('Error creating store:', createStoreError);
+          toast.error("Error creating store");
+          return;
+        }
+
+        storeId = newStore.id;
+      }
+
+      const productData = {
+        ...data,
+        image_url: uploadedImageUrl,
+        vendor_id: user.id,
+        store_id: storeId,
+      };
+
+      if (product) {
         // Update existing product
         const { error } = await supabase
           .from('products')
-          .update({
-            name: formData.name.trim(),
-            price: formData.price,
-            description: formData.description?.trim() || null,
-            image_url: formData.image_url || null,
-            category: formData.category?.trim() || null,
-            updated_at: new Date().toISOString(),
-          })
+          .update(productData)
           .eq('id', product.id);
 
         if (error) throw error;
-
-        toast({
-          title: 'Success',
-          description: 'Product updated successfully!',
-        });
+        toast.success("Product updated successfully!");
       } else {
         // Create new product
         const { error } = await supabase
           .from('products')
-          .insert({
-            name: formData.name.trim(),
-            price: formData.price,
-            description: formData.description?.trim() || null,
-            image_url: formData.image_url || null,
-            category: formData.category?.trim() || null,
-            vendor_id: user.id,
-            store_id: storeId,
-            status: 'active',
-          });
+          .insert([productData]);
 
         if (error) throw error;
-
-        toast({
-          title: 'Success',
-          description: 'Product created successfully!',
-        });
+        toast.success("Product created successfully!");
       }
 
-      onSuccess();
+      reset();
+      setUploadedImageUrl("");
       onOpenChange(false);
+      onSuccess();
     } catch (error) {
       console.error('Error saving product:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to save product. Please try again.',
-        variant: 'destructive',
-      });
+      toast.error("Error saving product. Please try again.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const FormContent = () => (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <ImageUpload
-        currentImageUrl={formData.image_url}
-        onImageUpload={handleImageUpload}
-        onImageRemove={handleImageRemove}
-      />
+  const handleImageUpload = (url: string) => {
+    setUploadedImageUrl(url);
+    setValue("image_url", url);
+  };
 
-      <div className="space-y-2">
-        <Label htmlFor="name">Product Name *</Label>
-        <Input
-          id="name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          placeholder="Enter product name"
-          required
-        />
+  const formContent = (
+    <div className="grid gap-4 py-4">
+      <div className="grid gap-2">
+        <Label htmlFor="name">Product Name</Label>
+        <Input id="name" placeholder="Product name" {...register("name")} />
+        {errors.name && (
+          <p className="text-sm text-red-500">{errors.name.message}</p>
+        )}
       </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="price">Price *</Label>
+      <div className="grid gap-2">
+        <Label htmlFor="price">Price</Label>
         <Input
           id="price"
+          placeholder="0.00"
           type="number"
           step="0.01"
-          min="0.01"
-          value={formData.price || ""}
-          onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
-          placeholder="0.00"
-          required
+          {...register("price", { valueAsNumber: true })}
         />
+        {errors.price && (
+          <p className="text-sm text-red-500">{errors.price.message}</p>
+        )}
       </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="category">Category</Label>
-        <Input
-          id="category"
-          value={formData.category}
-          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-          placeholder="e.g., Electronics, Clothing"
-        />
-      </div>
-
-      <div className="space-y-2">
+      <div className="grid gap-2">
         <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          placeholder="Describe your product..."
-          rows={3}
-        />
+        <Textarea id="description" placeholder="Product description" {...register("description")} />
+        {errors.description && (
+          <p className="text-sm text-red-500">{errors.description.message}</p>
+        )}
       </div>
 
-      <div className="flex gap-2 pt-4">
-        <Button type="submit" disabled={loading} className="flex-1">
-          {loading ? 'Saving...' : product?.id ? 'Update Product' : 'Add Product'}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => onOpenChange(false)}
-          className="flex-1"
-        >
-          Cancel
-        </Button>
-      </div>
-    </form>
+      <ImageUpload
+        onChange={handleImageUpload}
+        imageUrl={uploadedImageUrl}
+      />
+    </div>
   );
-
-  if (isMobile) {
-    return (
-      <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="max-h-[90vh]">
-          <DrawerHeader className="text-left">
-            <DrawerTitle>
-              {product?.id ? 'Edit Product' : 'Add New Product'}
-            </DrawerTitle>
-            <DrawerDescription>
-              {product?.id ? 'Update your product details' : 'Fill in the details for your new product'}
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="px-4 pb-4 overflow-y-auto">
-            <FormContent />
-          </div>
-        </DrawerContent>
-      </Drawer>
-    );
-  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
-            {product?.id ? 'Edit Product' : 'Add New Product'}
-          </DialogTitle>
+          <DialogTitle>{product ? "Edit Product" : "Add Product"}</DialogTitle>
           <DialogDescription>
-            {product?.id ? 'Update your product details' : 'Fill in the details for your new product'}
+            {product ? "Update your product here." : "Create a new product here."}
           </DialogDescription>
         </DialogHeader>
-        <FormContent />
+        {formContent}
+        <div className="flex justify-end gap-2 mt-4">
+          <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button type="submit" onClick={handleSubmit(onSubmit)} disabled={isLoading}>
+            {isLoading ? "Saving..." : "Save changes"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

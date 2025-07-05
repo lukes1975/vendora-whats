@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/components/DashboardLayout";
 import { toast } from "sonner";
 import QRCodeGenerator from "@/components/QRCodeGenerator";
+import { useAutoCreateStore } from "@/hooks/useAutoCreateStore";
 
 interface StoreData {
   id: string;
@@ -35,6 +35,9 @@ interface DashboardStats {
 const Dashboard = () => {
   const { user } = useAuth();
   const [showQR, setShowQR] = useState(false);
+
+  // Auto-create store if needed
+  useAutoCreateStore();
 
   // Fetch store data
   const { data: storeData, isLoading: storeLoading } = useQuery({
@@ -122,7 +125,7 @@ const Dashboard = () => {
     }
   };
 
-  if (storeLoading || statsLoading) {
+  if (storeLoading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
