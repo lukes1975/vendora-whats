@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,7 +59,7 @@ const Storefront = () => {
         url: window.location.href,
       });
     } else {
-      navigator.clipboard.writeToText(window.location.href);
+      navigator.clipboard.writeText(window.location.href);
     }
   };
 
