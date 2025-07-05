@@ -1,10 +1,10 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Package } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import ProductForm from "@/components/ProductForm";
@@ -42,61 +42,9 @@ const Products = () => {
   // Auto-create store if needed
   useAutoCreateStore();
 
-  const { mutate: createProduct } = useMutation(
-    async (newProduct: Omit<Product, 'id' | 'created_at'>) => {
-      const { data, error } = await supabase
-        .from('products')
-        .insert([newProduct]);
-      
-      if (error) {
-        console.error('Error creating product:', error);
-        throw error;
-      }
-      
-      return data;
-    },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['products', user?.id]);
-        toast.success("Product created successfully!");
-        setShowProductForm(false);
-      },
-      onError: (error: any) => {
-        toast.error(`Failed to create product: ${error.message}`);
-      },
-    }
-  );
-
-  const { mutate: updateProduct } = useMutation(
-    async (updatedProduct: Product) => {
-      const { data, error } = await supabase
-        .from('products')
-        .update(updatedProduct)
-        .eq('id', updatedProduct.id);
-      
-      if (error) {
-        console.error('Error updating product:', error);
-        throw error;
-      }
-      
-      return data;
-    },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['products', user?.id]);
-        toast.success("Product updated successfully!");
-        setEditingProduct(null);
-        setShowProductForm(false);
-      },
-      onError: (error: any) => {
-        toast.error(`Failed to update product: ${error.message}`);
-      },
-    }
-  );
-
-  const { mutate: deleteProduct } = useMutation(
-    async (id: string) => {
-      const { data, error } = await supabase
+  const { mutate: deleteProduct } = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
         .from('products')
         .delete()
         .eq('id', id);
@@ -105,20 +53,18 @@ const Products = () => {
         console.error('Error deleting product:', error);
         throw error;
       }
-      
-      return data;
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['products', user?.id]);
-        toast.success("Product deleted successfully!");
-        setDeletingProduct(null);
-      },
-      onError: (error: any) => {
-        toast.error(`Failed to delete product: ${error.message}`);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['products', user?.id]
+      });
+      toast.success("Product deleted successfully!");
+      setDeletingProduct(null);
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to delete product: ${error.message}`);
+    },
+  });
 
   const handleOpenProductForm = () => {
     setEditingProduct(null);
@@ -136,7 +82,7 @@ const Products = () => {
 
   const confirmDeleteProduct = async () => {
     if (deletingProduct) {
-      await deleteProduct(deletingProduct.id);
+      deleteProduct(deletingProduct.id);
     }
   };
 
@@ -180,13 +126,15 @@ const Products = () => {
           onOpenChange={setShowProductForm}
           product={editingProduct}
           onSuccess={() => {
-            queryClient.invalidateQueries(['products', user?.id]);
+            queryClient.invalidateQueries({
+              queryKey: ['products', user?.id]
+            });
             setShowProductForm(false);
             setEditingProduct(null);
           }}
         />
 
-        <AlertDialog open={!!deletingProduct} onOpenChange={setDeletingProduct}>
+        <AlertDialog open={!!deletingProduct} onOpenChange={() => setDeletingProduct(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -221,11 +169,13 @@ const Products = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <img
-                    src={product.image_url}
-                    alt={product.name}
-                    className="w-full h-48 object-cover mb-4 rounded-md"
-                  />
+                  {product.image_url && (
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      className="w-full h-48 object-cover mb-4 rounded-md"
+                    />
+                  )}
                   <p className="text-sm text-gray-600">{product.description}</p>
                   <div className="flex justify-between mt-4">
                     <Button

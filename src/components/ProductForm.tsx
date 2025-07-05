@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,14 +18,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required"),
@@ -53,7 +46,6 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(product?.image_url || "");
-  const isMobile = useIsMobile();
 
   const {
     register,
@@ -122,7 +114,9 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
       }
 
       const productData = {
-        ...data,
+        name: data.name,
+        price: data.price,
+        description: data.description || "",
         image_url: uploadedImageUrl,
         vendor_id: user.id,
         store_id: storeId,
@@ -141,7 +135,7 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
         // Create new product
         const { error } = await supabase
           .from('products')
-          .insert([productData]);
+          .insert(productData);
 
         if (error) throw error;
         toast.success("Product created successfully!");
@@ -164,42 +158,10 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
     setValue("image_url", url);
   };
 
-  const formContent = (
-    <div className="grid gap-4 py-4">
-      <div className="grid gap-2">
-        <Label htmlFor="name">Product Name</Label>
-        <Input id="name" placeholder="Product name" {...register("name")} />
-        {errors.name && (
-          <p className="text-sm text-red-500">{errors.name.message}</p>
-        )}
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="price">Price</Label>
-        <Input
-          id="price"
-          placeholder="0.00"
-          type="number"
-          step="0.01"
-          {...register("price", { valueAsNumber: true })}
-        />
-        {errors.price && (
-          <p className="text-sm text-red-500">{errors.price.message}</p>
-        )}
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea id="description" placeholder="Product description" {...register("description")} />
-        {errors.description && (
-          <p className="text-sm text-red-500">{errors.description.message}</p>
-        )}
-      </div>
-
-      <ImageUpload
-        onChange={handleImageUpload}
-        imageUrl={uploadedImageUrl}
-      />
-    </div>
-  );
+  const handleImageRemove = () => {
+    setUploadedImageUrl("");
+    setValue("image_url", "");
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -210,7 +172,41 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
             {product ? "Update your product here." : "Create a new product here."}
           </DialogDescription>
         </DialogHeader>
-        {formContent}
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="name">Product Name</Label>
+            <Input id="name" placeholder="Product name" {...register("name")} />
+            {errors.name && (
+              <p className="text-sm text-red-500">{errors.name.message}</p>
+            )}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="price">Price</Label>
+            <Input
+              id="price"
+              placeholder="0.00"
+              type="number"
+              step="0.01"
+              {...register("price", { valueAsNumber: true })}
+            />
+            {errors.price && (
+              <p className="text-sm text-red-500">{errors.price.message}</p>
+            )}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea id="description" placeholder="Product description" {...register("description")} />
+            {errors.description && (
+              <p className="text-sm text-red-500">{errors.description.message}</p>
+            )}
+          </div>
+
+          <ImageUpload
+            currentImageUrl={uploadedImageUrl}
+            onImageUpload={handleImageUpload}
+            onImageRemove={handleImageRemove}
+          />
+        </div>
         <div className="flex justify-end gap-2 mt-4">
           <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
             Cancel
