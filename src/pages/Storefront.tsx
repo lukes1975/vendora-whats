@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -17,6 +16,7 @@ interface Store {
   logo_url: string;
   cover_image_url: string;
   slug: string;
+  vendor_id: string;
 }
 
 interface Product {
@@ -80,7 +80,7 @@ const Storefront = () => {
   // Seed dummy products if none exist
   useEffect(() => {
     const seedDummyProducts = async () => {
-      if (!store?.id || products.length > 0 || productsLoading) return;
+      if (!store?.id || !store?.vendor_id || products.length > 0 || productsLoading) return;
       
       const dummyProducts = [
         {
