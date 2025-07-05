@@ -132,7 +132,7 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
         if (error) throw error;
         toast.success("Product updated successfully!");
       } else {
-        // Create new product
+        // Create new product - pass single object, not array
         const { error } = await supabase
           .from('products')
           .insert(productData);
