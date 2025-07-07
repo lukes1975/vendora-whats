@@ -12,6 +12,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Storefront from "./pages/Storefront";
+import DashboardStorefront from "./pages/DashboardStorefront";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,7 +44,14 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            <Route path="/dashboard/storefront" element={<Storefront />} />
+            <Route 
+              path="/dashboard/storefront" 
+              element={
+                <ProtectedRoute>
+                  <DashboardStorefront />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/store/:storeId" element={<Storefront />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
