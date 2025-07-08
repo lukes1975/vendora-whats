@@ -8,6 +8,7 @@ import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import StoreProfile from "@/components/storefront/StoreProfile";
 import ProductGrid from "@/components/storefront/ProductGrid";
 import StorefrontFooter from "@/components/storefront/StorefrontFooter";
+import { seedDummyProductsWithImages } from "@/utils/seedImages";
 
 interface Store {
   id: string;
@@ -79,57 +80,15 @@ const DashboardStorefront = () => {
     enabled: !!store?.id,
   });
 
-  // Seed dummy products if none exist
+  // Seed dummy products with actual images if none exist
   useEffect(() => {
     const seedDummyProducts = async () => {
       if (!store?.id || !store?.vendor_id || products.length > 0 || productsLoading) return;
       
-      const dummyProducts = [
-        {
-          name: "African Ankara Fabric",
-          price: 7500,
-          description: "Beautifully patterned Ankara fabric for special occasions.",
-          image_url: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=300&h=300&fit=crop",
-          store_id: store.id,
-          vendor_id: store.vendor_id,
-          status: 'active'
-        },
-        {
-          name: "Handcrafted Wooden Bowl",
-          price: 4500,
-          description: "Beautiful handcrafted wooden bowl perfect for home decor.",
-          image_url: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&h=300&fit=crop",
-          store_id: store.id,
-          vendor_id: store.vendor_id,
-          status: 'active'
-        },
-        {
-          name: "Traditional Jewelry Set",
-          price: 12000,
-          description: "Elegant traditional jewelry set with intricate designs.",
-          image_url: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=300&h=300&fit=crop",
-          store_id: store.id,
-          vendor_id: store.vendor_id,
-          status: 'active'
-        },
-        {
-          name: "Artisan Pottery Vase",
-          price: 6800,
-          description: "Unique artisan pottery vase crafted with care.",
-          image_url: "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=300&h=300&fit=crop",
-          store_id: store.id,
-          vendor_id: store.vendor_id,
-          status: 'active'
-        }
-      ];
-
       try {
-        const { error } = await supabase
-          .from('products')
-          .insert(dummyProducts);
-        
-        if (error) {
-          console.error('Error seeding dummy products:', error);
+        const success = await seedDummyProductsWithImages(store.id, store.vendor_id);
+        if (!success) {
+          console.error('Failed to seed dummy products with images');
         }
       } catch (error) {
         console.error('Error seeding dummy products:', error);
