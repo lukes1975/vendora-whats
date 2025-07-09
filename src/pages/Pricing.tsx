@@ -16,7 +16,7 @@ const Pricing = () => {
       price: '₦0',
       period: 'mo',
       features: [
-        'Unlimited products',
+        'limited',
         'Branded storefront',
         'WhatsApp order links',
         'Store analytics'
