@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +15,7 @@ const Pricing = () => {
       price: '₦0',
       period: 'mo',
       features: [
-        'limited products',
+        'Unlimited products',
         'Branded storefront',
         'WhatsApp order links',
         'Store analytics'
@@ -30,7 +29,7 @@ const Pricing = () => {
       price: '₦3,000–₦5,000',
       period: 'mo',
       features: [
-        'Unlimited products'
+        'Unlimited products',
         'Custom theme color/logo',
         'Smart inventory tracking',
         'WhatsApp automation',
