@@ -113,11 +113,11 @@ const Products = () => {
         <div className="flex justify-between items-center mb-4">
           <CardTitle className="text-2xl font-bold">
             <Package className="mr-2 inline-block" />
-            Products
+            Your Storefront Items
           </CardTitle>
           <Button onClick={handleOpenProductForm}>
             <Plus className="mr-2 h-4 w-4" />
-            Add Product
+            Add New Item
           </Button>
         </div>
 
@@ -139,8 +139,8 @@ const Products = () => {
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. Are you sure you want to delete "
-                {deletingProduct?.name}"?
+                This action cannot be undone. Are you sure you want to remove "
+                {deletingProduct?.name}" from your storefront?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -202,9 +202,9 @@ const Products = () => {
         ) : (
           <div className="text-center py-8 text-gray-500">
             <Package className="mx-auto h-12 w-12 mb-3 opacity-50" />
-            <p>No products yet</p>
+            <p>You haven't added anything to your storefront yet.</p>
             <p className="text-sm">
-              Add your first product to start selling
+              Show the world what you offer — add your first item!
             </p>
           </div>
         )}

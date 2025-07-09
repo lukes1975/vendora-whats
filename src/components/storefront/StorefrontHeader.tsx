@@ -23,7 +23,7 @@ const StorefrontHeader = ({ onShare }: StorefrontHeaderProps) => {
             <Link to="/dashboard">
               <Button variant="outline" size="sm">
                 <ExternalLink className="mr-1 h-4 w-4" />
-                Edit Store
+                Manage Your Brand
               </Button>
             </Link>
           </div>

@@ -26,7 +26,7 @@ const AnnouncementBanner = () => {
       <Sparkles className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between">
         <span className="text-sm font-medium">
-          🎉 Vendora Early Access is live — invite 5 sellers and earn rewards!
+          🎉 Early Access: Build your professional brand and start selling like a pro — invite 5 sellers and earn rewards!
         </span>
         <Button
           variant="ghost"

@@ -64,8 +64,8 @@ const DashboardStorefront = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold mb-2">Storefront Management</h1>
-          <p className="text-gray-600">Manage your store's appearance and settings</p>
+          <h1 className="text-2xl font-bold mb-2">Your Branded Storefront</h1>
+          <p className="text-gray-600">Customize your brand and manage how buyers see your business</p>
         </div>
 
         {/* Store Preview Card */}
@@ -82,7 +82,7 @@ const DashboardStorefront = () => {
               <Button asChild>
                 <a href={storeUrl} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-4 w-4 mr-2" />
-                  View Store
+                  View Your Storefront
                 </a>
               </Button>
             </div>
@@ -98,7 +98,7 @@ const DashboardStorefront = () => {
                   </div>
                   <div className="flex items-center text-sm">
                     <MessageSquare className="h-4 w-4 mr-2" />
-                    <span>Store URL: {storeUrl}</span>
+                    <span>Branded Store Link: {storeUrl}</span>
                   </div>
                 </div>
               </div>

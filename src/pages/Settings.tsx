@@ -232,8 +232,8 @@ const Settings = () => {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Store Settings</h1>
-              <p className="text-gray-600">Customize your storefront information and branding</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Customize Your Brand</h1>
+              <p className="text-gray-600">Manage your storefront information and professional branding</p>
             </div>
             <div className="sm:hidden">
               <UpgradePlanButton />
@@ -248,19 +248,19 @@ const Settings = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Store className="h-5 w-5 text-blue-600" />
-                Store Information
+                Business Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="storeName">Store Name</Label>
+                <Label htmlFor="storeName">Business Name</Label>
                 <div className="relative">
                   <Store className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="storeName"
                     value={values.store_name}
                     onChange={(e) => setValue('store_name', e.target.value)}
-                    placeholder="Enter your store name"
+                    placeholder="Enter your business name"
                     className="pl-10"
                     required
                   />
@@ -295,7 +295,7 @@ const Settings = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ImageIcon className="h-5 w-5 text-blue-600" />
-                Store Logo
+                Brand Logo
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -305,7 +305,7 @@ const Settings = () => {
                     <div className="aspect-square w-32 mx-auto rounded-lg overflow-hidden border-2 border-gray-200">
                       <img
                         src={logoPreview}
-                        alt="Store logo preview"
+                        alt="Brand logo preview"
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -326,7 +326,7 @@ const Settings = () => {
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                     <p className="text-sm text-gray-600 mb-4">
-                      Upload your store logo (JPG, PNG - Max 2MB)
+                      Upload your brand logo (JPG, PNG - Max 2MB)
                     </p>
                   </div>
                 )}
@@ -346,7 +346,7 @@ const Settings = () => {
                     className="flex-1"
                   >
                     <Upload className="mr-2 h-4 w-4" />
-                    {logoPreview ? 'Change Logo' : 'Upload Logo'}
+                    {logoPreview ? 'Change Brand Logo' : 'Upload Brand Logo'}
                   </Button>
                 </div>
               </div>
@@ -405,7 +405,7 @@ const Settings = () => {
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  Save Settings
+                  Save Brand Settings
                 </>
               )}
             </Button>

@@ -15,14 +15,14 @@ const WelcomeSection = ({ storeName }: WelcomeSectionProps) => {
           Welcome back{storeName ? `, ${storeName}!` : '!'}
         </h1>
         <p className="text-gray-600 mt-1 text-sm sm:text-base">
-          Here's what's happening with your store today.
+          Your branded storefront is working 24/7 — even while you sleep.
         </p>
       </div>
       <div className="flex-shrink-0">
         <Link to="/dashboard/products/new">
           <Button className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
-            Add Product
+            Add New Item
           </Button>
         </Link>
       </div>

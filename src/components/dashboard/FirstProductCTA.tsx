@@ -21,17 +21,17 @@ const FirstProductCTA = ({ hasProducts }: FirstProductCTAProps) => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-900">
-                  Ready to sell?
+                  Ready to showcase your work?
                 </p>
                 <p className="text-xs text-gray-500">
-                  Add your first product now
+                  Add your first item to your storefront
                 </p>
               </div>
             </div>
             <Link to="/dashboard/products/new">
               <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="h-4 w-4 mr-1" />
-                Add Product
+                Add First Item
               </Button>
             </Link>
           </div>

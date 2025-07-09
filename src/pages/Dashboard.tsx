@@ -93,14 +93,14 @@ const Dashboard = () => {
         {/* Pro Interest Collection */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 text-center">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Ready for more advanced features?
+            Ready to scale your professional business?
           </h3>
           <p className="text-gray-600 mb-4">
-            Get notified when Pro plans with advanced inventory, automation, and analytics become available.
+            Get notified when Pro features with advanced automation, inventory tracking, and business insights become available.
           </p>
           <ProInterestModal>
             <Button variant="outline">
-              Want Pro features after Early Access?
+              Want Pro Business Tools?
             </Button>
           </ProInterestModal>
         </div>

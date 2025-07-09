@@ -122,8 +122,8 @@ const Storefront = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Store Not Found</h1>
-          <p className="text-gray-600 mb-4">The store you're looking for doesn't exist or is not active.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Storefront Not Found</h1>
+          <p className="text-gray-600 mb-4">The business you're looking for doesn't exist or is not active.</p>
           <Link to="/">
             <Button>Go to Homepage</Button>
           </Link>
@@ -140,8 +140,8 @@ const Storefront = () => {
       {/* Products Section */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Our Products</h2>
-          <p className="text-gray-600">Discover our carefully curated collection</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">What We Offer</h2>
+          <p className="text-gray-600">See what catches your eye, then DM us to buy</p>
         </div>
 
         <ProductGrid 

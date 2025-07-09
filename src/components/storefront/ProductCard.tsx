@@ -77,7 +77,7 @@ const ProductCard = ({ product, store }: ProductCardProps) => {
         >
           <Button className="w-full bg-green-600 hover:bg-green-700">
             <MessageSquare className="mr-2 h-4 w-4" />
-            Order on WhatsApp
+            DM to Buy
           </Button>
         </a>
       </CardContent>

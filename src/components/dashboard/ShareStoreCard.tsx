@@ -25,7 +25,7 @@ const ShareStoreCard = ({ storeUrl, storeName }: ShareStoreCardProps) => {
   };
 
   const shareOnWhatsApp = () => {
-    const message = `Check out my store on Vendora: ${storeUrl}`;
+    const message = `Check out my branded storefront: ${storeUrl} — See what I offer and DM me to buy!`;
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -38,12 +38,12 @@ const ShareStoreCard = ({ storeUrl, storeName }: ShareStoreCardProps) => {
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           <Share2 className="h-5 w-5" />
-          Share My Store
+          Share Your Branded Store Link
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">Your store URL:</p>
+          <p className="text-sm text-muted-foreground">Your branded store link:</p>
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="flex-1 p-3 bg-muted rounded-lg font-mono text-sm break-all">
               {storeUrl}
@@ -59,7 +59,7 @@ const ShareStoreCard = ({ storeUrl, storeName }: ShareStoreCardProps) => {
             disabled={copied}
           >
             <Copy className="h-4 w-4 mr-2" />
-            {copied ? 'Copied!' : 'Copy URL'}
+            {copied ? 'Copied!' : 'Copy Link'}
           </Button>
           
           <Button 
@@ -77,7 +77,7 @@ const ShareStoreCard = ({ storeUrl, storeName }: ShareStoreCardProps) => {
             className="flex-1 sm:flex-none"
           >
             <ExternalLink className="h-4 w-4 mr-2" />
-            View Store
+            View Your Storefront
           </Button>
         </div>
       </CardContent>

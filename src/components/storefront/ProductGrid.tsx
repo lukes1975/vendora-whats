@@ -42,8 +42,8 @@ const ProductGrid = ({ products, store, isLoading }: ProductGridProps) => {
       <Card>
         <CardContent className="py-12 text-center">
           <div className="text-gray-500">
-            <h3 className="text-lg font-medium mb-2">No products yet</h3>
-            <p>This store is still setting up their product catalog.</p>
+            <h3 className="text-lg font-medium mb-2">Building something amazing</h3>
+            <p>This business is setting up their storefront. Check back soon!</p>
           </div>
         </CardContent>
       </Card>

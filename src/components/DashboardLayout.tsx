@@ -34,11 +34,11 @@ const DashboardLayout = ({ children }: { children?: React.ReactNode }) => {
   };
 
   const navItems = [
-    { icon: Home, label: 'Dashboard', path: '/dashboard' },
-    { icon: Package, label: 'Products', path: '/dashboard/products' },
-    { icon: Store, label: 'My Store', path: '/dashboard/storefront' },
-    { icon: BarChart3, label: 'Analytics', path: '/dashboard/analytics' },
-    { icon: Settings, label: 'Settings', path: '/dashboard/settings' },
+    { icon: Home, label: 'Business Hub', path: '/dashboard' },
+    { icon: Package, label: 'Your Storefront Items', path: '/dashboard/products' },
+    { icon: Store, label: 'View Your Storefront', path: '/dashboard/storefront' },
+    { icon: BarChart3, label: 'Views & WhatsApp Clicks', path: '/dashboard/analytics' },
+    { icon: Settings, label: 'Customize Your Brand', path: '/dashboard/settings' },
   ];
 
   return (

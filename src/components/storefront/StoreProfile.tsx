@@ -56,13 +56,13 @@ const StoreProfile = ({ store }: StoreProfileProps) => {
                     >
                       <Button className="bg-green-600 hover:bg-green-700">
                         <MessageSquare className="mr-2 h-4 w-4" />
-                        Message on WhatsApp
+                        DM to Connect
                       </Button>
                     </a>
                   )}
                   <Button variant="outline">
                     <Heart className="mr-2 h-4 w-4" />
-                    Follow Store
+                    Follow Brand
                   </Button>
                 </div>
               </div>

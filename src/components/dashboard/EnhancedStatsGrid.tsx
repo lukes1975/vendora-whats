@@ -26,7 +26,7 @@ const EnhancedStatsGrid = ({
       bgColor: "bg-green-50"
     },
     {
-      title: "Total Orders",
+      title: "WhatsApp Messages",
       value: totalOrders.toString(),
       icon: ShoppingCart,
       trend: "+5%",
@@ -35,7 +35,7 @@ const EnhancedStatsGrid = ({
       bgColor: "bg-blue-50"
     },
     {
-      title: "Products",
+      title: "Storefront Items",
       value: totalProducts.toString(),
       icon: Package,
       trend: "+2%",
@@ -44,7 +44,7 @@ const EnhancedStatsGrid = ({
       bgColor: "bg-purple-50"
     },
     {
-      title: "Avg Order Value",
+      title: "Avg Sale Value",
       value: `₦${avgOrderValue.toLocaleString()}`,
       icon: BarChart3,
       trend: "+8%",
