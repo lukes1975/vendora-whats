@@ -35,10 +35,10 @@ const DashboardLayout = ({ children }: { children?: React.ReactNode }) => {
 
   const navItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
-    { icon: Package, label: 'Products', path: '/products' },
+    { icon: Package, label: 'Products', path: '/dashboard/products' },
     { icon: Store, label: 'My Store', path: '/dashboard/storefront' },
-    { icon: BarChart3, label: 'Analytics', path: '/analytics' },
-    { icon: Settings, label: 'Settings', path: '/settings' },
+    { icon: BarChart3, label: 'Analytics', path: '/dashboard/analytics' },
+    { icon: Settings, label: 'Settings', path: '/dashboard/settings' },
   ];
 
   return (

@@ -12,6 +12,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Settings from "./pages/Settings";
+import Analytics from "./pages/Analytics";
 import Storefront from "./pages/Storefront";
 import DashboardStorefront from "./pages/DashboardStorefront";
 import Pricing from "./pages/Pricing";
@@ -44,6 +45,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Products />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/dashboard/products/new" 
+              element={
+                <ProtectedRoute>
+                  <Products />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/dashboard/analytics" 
+              element={
+                <ProtectedRoute>
+                  <Analytics />
                 </ProtectedRoute>
               } 
             />
