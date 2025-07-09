@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { logSecurityEvent } from "@/utils/security";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 
 interface ImageUploadProps {
@@ -30,6 +31,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     const maxSize = 2 * 1024 * 1024; // 2MB
 
     if (!validTypes.includes(file.type)) {
+      logSecurityEvent('Invalid file type upload attempt', { 
+        userId: user?.id, 
+        fileType: file.type,
+        fileName: file.name 
+      });
       toast({
         title: 'Invalid file type',
         description: 'Please upload a JPG, PNG, or WebP image.',
@@ -39,6 +45,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
 
     if (file.size > maxSize) {
+      logSecurityEvent('Oversized file upload attempt', { 
+        userId: user?.id, 
+        fileSize: file.size,
+        fileName: file.name 
+      });
       toast({
         title: 'File too large',
         description: 'Please upload an image smaller than 2MB.',
@@ -58,17 +69,28 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
     setUploading(true);
     try {
-      // Create unique filename
+      // Create secure filename with timestamp and user ID
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
+      const timestamp = Date.now();
+      const fileName = `${timestamp}.${fileExt}`;
       const filePath = `${user.id}/${fileName}`;
 
-      // Upload file to Supabase Storage
+      // Upload file to Supabase Storage with enhanced security
       const { data, error } = await supabase.storage
         .from('product-images')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false // Prevent overwriting existing files
+        });
 
-      if (error) throw error;
+      if (error) {
+        logSecurityEvent('File upload error', { 
+          userId: user.id, 
+          error: error.message,
+          filePath 
+        });
+        throw error;
+      }
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
@@ -78,12 +100,20 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       setPreview(publicUrl);
       onImageUpload(publicUrl);
 
+      logSecurityEvent('File uploaded successfully', { 
+        userId: user.id, 
+        filePath: data.path 
+      });
+
       toast({
         title: 'Success',
         description: 'Image uploaded successfully!',
       });
     } catch (error) {
-      console.error('Error uploading image:', error);
+      logSecurityEvent('File upload exception', { 
+        userId: user.id, 
+        error 
+      });
       toast({
         title: 'Upload failed',
         description: 'Failed to upload image. Please try again.',
@@ -97,17 +127,35 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const handleRemoveImage = async () => {
     if (currentImageUrl && user) {
       try {
-        // Extract file path from URL
-        const urlParts = currentImageUrl.split('/');
-        const fileName = urlParts[urlParts.length - 1];
+        // Extract file path from URL for secure deletion
+        const url = new URL(currentImageUrl);
+        const pathParts = url.pathname.split('/');
+        const fileName = pathParts[pathParts.length - 1];
         const filePath = `${user.id}/${fileName}`;
 
-        // Delete from storage
-        await supabase.storage
+        // Verify user owns the file before deletion
+        const { data: fileExists } = await supabase.storage
           .from('product-images')
-          .remove([filePath]);
+          .list(user.id, {
+            search: fileName
+          });
+
+        if (fileExists && fileExists.length > 0) {
+          await supabase.storage
+            .from('product-images')
+            .remove([filePath]);
+          
+          logSecurityEvent('File deleted', { 
+            userId: user.id, 
+            filePath 
+          });
+        }
       } catch (error) {
-        console.error('Error deleting image:', error);
+        logSecurityEvent('File deletion error', { 
+          userId: user.id, 
+          error 
+        });
+        // Don't show error to user for deletion failures
       }
     }
 
@@ -131,6 +179,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               src={preview}
               alt="Product preview"
               className="w-full h-full object-cover"
+              onError={() => {
+                logSecurityEvent('Image load error', { 
+                  userId: user?.id, 
+                  imageUrl: preview 
+                });
+                setPreview(null);
+              }}
             />
           </div>
           <Button

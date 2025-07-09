@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
+import { useSecureForm, commonValidationRules } from '@/hooks/useSecureForm';
+import { sanitizeTextInput, logSecurityEvent } from '@/utils/security';
 import { 
   Store, 
   Phone, 
@@ -29,13 +32,9 @@ interface StoreSettings {
 const Settings = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
-  const [storeName, setStoreName] = useState('');
-  const [whatsappNumber, setWhatsappNumber] = useState('');
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [selectedTheme, setSelectedTheme] = useState('#012C6D');
 
   const themeColors = [
     { name: 'Deep Blue', color: '#012C6D' },
@@ -45,6 +44,25 @@ const Settings = () => {
     { name: 'Orange', color: '#EA580C' },
     { name: 'Teal', color: '#0D9488' },
   ];
+
+  const {
+    values,
+    errors,
+    isSubmitting,
+    setValue,
+    handleSubmit,
+  } = useSecureForm<StoreSettings>(
+    {
+      store_name: '',
+      whatsapp_number: '',
+      logo_url: null,
+      primary_color: '#012C6D',
+    },
+    {
+      store_name: commonValidationRules.storeName,
+      whatsapp_number: commonValidationRules.whatsappNumber,
+    }
+  );
 
   // Load current settings on component mount
   useEffect(() => {
@@ -63,7 +81,7 @@ const Settings = () => {
         .maybeSingle();
 
       if (error) {
-        console.error('Error loading settings:', error);
+        logSecurityEvent('Settings load error', { userId: user.id, error });
         toast({
           title: 'Error',
           description: 'Failed to load store settings.',
@@ -73,13 +91,13 @@ const Settings = () => {
       }
 
       if (data) {
-        setStoreName(data.name || '');
-        setWhatsappNumber(data.whatsapp_number || '');
+        setValue('store_name', sanitizeTextInput(data.name || ''));
+        setValue('whatsapp_number', data.whatsapp_number || '');
+        setValue('logo_url', data.logo_url);
         setLogoPreview(data.logo_url);
-        // Note: We don't have primary_color in stores table yet, keeping default
       }
     } catch (error) {
-      console.error('Error loading settings:', error);
+      logSecurityEvent('Settings load exception', { userId: user.id, error });
       toast({
         title: 'Error',
         description: 'Failed to load store settings.',
@@ -90,41 +108,8 @@ const Settings = () => {
     }
   };
 
-  const validateForm = (): boolean => {
-    if (!storeName.trim()) {
-      toast({
-        title: 'Validation Error',
-        description: 'Store name is required.',
-        variant: 'destructive',
-      });
-      return false;
-    }
-
-    if (!whatsappNumber.trim()) {
-      toast({
-        title: 'Validation Error',
-        description: 'WhatsApp number is required.',
-        variant: 'destructive',
-      });
-      return false;
-    }
-
-    // Basic phone number validation
-    const phoneRegex = /^\+\d{10,15}$/;
-    if (!phoneRegex.test(whatsappNumber)) {
-      toast({
-        title: 'Validation Error',
-        description: 'Please enter a valid WhatsApp number with country code (e.g., +234...).',
-        variant: 'destructive',
-      });
-      return false;
-    }
-
-    return true;
-  };
-
   const uploadLogo = async (): Promise<string | null> => {
-    if (!logoFile || !user) return logoPreview;
+    if (!logoFile || !user) return values.logo_url;
 
     try {
       const fileExt = logoFile.name.split('.').pop();
@@ -141,15 +126,16 @@ const Settings = () => {
         .from('product-images')
         .getPublicUrl(data.path);
 
+      logSecurityEvent('Logo uploaded', { userId: user.id, filePath });
       return publicUrl;
     } catch (error) {
-      console.error('Error uploading logo:', error);
+      logSecurityEvent('Logo upload error', { userId: user.id, error });
       toast({
         title: 'Upload Error',
         description: 'Failed to upload logo. Please try again.',
         variant: 'destructive',
       });
-      return logoPreview;
+      return values.logo_url;
     }
   };
 
@@ -161,6 +147,7 @@ const Settings = () => {
       const maxSize = 2 * 1024 * 1024; // 2MB
 
       if (!validTypes.includes(file.type)) {
+        logSecurityEvent('Invalid file type upload attempt', { userId: user?.id, fileType: file.type });
         toast({
           title: 'Invalid file type',
           description: 'Please upload a JPG, PNG, or WebP image.',
@@ -170,6 +157,7 @@ const Settings = () => {
       }
 
       if (file.size > maxSize) {
+        logSecurityEvent('Oversized file upload attempt', { userId: user?.id, fileSize: file.size });
         toast({
           title: 'File too large',
           description: 'Please upload an image smaller than 2MB.',
@@ -188,43 +176,40 @@ const Settings = () => {
   };
 
   const handleSaveSettings = async () => {
-    if (!user || !validateForm()) return;
+    if (!user) return;
 
-    setIsLoading(true);
-    try {
-      // Upload logo if changed
-      const logoUrl = await uploadLogo();
+    await handleSubmit(async (formValues) => {
+      try {
+        // Upload logo if changed
+        const logoUrl = await uploadLogo();
 
-      // Update store settings
-      const { error } = await supabase
-        .from('stores')
-        .update({
-          name: storeName.trim(),
-          whatsapp_number: whatsappNumber.trim(),
-          logo_url: logoUrl,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('vendor_id', user.id);
+        // Update store settings with sanitized data
+        const { error } = await supabase
+          .from('stores')
+          .update({
+            name: formValues.store_name, // Already sanitized by form
+            whatsapp_number: formValues.whatsapp_number,
+            logo_url: logoUrl,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('vendor_id', user.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: 'Success',
-        description: 'Store settings updated successfully!',
-      });
+        logSecurityEvent('Settings updated', { userId: user.id });
+        toast({
+          title: 'Success',
+          description: 'Store settings updated successfully!',
+        });
 
-      // Clear logo file after successful save
-      setLogoFile(null);
-    } catch (error) {
-      console.error('Error saving settings:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to save settings. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
+        // Clear logo file after successful save
+        setLogoFile(null);
+        setValue('logo_url', logoUrl);
+      } catch (error) {
+        logSecurityEvent('Settings update error', { userId: user.id, error });
+        throw error; // Re-throw to be handled by handleSubmit
+      }
+    });
   };
 
   if (isLoadingData) {
@@ -265,12 +250,15 @@ const Settings = () => {
                   <Store className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="storeName"
-                    value={storeName}
-                    onChange={(e) => setStoreName(e.target.value)}
+                    value={values.store_name}
+                    onChange={(e) => setValue('store_name', e.target.value)}
                     placeholder="Enter your store name"
                     className="pl-10"
                     required
                   />
+                  {errors.store_name && (
+                    <p className="text-sm text-red-600 mt-1">{errors.store_name}</p>
+                  )}
                 </div>
               </div>
 
@@ -280,12 +268,15 @@ const Settings = () => {
                   <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="whatsappNumber"
-                    value={whatsappNumber}
-                    onChange={(e) => setWhatsappNumber(e.target.value)}
+                    value={values.whatsapp_number}
+                    onChange={(e) => setValue('whatsapp_number', e.target.value)}
                     placeholder="+234 800 000 0000"
                     className="pl-10"
                     required
                   />
+                  {errors.whatsapp_number && (
+                    <p className="text-sm text-red-600 mt-1">{errors.whatsapp_number}</p>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -354,7 +345,7 @@ const Settings = () => {
             </CardContent>
           </Card>
 
-          {/* Theme Colors - Full width on mobile, spans both columns on larger screens */}
+          {/* Theme Colors */}
           <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -367,9 +358,9 @@ const Settings = () => {
                 {themeColors.map((theme) => (
                   <button
                     key={theme.name}
-                    onClick={() => setSelectedTheme(theme.color)}
+                    onClick={() => setValue('primary_color', theme.color)}
                     className={`relative p-4 rounded-lg border-2 transition-all ${
-                      selectedTheme === theme.color
+                      values.primary_color === theme.color
                         ? 'border-blue-500 ring-2 ring-blue-200'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
@@ -379,7 +370,7 @@ const Settings = () => {
                       style={{ backgroundColor: theme.color }}
                     />
                     <p className="text-xs text-gray-600">{theme.name}</p>
-                    {selectedTheme === theme.color && (
+                    {values.primary_color === theme.color && (
                       <CheckCircle className="absolute top-1 right-1 h-4 w-4 text-blue-600" />
                     )}
                   </button>
@@ -389,16 +380,16 @@ const Settings = () => {
           </Card>
         </div>
 
-        {/* Save Button - Sticky on mobile */}
+        {/* Save Button */}
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 lg:relative lg:bg-transparent lg:border-t-0 lg:p-0 lg:mt-8">
           <div className="max-w-4xl mx-auto">
             <Button
               onClick={handleSaveSettings}
-              disabled={isLoading}
+              disabled={isSubmitting}
               className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white"
               size="lg"
             >
-              {isLoading ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving Settings...
