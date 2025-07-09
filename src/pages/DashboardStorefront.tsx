@@ -1,4 +1,5 @@
 
+
 import DashboardLayout from "@/components/DashboardLayout";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
@@ -103,9 +104,8 @@ const DashboardStorefront = () => {
               </div>
               <div className="flex justify-center">
                 <QRCodeGenerator 
-                  value={storeUrl}
+                  url={storeUrl}
                   size={150}
-                  className="border rounded-lg p-4"
                 />
               </div>
             </div>
@@ -120,3 +120,4 @@ const DashboardStorefront = () => {
 };
 
 export default DashboardStorefront;
+
