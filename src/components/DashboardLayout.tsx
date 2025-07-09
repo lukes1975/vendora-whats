@@ -52,7 +52,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   };
 
   const NavigationItems = ({ onItemClick = () => {} }) => (
-    <nav className="space-y-2">
+    <nav className="space-y-1">
       {navigation.map((item) => {
         const Icon = item.icon;
         const isActive = location.pathname === item.href;
@@ -63,7 +63,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             to={item.href}
             onClick={onItemClick}
             className={cn(
-              'flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+              'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
               isActive
                 ? 'bg-blue-100 text-blue-700'
                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
@@ -80,9 +80,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const UserMenu = ({ onSignOut = handleSignOut }) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="w-full justify-start">
+        <Button variant="ghost" className="w-full justify-start p-2">
           <User className="mr-2 h-4 w-4" />
-          <span className="truncate">{user?.email}</span>
+          <span className="truncate text-sm">{user?.email}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
@@ -98,12 +98,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     return (
       <div className="min-h-screen bg-gray-50">
         {/* Mobile Header */}
-        <header className="bg-white shadow-sm border-b px-4 py-3">
+        <header className="bg-white shadow-sm border-b px-4 py-3 sticky top-0 z-40">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Drawer open={sidebarOpen} onOpenChange={setSidebarOpen}>
                 <DrawerTrigger asChild>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="p-2">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </DrawerTrigger>
@@ -114,7 +114,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                         Vendora
                       </DrawerTitle>
                       <DrawerClose asChild>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="p-2">
                           <X className="h-4 w-4" />
                         </Button>
                       </DrawerClose>
@@ -135,7 +135,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </header>
 
         {/* Mobile Content */}
-        <main className="p-4">
+        <main className="p-4 min-h-[calc(100vh-73px)]">
           {children}
         </main>
       </div>
@@ -167,7 +167,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
       {/* Desktop Content */}
       <div className="pl-64">
-        <main className="p-8">
+        <main className="p-6 lg:p-8 min-h-screen">
           {children}
         </main>
       </div>

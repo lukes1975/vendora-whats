@@ -4,7 +4,9 @@ import { useAutoCreateStore } from "@/hooks/useAutoCreateStore";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
-import StoreUrlCard from "@/components/dashboard/StoreUrlCard";
+import ShareStoreCard from "@/components/dashboard/ShareStoreCard";
+import AnnouncementBanner from "@/components/dashboard/AnnouncementBanner";
+import FirstProductCTA from "@/components/dashboard/FirstProductCTA";
 import EnhancedStatsGrid from "@/components/dashboard/EnhancedStatsGrid";
 import AnalyticsChart from "@/components/dashboard/AnalyticsChart";
 import TopProductsCard from "@/components/dashboard/TopProductsCard";
@@ -20,8 +22,10 @@ const Dashboard = () => {
   const { data: analytics, isLoading: analyticsLoading } = useAnalytics();
 
   const storeUrl = storeData?.slug 
-    ? `vendora.business/store/${storeData.slug}` 
-    : `vendora.business/store/${storeData?.id || 'your-store'}`;
+    ? `https://vendora.business/store/${storeData.slug}` 
+    : `https://vendora.business/store/${storeData?.id || 'your-store'}`;
+
+  const hasProducts = (analytics?.totalProducts || 0) > 0;
 
   if (storeLoading || analyticsLoading) {
     return (
@@ -35,12 +39,18 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 md:space-y-8">
+      <div className="space-y-6 md:space-y-8 pb-24">
+        {/* Announcement Banner */}
+        <AnnouncementBanner />
+
         {/* Welcome Header */}
-        <div className="space-y-4">
-          <WelcomeSection storeName={storeData?.name} />
-          <StoreUrlCard storeUrl={storeUrl} />
-        </div>
+        <WelcomeSection storeName={storeData?.name} />
+
+        {/* Share Store Card */}
+        <ShareStoreCard 
+          storeUrl={storeUrl}
+          storeName={storeData?.name || 'My Store'}
+        />
 
         {/* Enhanced Stats Grid */}
         <EnhancedStatsGrid 
@@ -73,6 +83,9 @@ const Dashboard = () => {
 
         {/* Recent Orders */}
         <RecentOrders orders={stats?.recentOrders || []} />
+
+        {/* First Product CTA for users with no products */}
+        <FirstProductCTA hasProducts={hasProducts} />
       </div>
     </DashboardLayout>
   );
