@@ -95,13 +95,27 @@ export const useAnalytics = () => {
         };
       });
 
-      // Mock low stock products (we'll implement actual stock tracking later)
-      const lowStockProducts = products?.slice(0, 3).map(product => ({
-        id: product.id,
-        name: product.name,
-        stock: Math.floor(Math.random() * 10) + 1,
-        threshold: 5,
-      })) || [];
+      // Get actual low stock products from database
+      // For now, we'll simulate this with a small subset since we don't have actual stock tracking
+      // This will be replaced with real stock data when inventory tracking is implemented
+      const lowStockProducts: Array<{
+        id: string;
+        name: string;
+        stock: number;
+        threshold: number;
+      }> = [];
+
+      // Simulate some low stock products for demo (remove when real inventory is added)
+      if (products && products.length > 0) {
+        const sampleProducts = products.slice(0, 2).map(product => ({
+          id: product.id,
+          name: product.name,
+          stock: Math.floor(Math.random() * 3) + 1, // 1-3 items in stock
+          threshold: 3,
+        })).filter(p => p.stock <= p.threshold);
+        
+        lowStockProducts.push(...sampleProducts);
+      }
 
       return {
         totalRevenue,

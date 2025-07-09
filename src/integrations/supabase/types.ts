@@ -83,6 +83,33 @@ export type Database = {
           },
         ]
       }
+      pro_interest: {
+        Row: {
+          email: string
+          id: string
+          name: string
+          submitted_at: string
+          user_id: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          email: string
+          id?: string
+          name: string
+          submitted_at?: string
+          user_id?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          email?: string
+          id?: string
+          name?: string
+          submitted_at?: string
+          user_id?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: string | null

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Check, ArrowLeft } from 'lucide-react';
+import ProInterestModal from '@/components/dashboard/ProInterestModal';
 
 const Pricing = () => {
   const plans = [
@@ -116,6 +117,23 @@ const Pricing = () => {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Pro Interest Collection */}
+        <div className="mt-12 text-center">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-8 mx-auto max-w-3xl">
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">
+              Want to be first in line for Pro features?
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Get notified as soon as advanced features like custom branding, inventory tracking, and WhatsApp automation become available.
+            </p>
+            <ProInterestModal>
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                Get Early Access to Pro
+              </Button>
+            </ProInterestModal>
+          </div>
         </div>
 
         {/* Bottom CTA */}

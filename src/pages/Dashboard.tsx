@@ -14,6 +14,9 @@ import LowStockAlert from "@/components/dashboard/LowStockAlert";
 import QuickActions from "@/components/dashboard/QuickActions";
 import RecentOrders from "@/components/dashboard/RecentOrders";
 import EarlyAccessBadge from "@/components/dashboard/EarlyAccessBadge";
+import UsageMeter from "@/components/dashboard/UsageMeter";
+import ProInterestModal from "@/components/dashboard/ProInterestModal";
+import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
   // Auto-create store if needed
@@ -66,6 +69,9 @@ const Dashboard = () => {
           avgOrderValue={analytics?.avgOrderValue || 0}
         />
 
+        {/* Usage Meter */}
+        <UsageMeter totalProducts={analytics?.totalProducts || 0} />
+
         {/* Analytics Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <AnalyticsChart 
@@ -82,6 +88,21 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <TopProductsCard products={analytics?.topProducts || []} />
           <LowStockAlert products={analytics?.lowStockProducts || []} />
+        </div>
+
+        {/* Pro Interest Collection */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Ready for more advanced features?
+          </h3>
+          <p className="text-gray-600 mb-4">
+            Get notified when Pro plans with advanced inventory, automation, and analytics become available.
+          </p>
+          <ProInterestModal>
+            <Button variant="outline">
+              Want Pro features after Early Access?
+            </Button>
+          </ProInterestModal>
         </div>
 
         {/* Quick Actions */}

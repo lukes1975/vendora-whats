@@ -14,8 +14,12 @@ interface LowStockAlertProps {
 }
 
 const LowStockAlert = ({ products }: LowStockAlertProps) => {
-  const lowStockItems = products.filter(product => product.stock <= product.threshold);
+  // Filter products that are actually low in stock (stock <= threshold)
+  const lowStockItems = products.filter(product => 
+    product.stock <= product.threshold && product.stock > 0
+  );
 
+  // Don't render anything if no products are low in stock
   if (lowStockItems.length === 0) {
     return null;
   }
@@ -25,7 +29,7 @@ const LowStockAlert = ({ products }: LowStockAlertProps) => {
       <CardHeader>
         <CardTitle className="text-sm font-medium flex items-center">
           <AlertTriangle className="h-4 w-4 text-orange-500 mr-2" />
-          Low Stock Alert
+          Low Stock Alert ({lowStockItems.length})
         </CardTitle>
       </CardHeader>
       <CardContent>
