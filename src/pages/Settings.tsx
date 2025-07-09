@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
+import UpgradePlanButton from '@/components/dashboard/UpgradePlanButton';
 import { useSecureForm, commonValidationRules } from '@/hooks/useSecureForm';
 import { sanitizeTextInput, logSecurityEvent } from '@/utils/security';
 import { 
@@ -229,8 +230,15 @@ const Settings = () => {
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Store Settings</h1>
-          <p className="text-gray-600">Customize your storefront information and branding</p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Store Settings</h1>
+              <p className="text-gray-600">Customize your storefront information and branding</p>
+            </div>
+            <div className="sm:hidden">
+              <UpgradePlanButton />
+            </div>
+          </div>
         </div>
 
         {/* Settings Form */}

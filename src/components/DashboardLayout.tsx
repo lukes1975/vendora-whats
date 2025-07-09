@@ -29,6 +29,7 @@ import {
   DrawerTrigger,
   DrawerClose,
 } from '@/components/ui/drawer';
+import UpgradePlanButton from '@/components/dashboard/UpgradePlanButton';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -130,7 +131,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               </Drawer>
               <h1 className="text-lg font-bold text-blue-600">Vendora</h1>
             </div>
-            <UserMenu />
+            <div className="flex items-center space-x-2">
+              <UpgradePlanButton />
+              <UserMenu />
+            </div>
           </div>
         </header>
 
@@ -167,6 +171,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
       {/* Desktop Content */}
       <div className="pl-64">
+        {/* Desktop Header with Upgrade Button */}
+        <header className="bg-white border-b px-6 py-4">
+          <div className="flex justify-end">
+            <UpgradePlanButton />
+          </div>
+        </header>
+        
         <main className="p-6 lg:p-8 min-h-screen">
           {children}
         </main>

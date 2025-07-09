@@ -13,6 +13,7 @@ import TopProductsCard from "@/components/dashboard/TopProductsCard";
 import LowStockAlert from "@/components/dashboard/LowStockAlert";
 import QuickActions from "@/components/dashboard/QuickActions";
 import RecentOrders from "@/components/dashboard/RecentOrders";
+import EarlyAccessBadge from "@/components/dashboard/EarlyAccessBadge";
 
 const Dashboard = () => {
   // Auto-create store if needed
@@ -42,6 +43,11 @@ const Dashboard = () => {
       <div className="space-y-6 md:space-y-8 pb-24">
         {/* Announcement Banner */}
         <AnnouncementBanner />
+
+        {/* Early Access Badge */}
+        <div className="flex justify-center sm:justify-start">
+          <EarlyAccessBadge />
+        </div>
 
         {/* Welcome Header */}
         <WelcomeSection storeName={storeData?.name} />
