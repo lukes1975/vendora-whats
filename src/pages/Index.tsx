@@ -8,23 +8,23 @@ const Index = () => {
   const features = [
     {
       icon: Store,
-      title: "Your Own Storefront",
-      description: "Get a beautiful, customizable storefront that showcases your products professionally"
+      title: "Professional Brand Page",
+      description: "Show your story, showcase products, and give customers a reason to choose you over the competition"
     },
     {
       icon: MessageSquare,
-      title: "WhatsApp Orders",
-      description: "Customers order directly through WhatsApp - no complex checkout process needed"
+      title: "WhatsApp-First Selling",
+      description: "Your storefront prepares buyers, then they DM you to close. No complex websites — just better conversations"
     },
     {
       icon: Users,
-      title: "Multi-Vendor Platform",
-      description: "Join a thriving marketplace of sellers or build your independent brand"
+      title: "Business Status Upgrade",
+      description: "Stop looking like a side hustle. Start operating like the professional business you're building"
     },
     {
       icon: Zap,
-      title: "Quick Setup",
-      description: "Get your store online in minutes, not days. Start selling immediately"
+      title: "Always-On Presence",
+      description: "Even while you sleep, your business works — with a link that sells your story and value 24/7"
     }
   ];
 
@@ -54,17 +54,17 @@ const Index = () => {
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            Build Your Dream
-            <span className="text-blue-600 block">Storefront Today</span>
+            From Hustler to
+            <span className="text-blue-600 block">Professional Brand</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Create a professional online store in minutes. Let customers order directly through WhatsApp. 
-            Join thousands of successful sellers on Vendora.
+            Sell like a pro while keeping WhatsApp at the center. Get a branded storefront that 
+            prepares buyers before they DM you — so every conversation closes faster.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register">
               <Button size="lg" className="text-lg px-8 py-3">
-                Start Selling Free
+                Build Your Brand Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -82,10 +82,10 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Everything You Need to Succeed
+              Sell with Structure, Build with Style
             </h2>
             <p className="text-xl text-gray-600">
-              Powerful features designed for modern sellers
+              Transform your hustle into a professional business
             </p>
           </div>
           
@@ -111,14 +111,14 @@ const Index = () => {
       <section className="py-20 bg-gradient-to-r from-blue-600 to-green-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Ready to Start Your Success Story?
+            Stop Waiting. Start Building.
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Join over 10,000 sellers who've built their business with Vendora
+            You're no longer just selling from your phone. Now you're running a business that looks global.
           </p>
           <Link to="/register">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
-              Create Your Store Now
+              Build Your Professional Brand
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
