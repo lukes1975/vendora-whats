@@ -30,6 +30,7 @@ const Pricing = () => {
       price: '₦3,000–₦5,000',
       period: 'mo',
       features: [
+        'Unlimited products'
         'Custom theme color/logo',
         'Smart inventory tracking',
         'WhatsApp automation',
