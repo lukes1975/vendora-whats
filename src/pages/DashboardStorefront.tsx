@@ -1,3 +1,4 @@
+
 import DashboardLayout from "@/components/DashboardLayout";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Store, Users, MessageSquare } from "lucide-react";
-import { QRCodeGenerator } from "@/components/QRCodeGenerator";
+import QRCodeGenerator from "@/components/QRCodeGenerator";
 import WhatsAppTemplates from "@/components/dashboard/WhatsAppTemplates";
 
 const DashboardStorefront = () => {
