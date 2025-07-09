@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare } from "lucide-react";
+import { generateSecureWhatsAppUrl } from "@/utils/security";
 
 interface Product {
   id: string;
@@ -33,9 +34,18 @@ const ProductCard = ({ product, store }: ProductCardProps) => {
   const generateWhatsAppLink = () => {
     if (!store?.whatsapp_number) return '#';
     
-    const message = `Hi ${store.name}! I'm interested in your ${product.name} for ₦${product.price.toLocaleString()}. Can you tell me more about it?`;
-    const cleanPhone = store.whatsapp_number.replace(/\D/g, '');
-    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    try {
+      const message = `Hi ${store.name}! I'm interested in your ${product.name} for ₦${product.price.toLocaleString()}. Can you tell me more about it?`;
+      return generateSecureWhatsAppUrl(store.whatsapp_number, message);
+    } catch (error) {
+      console.error('Error generating WhatsApp URL:', error);
+      return '#';
+    }
+  };
+
+  const handleWhatsAppClick = () => {
+    // Track WhatsApp engagement (this could be sent to analytics)
+    console.log('WhatsApp clicked for product:', product.name);
   };
 
   return (
@@ -63,6 +73,7 @@ const ProductCard = ({ product, store }: ProductCardProps) => {
           target="_blank"
           rel="noopener noreferrer"
           className="block"
+          onClick={handleWhatsAppClick}
         >
           <Button className="w-full bg-green-600 hover:bg-green-700">
             <MessageSquare className="mr-2 h-4 w-4" />
