@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -42,24 +41,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
       setLoading(false);
       
-      // Call welcome email function after successful signup
-      if (event === 'SIGNED_UP' && session?.user) {
-        console.log('New user signed up, sending welcome email');
-        try {
-          const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
-            body: {
-              email: session.user.email,
-              fullName: session.user.user_metadata?.full_name || session.user.user_metadata?.name || ''
+      // Call welcome email function after successful signup/signin for new users
+      // We check if this is a new user by looking at the created_at timestamp
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
+        const userCreatedAt = new Date(session.user.created_at);
+        const now = new Date();
+        const timeDiff = now.getTime() - userCreatedAt.getTime();
+        const isNewUser = timeDiff < 60000; // User created within last minute
+        
+        if (isNewUser) {
+          console.log('New user detected, sending welcome email');
+          try {
+            const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
+              body: {
+                email: session.user.email,
+                fullName: session.user.user_metadata?.full_name || session.user.user_metadata?.name || ''
+              }
+            });
+            
+            if (emailError) {
+              console.error('Error sending welcome email:', emailError);
+            } else {
+              console.log('Welcome email sent successfully');
             }
-          });
-          
-          if (emailError) {
-            console.error('Error sending welcome email:', emailError);
-          } else {
-            console.log('Welcome email sent successfully');
+          } catch (error) {
+            console.error('Exception sending welcome email:', error);
           }
-        } catch (error) {
-          console.error('Exception sending welcome email:', error);
         }
       }
     });
