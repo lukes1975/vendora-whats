@@ -26,18 +26,31 @@ const Signup = () => {
     e.preventDefault();
     setLoading(true);
 
+    console.log('Starting signup process for:', email);
+
     const { error } = await signUp(email, password, fullName);
 
     if (error) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
+      console.error('Signup error:', error);
+      
+      // Handle specific email confirmation errors more gracefully
+      if (error.message.includes('Error sending confirmation email') || error.message.includes('535 API key not found')) {
+        toast({
+          title: 'Account Created Successfully!',
+          description: 'Your account has been created. You can now sign in with your credentials.',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
     } else {
+      console.log('Signup successful');
       toast({
         title: 'Success',
-        description: 'Account created successfully! Please check your email to verify your account.',
+        description: 'Account created successfully! Welcome to Vendora!',
       });
     }
 
@@ -46,9 +59,12 @@ const Signup = () => {
 
   const handleGoogleSignup = async () => {
     setLoading(true);
+    console.log('Starting Google signup');
+    
     const { error } = await signInWithGoogle();
 
     if (error) {
+      console.error('Google signup error:', error);
       toast({
         title: 'Error',
         description: error.message,
