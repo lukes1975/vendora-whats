@@ -87,7 +87,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string, fullName?: string) => {
     console.log('Signing up user:', email, 'with name:', fullName);
     
-    // Sign up without email confirmation to avoid the RESEND_API_KEY issue
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -95,8 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         data: {
           full_name: fullName,
         },
-        // Disable email confirmation to avoid the API key error
-        emailRedirectTo: undefined,
+        emailRedirectTo: `${window.location.origin}/dashboard`,
       },
     });
     
