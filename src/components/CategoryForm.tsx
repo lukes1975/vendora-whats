@@ -239,4 +239,6 @@ export function CategoryForm({ open, onOpenChange, category, onSuccess }: Catego
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default CategoryForm;
