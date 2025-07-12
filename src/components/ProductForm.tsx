@@ -155,7 +155,7 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
         image_url: uploadedImageUrl,
         vendor_id: user.id,
         store_id: storeId,
-        category_id: data.category_id || null,
+        category_id: data.category_id === "none" ? null : data.category_id || null,
       };
 
       if (product) {
@@ -239,12 +239,12 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
 
           <div className="grid gap-2">
             <Label htmlFor="category">Category (Optional)</Label>
-            <Select onValueChange={(value) => setValue("category_id", value)} value={product?.category_id || ""}>
+            <Select onValueChange={(value) => setValue("category_id", value)} value={product?.category_id || "none"}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No Category</SelectItem>
+                <SelectItem value="none">No Category</SelectItem>
                 {parentCategories.map((parent) => {
                   const subcategories = getSubcategories(parent.id);
                   return (
