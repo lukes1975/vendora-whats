@@ -9,7 +9,8 @@ import {
   LogOut, 
   Home,
   BarChart3,
-  Store
+  Store,
+  FolderOpen
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -36,6 +37,7 @@ const DashboardLayout = ({ children }: { children?: React.ReactNode }) => {
   const navItems = [
     { icon: Home, label: 'Business Hub', path: '/dashboard' },
     { icon: Package, label: 'Your Storefront Items', path: '/dashboard/products' },
+    { icon: FolderOpen, label: 'Product Categories', path: '/dashboard/categories' },
     { icon: Store, label: 'View Your Storefront', path: '/dashboard/storefront' },
     { icon: BarChart3, label: 'Views & WhatsApp Clicks', path: '/dashboard/analytics' },
     { icon: Settings, label: 'Customize Your Brand', path: '/dashboard/settings' },

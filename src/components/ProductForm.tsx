@@ -3,12 +3,20 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import ImageUpload from "@/components/ImageUpload";
 import {
@@ -24,6 +32,7 @@ const productSchema = z.object({
   price: z.number().min(0.01, "Price must be greater than 0"),
   description: z.string().optional(),
   image_url: z.string().optional(),
+  category_id: z.string().optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -38,6 +47,7 @@ interface ProductFormProps {
     description: string;
     image_url: string;
     store_id: string;
+    category_id?: string;
   } | null;
   onSuccess: () => void;
 }
@@ -60,8 +70,33 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
       price: product?.price || 0,
       description: product?.description || "",
       image_url: product?.image_url || "",
+      category_id: product?.category_id || "",
     },
   });
+
+  // Fetch categories for selection
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      
+      const { data, error } = await supabase
+        .from("categories")
+        .select("id, name, parent_id")
+        .eq("vendor_id", user.id)
+        .eq("is_active", true)
+        .order("name");
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id && open,
+  });
+
+  // Organize categories by hierarchy for display
+  const parentCategories = categories.filter(cat => !cat.parent_id);
+  const getSubcategories = (parentId: string) => 
+    categories.filter(cat => cat.parent_id === parentId);
 
   const onSubmit = async (data: ProductFormData) => {
     if (!user?.id) {
@@ -120,6 +155,7 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
         image_url: uploadedImageUrl,
         vendor_id: user.id,
         store_id: storeId,
+        category_id: data.category_id || null,
       };
 
       if (product) {
@@ -199,6 +235,33 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
             {errors.description && (
               <p className="text-sm text-red-500">{errors.description.message}</p>
             )}
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="category">Category (Optional)</Label>
+            <Select onValueChange={(value) => setValue("category_id", value)} value={product?.category_id || ""}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">No Category</SelectItem>
+                {parentCategories.map((parent) => {
+                  const subcategories = getSubcategories(parent.id);
+                  return (
+                    <div key={parent.id}>
+                      <SelectItem value={parent.id} className="font-semibold">
+                        {parent.name}
+                      </SelectItem>
+                      {subcategories.map((sub) => (
+                        <SelectItem key={sub.id} value={sub.id} className="pl-6">
+                          └ {sub.name}
+                        </SelectItem>
+                      ))}
+                    </div>
+                  );
+                })}
+              </SelectContent>
+            </Select>
           </div>
 
           <ImageUpload

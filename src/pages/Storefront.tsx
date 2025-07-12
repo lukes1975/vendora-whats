@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,7 @@ import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import StoreProfile from "@/components/storefront/StoreProfile";
 import ProductGrid from "@/components/storefront/ProductGrid";
 import StorefrontFooter from "@/components/storefront/StorefrontFooter";
+import { CategoryFilter } from "@/components/storefront/CategoryFilter";
 import { seedDummyProductsWithImages } from "@/utils/seedImages";
 
 interface Store {
@@ -33,6 +34,7 @@ interface Product {
 
 const Storefront = () => {
   const { storeId } = useParams();
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
   // Fetch store data by slug
   const { data: store, isLoading: storeLoading } = useQuery({
@@ -57,18 +59,53 @@ const Storefront = () => {
     enabled: !!storeId,
   });
 
+  // Fetch categories
+  const { data: categories = [] } = useQuery({
+    queryKey: ["storefront-categories", store?.vendor_id],
+    queryFn: async () => {
+      if (!store?.vendor_id) return [];
+      
+      const { data, error } = await supabase
+        .from("categories")
+        .select(`
+          id, 
+          name, 
+          parent_id,
+          products(count)
+        `)
+        .eq("vendor_id", store.vendor_id)
+        .eq("is_active", true)
+        .order("name");
+
+      if (error) throw error;
+      
+      return data.map(cat => ({
+        ...cat,
+        product_count: cat.products?.[0]?.count || 0
+      }));
+    },
+    enabled: !!store?.vendor_id,
+  });
+
   // Fetch products for this store
   const { data: products = [], isLoading: productsLoading } = useQuery({
-    queryKey: ['store-products', store?.id],
+    queryKey: ['store-products', store?.id, selectedCategory],
     queryFn: async () => {
       if (!store?.id) return [];
       
-      const { data, error } = await supabase
+      let query = supabase
         .from('products')
         .select('*')
         .eq('store_id', store.id)
         .eq('status', 'active')
         .order('created_at', { ascending: false });
+
+      // Add category filter if selected
+      if (selectedCategory) {
+        query = query.eq('category_id', selectedCategory);
+      }
+      
+      const { data, error } = await query;
       
       if (error) {
         console.error('Error fetching products:', error);
@@ -143,6 +180,17 @@ const Storefront = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">What We Offer</h2>
           <p className="text-gray-600">See what catches your eye, then DM us to buy</p>
         </div>
+
+        {/* Category Filter */}
+        {categories.length > 0 && (
+          <div className="mb-6">
+            <CategoryFilter
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+            />
+          </div>
+        )}
 
         <ProductGrid 
           products={products} 

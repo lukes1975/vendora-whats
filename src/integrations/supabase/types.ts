@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          parent_id: string | null
+          sort_order: number | null
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          parent_id?: string | null
+          sort_order?: number | null
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          parent_id?: string | null
+          sort_order?: number | null
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           created_at: string | null
@@ -113,6 +157,7 @@ export type Database = {
       products: {
         Row: {
           category: string | null
+          category_id: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -128,6 +173,7 @@ export type Database = {
         }
         Insert: {
           category?: string | null
+          category_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -143,6 +189,7 @@ export type Database = {
         }
         Update: {
           category?: string | null
+          category_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -157,6 +204,13 @@ export type Database = {
           whatsapp_clicks?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "products_store_id_fkey"
             columns: ["store_id"]
