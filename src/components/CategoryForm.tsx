@@ -69,7 +69,7 @@ export function CategoryForm({ open, onOpenChange, category, onSuccess }: Catego
     defaultValues: {
       name: category?.name || "",
       description: category?.description || "",
-      parent_id: category?.parent_id || "",
+      parent_id: category?.parent_id || "none",
     },
   });
 
@@ -100,7 +100,7 @@ export function CategoryForm({ open, onOpenChange, category, onSuccess }: Catego
         vendor_id: user.id,
         name: data.name,
         description: data.description || null,
-        parent_id: data.parent_id || null,
+        parent_id: data.parent_id === "none" ? null : data.parent_id || null,
       };
 
       if (category) {
@@ -188,7 +188,7 @@ export function CategoryForm({ open, onOpenChange, category, onSuccess }: Catego
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">No Parent (Top Level)</SelectItem>
+                      <SelectItem value="none">No Parent (Top Level)</SelectItem>
                       {availableParentCategories
                         .filter((cat) => !cat.parent_id)
                         .map((cat) => (
