@@ -58,7 +58,7 @@ interface CategoryFormProps {
   onSuccess: () => void;
 }
 
-export function CategoryForm({ open, onOpenChange, category, onSuccess }: CategoryFormProps) {
+function CategoryForm({ open, onOpenChange, category, onSuccess }: CategoryFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
