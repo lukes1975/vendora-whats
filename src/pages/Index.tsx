@@ -42,7 +42,7 @@ const Index = () => {
               <Link to="/login">
                 <Button variant="ghost">Sign In</Button>
               </Link>
-              <Link to="/register">
+              <Link to="/signup">
                 <Button>Get Started</Button>
               </Link>
             </div>
@@ -62,13 +62,13 @@ const Index = () => {
             prepares buyers before they DM you — so every conversation closes faster.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register">
+            <Link to="/signup">
               <Button size="lg" className="text-lg px-8 py-3">
-                Build Your Brand Free
+                Start Selling Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link to="/demo">
+            <Link to="/demo-store">
               <Button variant="outline" size="lg" className="text-lg px-8 py-3">
                 View Demo Store
               </Button>
@@ -116,9 +116,9 @@ const Index = () => {
           <p className="text-xl text-blue-100 mb-8">
             You're no longer just selling from your phone. Now you're running a business that looks global.
           </p>
-          <Link to="/register">
+          <Link to="/signup">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
-              Build Your Professional Brand
+              Create Your Store Now
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
