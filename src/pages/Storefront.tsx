@@ -32,20 +32,26 @@ interface Product {
   status: string;
 }
 
-const Storefront = () => {
+interface StorefrontProps {
+  storeSlug?: string;
+}
+
+const Storefront = ({ storeSlug }: StorefrontProps = {}) => {
   const { storeId } = useParams();
+  // Use storeSlug prop if provided, otherwise fall back to URL param
+  const currentStoreId = storeSlug || storeId;
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
   // Fetch store data by slug
   const { data: store, isLoading: storeLoading } = useQuery({
-    queryKey: ['store', storeId],
+    queryKey: ['store', currentStoreId],
     queryFn: async () => {
-      if (!storeId) return null;
+      if (!currentStoreId) return null;
       
       const { data, error } = await supabase
         .from('stores')
         .select('*')
-        .eq('slug', storeId)
+        .eq('slug', currentStoreId)
         .eq('is_active', true)
         .maybeSingle();
       
@@ -56,7 +62,7 @@ const Storefront = () => {
       
       return data as Store | null;
     },
-    enabled: !!storeId,
+    enabled: !!currentStoreId,
   });
 
   // Fetch categories
