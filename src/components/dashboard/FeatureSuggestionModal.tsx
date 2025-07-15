@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSecureAuth } from "@/contexts/SecureAuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
@@ -21,7 +21,7 @@ interface FeatureSuggestionModalProps {
 export const FeatureSuggestionModal = ({ isOpen, onClose }: FeatureSuggestionModalProps) => {
   const [suggestion, setSuggestion] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useSecureAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
