@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
+import { Edit } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface StorefrontFABProps {
@@ -14,9 +14,9 @@ const StorefrontFAB = ({ show }: StorefrontFABProps) => {
       <Link to="/dashboard">
         <Button 
           size="lg" 
-          className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 border-2 border-background"
+          className="h-14 w-14 rounded-full shadow-xl bg-blue-600 hover:bg-blue-700 text-white border-2 border-background"
         >
-          <Settings className="h-6 w-6" />
+          <Edit className="h-6 w-6" />
         </Button>
       </Link>
     </div>
