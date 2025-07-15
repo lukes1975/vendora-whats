@@ -39,9 +39,9 @@ interface StorefrontProps {
 }
 
 const Storefront = ({ storeSlug }: StorefrontProps = {}) => {
-  const { storeId } = useParams();
-  // Use storeSlug prop if provided, otherwise fall back to URL param
-  const currentStoreId = storeSlug || storeId;
+  const { storeId, storeSlug: urlStoreSlug } = useParams();
+  // Use storeSlug prop if provided, or URL storeSlug param, or fall back to legacy storeId
+  const currentStoreId = storeSlug || urlStoreSlug || storeId;
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
   // Fetch store data by slug

@@ -26,8 +26,8 @@ const Dashboard = () => {
   const { data: analytics, isLoading: analyticsLoading } = useAnalytics();
 
   const storeUrl = storeData?.slug 
-    ? `https://vendora.business/store/${storeData.slug}` 
-    : `https://vendora.business/store/${storeData?.id || 'your-store'}`;
+    ? `https://vendora.business/${storeData.slug}` 
+    : `https://vendora.business/${storeData?.id || 'your-store'}`;
 
   const hasProducts = (analytics?.totalProducts || 0) > 0;
 

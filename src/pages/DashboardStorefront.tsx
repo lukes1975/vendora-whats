@@ -57,8 +57,8 @@ const DashboardStorefront = () => {
   }
 
   const storeUrl = store.slug 
-    ? `${window.location.origin}/store/${store.slug}`
-    : `${window.location.origin}/store/${store.id}`;
+    ? `${window.location.origin}/${store.slug}`
+    : `${window.location.origin}/${store.id}`;
 
   return (
     <DashboardLayout>

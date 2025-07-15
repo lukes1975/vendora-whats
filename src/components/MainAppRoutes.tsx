@@ -73,6 +73,8 @@ const MainAppRoutes = () => {
       {/* Legacy path-based store routing for development */}
       <Route path="/store/:storeId" element={<Storefront />} />
       <Route path="/demo-store" element={<Storefront />} />
+      {/* Dynamic store routing - must be last to avoid conflicts */}
+      <Route path="/:storeSlug" element={<Storefront />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
