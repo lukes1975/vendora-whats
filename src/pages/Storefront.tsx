@@ -9,8 +9,10 @@ import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import StoreProfile from "@/components/storefront/StoreProfile";
 import ProductGrid from "@/components/storefront/ProductGrid";
 import StorefrontFooter from "@/components/storefront/StorefrontFooter";
+import StorefrontFAB from "@/components/storefront/StorefrontFAB";
 import { CategoryFilter } from "@/components/storefront/CategoryFilter";
 import { seedDummyProductsWithImages } from "@/utils/seedImages";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Store {
   id: string;
@@ -155,41 +157,44 @@ const Storefront = ({ storeSlug }: StorefrontProps = {}) => {
 
   if (storeLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   if (!store) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Storefront Not Found</h1>
-          <p className="text-gray-600 mb-4">The business you're looking for doesn't exist or is not active.</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center px-4">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Storefront Not Found</h1>
+          <p className="text-muted-foreground mb-4">The business you're looking for doesn't exist or is not active.</p>
           <Link to="/">
-            <Button>Go to Homepage</Button>
+            <Button className="rounded-full">Go to Homepage</Button>
           </Link>
         </div>
       </div>
     );
   }
 
+  const { user } = useAuth();
+  const isOwner = user && store && user.id === store.vendor_id;
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <StorefrontHeader onShare={shareStore} />
+    <div className="min-h-screen bg-background">
+      <StorefrontHeader onShare={shareStore} store={store} />
       <StoreProfile store={store} />
       
       {/* Products Section */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">What We Offer</h2>
-          <p className="text-gray-600">See what catches your eye, then DM us to buy</p>
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8 pb-8 sm:pb-12">
+        <div className="mb-6 sm:mb-8 pt-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2 leading-tight">What We Offer</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">See what catches your eye, then DM us to buy</p>
         </div>
 
         {/* Category Filter */}
         {categories.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <CategoryFilter
               categories={categories}
               selectedCategory={selectedCategory}
@@ -206,6 +211,7 @@ const Storefront = ({ storeSlug }: StorefrontProps = {}) => {
       </div>
 
       <StorefrontFooter />
+      <StorefrontFAB show={isOwner} />
     </div>
   );
 };

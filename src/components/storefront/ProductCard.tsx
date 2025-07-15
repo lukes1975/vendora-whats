@@ -31,7 +31,7 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, store }: ProductCardProps) => {
-  const generateWhatsAppLink = () => {
+  const generateWhatsAppUrl = () => {
     if (!store?.whatsapp_number) return '#';
     
     try {
@@ -49,33 +49,33 @@ const ProductCard = ({ product, store }: ProductCardProps) => {
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-200">
-      <div className="aspect-square overflow-hidden rounded-t-lg">
+    <Card className="group hover:shadow-lg transition-all duration-300 rounded-2xl border-border/50">
+      <div className="aspect-square overflow-hidden rounded-t-2xl">
         <img
           src={product.image_url || "/placeholder.svg"}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
       </div>
-      <CardHeader>
-        <CardTitle className="text-lg">{product.name}</CardTitle>
-        <CardDescription>{product.description}</CardDescription>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base sm:text-lg font-semibold leading-tight">{product.name}</CardTitle>
+        <CardDescription className="text-sm leading-relaxed">{product.description}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         <div className="flex justify-between items-center mb-4">
-          <span className="text-2xl font-bold text-green-600">
+          <span className="text-xl sm:text-2xl font-bold text-green-600">
             ₦{product.price.toLocaleString()}
           </span>
-          <Badge variant="secondary">In Stock</Badge>
+          <Badge variant="secondary" className="rounded-full">In Stock</Badge>
         </div>
         <a
-          href={generateWhatsAppLink()}
+          href={generateWhatsAppUrl()}
           target="_blank"
           rel="noopener noreferrer"
           className="block"
           onClick={handleWhatsAppClick}
         >
-          <Button className="w-full bg-green-600 hover:bg-green-700">
+          <Button className="w-full bg-green-600 hover:bg-green-700 text-white rounded-full">
             <MessageSquare className="mr-2 h-4 w-4" />
             DM to Buy
           </Button>
