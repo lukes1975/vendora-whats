@@ -21,6 +21,7 @@ interface FeatureSuggestionModalProps {
 export const FeatureSuggestionModal = ({ isOpen, onClose }: FeatureSuggestionModalProps) => {
   const [suggestion, setSuggestion] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Using the correct useAuth hook from AuthContext
   const { user } = useAuth();
   const { toast } = useToast();
 
