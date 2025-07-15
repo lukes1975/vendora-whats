@@ -58,6 +58,27 @@ export type Database = {
           },
         ]
       }
+      feature_suggestions: {
+        Row: {
+          id: string
+          submitted_at: string
+          suggestion_text: string
+          vendor_id: string
+        }
+        Insert: {
+          id?: string
+          submitted_at?: string
+          suggestion_text: string
+          vendor_id: string
+        }
+        Update: {
+          id?: string
+          submitted_at?: string
+          suggestion_text?: string
+          vendor_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           created_at: string | null

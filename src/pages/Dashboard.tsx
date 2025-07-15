@@ -16,6 +16,7 @@ import RecentOrders from "@/components/dashboard/RecentOrders";
 import EarlyAccessBadge from "@/components/dashboard/EarlyAccessBadge";
 import UsageMeter from "@/components/dashboard/UsageMeter";
 import ProInterestModal from "@/components/dashboard/ProInterestModal";
+import { UpcomingFeatures } from "@/components/dashboard/UpcomingFeatures";
 import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
@@ -110,6 +111,9 @@ const Dashboard = () => {
 
         {/* Recent Orders */}
         <RecentOrders orders={stats?.recentOrders || []} />
+
+        {/* Upcoming Features */}
+        <UpcomingFeatures />
 
         {/* First Product CTA for users with no products */}
         <FirstProductCTA hasProducts={hasProducts} />
