@@ -106,6 +106,7 @@ const DashboardStorefront = () => {
                 <QRCodeGenerator 
                   url={storeUrl}
                   size={150}
+                  storeName={store.name}
                 />
               </div>
             </div>

@@ -8,9 +8,10 @@ import QRCodeGenerator from "@/components/QRCodeGenerator";
 
 interface StoreUrlCardProps {
   storeUrl: string;
+  storeName?: string;
 }
 
-const StoreUrlCard = ({ storeUrl }: StoreUrlCardProps) => {
+const StoreUrlCard = ({ storeUrl, storeName }: StoreUrlCardProps) => {
   const [showQR, setShowQR] = useState(false);
 
   const copyStoreUrl = () => {
@@ -49,7 +50,7 @@ const StoreUrlCard = ({ storeUrl }: StoreUrlCardProps) => {
         </div>
         {showQR && (
           <div className="flex justify-center pt-4 border-t">
-            <QRCodeGenerator url={`https://${storeUrl}`} />
+            <QRCodeGenerator url={`https://${storeUrl}`} storeName={storeName} />
           </div>
         )}
       </CardContent>

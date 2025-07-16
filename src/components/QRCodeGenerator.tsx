@@ -1,13 +1,26 @@
 
 import { useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
 
 interface QRCodeGeneratorProps {
   url: string;
   size?: number;
+  storeName?: string;
 }
 
-const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url, size = 200 }) => {
+const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url, size = 200, storeName = 'Store' }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const downloadQRCode = () => {
+    if (!canvasRef.current) return;
+    
+    const canvas = canvasRef.current;
+    const link = document.createElement('a');
+    link.download = `vendora-store-${storeName.toLowerCase().replace(/\s+/g, '-')}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
   
   useEffect(() => {
     const generateQR = async () => {
@@ -45,16 +58,27 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url, size = 200 }) =>
   }, [url, size]);
 
   return (
-    <div className="flex flex-col items-center space-y-2">
+    <div className="flex flex-col items-center space-y-3">
       <canvas 
         ref={canvasRef} 
         className="border rounded-lg shadow-sm"
         width={size}
         height={size}
       />
-      <p className="text-xs text-gray-600 text-center max-w-[200px] break-all">
-        Scan to visit store
-      </p>
+      <div className="flex flex-col items-center space-y-2">
+        <p className="text-xs text-gray-600 text-center max-w-[200px] break-all">
+          Scan to visit store
+        </p>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={downloadQRCode}
+          className="text-xs"
+        >
+          <Download className="h-3 w-3 mr-1" />
+          Download QR Code
+        </Button>
+      </div>
     </div>
   );
 };
