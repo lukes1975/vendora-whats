@@ -30,21 +30,39 @@ export const SecureAuthProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isSessionValid, setIsSessionValid] = useState(false);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
-        logSecurityEvent('Session retrieval error', error);
+    let mounted = true;
+    
+    // Get initial session and handle it properly
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          logSecurityEvent('Session retrieval error', error);
+        }
+        
+        if (mounted) {
+          setUser(session?.user ?? null);
+          setIsSessionValid(!!session && !error);
+          setLoading(false);
+        }
+      } catch (error) {
+        logSecurityEvent('Failed to get initial session', error);
+        if (mounted) {
+          setUser(null);
+          setIsSessionValid(false);
+          setLoading(false);
+        }
       }
-      
-      setUser(session?.user ?? null);
-      setIsSessionValid(!!session && !error);
-      setLoading(false);
-    });
+    };
+
+    initializeAuth();
 
     // Listen for auth changes with enhanced security logging
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
+      
       logSecurityEvent('Auth state change', { event, userId: session?.user?.id });
       
       setUser(session?.user ?? null);
@@ -61,7 +79,10 @@ export const SecureAuthProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

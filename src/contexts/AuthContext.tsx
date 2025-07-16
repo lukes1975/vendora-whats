@@ -26,36 +26,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    let mounted = true;
+    
+    // Get initial session and handle it properly
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        if (mounted) {
+          console.log('Initial session:', session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to get initial session:', error);
+        if (mounted) {
+          setUser(null);
+          setLoading(false);
+        }
+      }
+    };
 
-    // Listen for auth changes
+    initializeAuth();
+
+    // Listen for auth changes - CRITICAL: Do not make this callback async
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
+      
       console.log('Auth state change:', event, session?.user?.id);
       setUser(session?.user ?? null);
-      setLoading(false);
       
-      // Check for first login and send welcome email
+      // Defer the welcome email to avoid blocking auth state updates
       if (event === 'SIGNED_IN' && session?.user) {
-        try {
-          // Call the welcome email edge function
-          const { error } = await supabase.functions.invoke('send-welcome-email');
-          if (error) {
-            console.error('Welcome email error:', error);
+        setTimeout(async () => {
+          try {
+            const { error } = await supabase.functions.invoke('send-welcome-email');
+            if (error) {
+              console.error('Welcome email error:', error);
+            }
+          } catch (error) {
+            console.error('Failed to send welcome email:', error);
           }
-        } catch (error) {
-          console.error('Failed to send welcome email:', error);
-        }
+        }, 0);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
