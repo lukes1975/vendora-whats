@@ -66,6 +66,13 @@ serve(async (req) => {
       )
     }
 
+    // Get user's store information
+    const { data: store, error: storeError } = await supabaseClient
+      .from('stores')
+      .select('name, slug')
+      .eq('vendor_id', user.id)
+      .single()
+
     // Send welcome email via Resend
     const resendApiKey = Deno.env.get('RESEND_API_KEY')
     if (!resendApiKey) {
@@ -73,7 +80,10 @@ serve(async (req) => {
     }
 
     const firstName = profile.full_name?.split(' ')[0] || 'there'
-    const dashboardUrl = `${req.headers.get('origin') || 'https://vendora.lovableproject.com'}/dashboard`
+    const storeName = store?.name || 'Your Store'
+    const storeSlug = store?.slug || 'your-store'
+    const dashboardUrl = 'https://vendora.business/dashboard'
+    const storefrontUrl = `https://vendora.business/${storeSlug}`
 
     const emailHtml = `
       <html>
@@ -95,7 +105,7 @@ serve(async (req) => {
           <p style="font-size: 16px; margin-bottom: 20px;"><strong>Here's what's waiting inside:</strong></p>
           
           <ul style="font-size: 16px; margin-bottom: 30px; padding-left: 20px;">
-            <li style="margin-bottom: 10px;">✅ A branded storefront that lives inside WhatsApp — always one tap away from your customers.</li>
+            <li style="margin-bottom: 10px;">✅ A branded storefront — <a href="${storefrontUrl}" style="color: #2563eb; text-decoration: none;">${storeName}</a> — inside WhatsApp, always one tap away from your customers.</li>
             <li style="margin-bottom: 10px;">✅ One smart dashboard to manage products, orders, payments, and promotions.</li>
             <li style="margin-bottom: 10px;">✅ Built-in automation, AI, and growth tools — made to scale with you.</li>
           </ul>
@@ -114,7 +124,7 @@ serve(async (req) => {
           </div>
           
           <p style="font-size: 16px; margin-bottom: 20px;">
-            Welcome to the future of selling.<br>
+            Welcome to the future of selling,<br>
             — The Vendora Team
           </p>
         </body>
