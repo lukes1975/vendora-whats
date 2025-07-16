@@ -41,6 +41,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
       setLoading(false);
       
+      // Check for first login and send welcome email
+      if (event === 'SIGNED_IN' && session?.user) {
+        try {
+          // Call the welcome email edge function
+          const { error } = await supabase.functions.invoke('send-welcome-email');
+          if (error) {
+            console.error('Welcome email error:', error);
+          }
+        } catch (error) {
+          console.error('Failed to send welcome email:', error);
+        }
+      }
     });
 
     return () => subscription.unsubscribe();
