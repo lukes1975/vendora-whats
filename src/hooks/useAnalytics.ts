@@ -33,23 +33,29 @@ export const useAnalytics = () => {
   return useQuery({
     queryKey: ['analytics', user?.id],
     queryFn: async (): Promise<AnalyticsData> => {
-      if (!user?.id) throw new Error('No user');
+      if (!user?.id) throw new Error('User not authenticated');
 
-      // Get total revenue and orders
-      const { data: orders } = await supabase
-        .from('orders')
-        .select('total_price, created_at, product_id')
-        .eq('vendor_id', user.id);
+      try {
+
+        // Get total revenue and orders
+        const { data: orders, error: ordersError } = await supabase
+          .from('orders')
+          .select('total_price, created_at, product_id')
+          .eq('vendor_id', user.id);
+
+        if (ordersError) throw ordersError;
 
       const totalRevenue = orders?.reduce((sum, order) => sum + order.total_price, 0) || 0;
       const totalOrders = orders?.length || 0;
       const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
-      // Get total products
-      const { count: totalProducts } = await supabase
-        .from('products')
-        .select('*', { count: 'exact', head: true })
-        .eq('vendor_id', user.id);
+        // Get total products
+        const { count: totalProducts, error: productsError } = await supabase
+          .from('products')
+          .select('*', { count: 'exact', head: true })
+          .eq('vendor_id', user.id);
+
+        if (productsError) throw productsError;
 
       // Get top products by revenue
       const productRevenue = orders?.reduce((acc, order) => {
@@ -57,10 +63,12 @@ export const useAnalytics = () => {
         return acc;
       }, {} as Record<string, number>) || {};
 
-      const { data: products } = await supabase
-        .from('products')
-        .select('id, name')
-        .eq('vendor_id', user.id);
+        const { data: products, error: productsDataError } = await supabase
+          .from('products')
+          .select('id, name')
+          .eq('vendor_id', user.id);
+
+        if (productsDataError) throw productsDataError;
 
       const topProducts = Object.entries(productRevenue)
         .map(([productId, revenue]) => {
@@ -117,16 +125,23 @@ export const useAnalytics = () => {
         lowStockProducts.push(...sampleProducts);
       }
 
-      return {
-        totalRevenue,
-        totalOrders,
-        totalProducts: totalProducts || 0,
-        avgOrderValue,
-        topProducts,
-        revenueByDay,
-        lowStockProducts,
-      };
+        return {
+          totalRevenue,
+          totalOrders,
+          totalProducts: totalProducts || 0,
+          avgOrderValue,
+          topProducts,
+          revenueByDay,
+          lowStockProducts,
+        };
+      } catch (error) {
+        console.error('Analytics error:', error);
+        throw error;
+      }
     },
     enabled: !!user?.id,
+    retry: 2,
+    retryDelay: 1000,
+    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 };

@@ -27,66 +27,83 @@ export const useDashboardData = () => {
   const { user } = useAuth();
 
   // Fetch store data
-  const { data: storeData, isLoading: storeLoading } = useQuery({
+  const { data: storeData, isLoading: storeLoading, error: storeError } = useQuery({
     queryKey: ['store', user?.id],
     queryFn: async () => {
-      if (!user?.id) return null;
+      if (!user?.id) throw new Error('User not authenticated');
       
       const { data, error } = await supabase
         .from('stores')
         .select('*')
         .eq('vendor_id', user.id)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.log('Store fetch error:', error);
-        return null;
+        throw error;
       }
       
-      return data as StoreData;
+      return data as StoreData | null;
     },
     enabled: !!user?.id,
+    retry: 2,
+    retryDelay: 1000,
   });
 
   // Fetch dashboard statistics
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['dashboard-stats', user?.id],
+  const { data: stats, isLoading: statsLoading, error: statsError } = useQuery({
+    queryKey: ['dashboard-stats', user?.id, storeData?.id],
     queryFn: async (): Promise<DashboardStats> => {
-      if (!user?.id) throw new Error('No user');
+      if (!user?.id) throw new Error('User not authenticated');
 
-      // Get total products count
-      const { count: productsCount } = await supabase
-        .from('products')
-        .select('*', { count: 'exact', head: true })
-        .eq('vendor_id', user.id);
+      try {
+        // Get total products count
+        const { count: productsCount, error: productsError } = await supabase
+          .from('products')
+          .select('*', { count: 'exact', head: true })
+          .eq('vendor_id', user.id);
 
-      // Get total orders count
-      const { count: ordersCount } = await supabase
-        .from('orders')
-        .select('*', { count: 'exact', head: true })
-        .eq('vendor_id', user.id);
+        if (productsError) throw productsError;
 
-      // Get recent orders
-      const { data: recentOrders } = await supabase
-        .from('orders')
-        .select('id, customer_name, status, created_at, total_price')
-        .eq('vendor_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(5);
+        // Get total orders count
+        const { count: ordersCount, error: ordersError } = await supabase
+          .from('orders')
+          .select('*', { count: 'exact', head: true })
+          .eq('vendor_id', user.id);
 
-      return {
-        totalProducts: productsCount || 0,
-        totalOrders: ordersCount || 0,
-        recentOrders: recentOrders || [],
-      };
+        if (ordersError) throw ordersError;
+
+        // Get recent orders
+        const { data: recentOrders, error: recentOrdersError } = await supabase
+          .from('orders')
+          .select('id, customer_name, status, created_at, total_price')
+          .eq('vendor_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (recentOrdersError) throw recentOrdersError;
+
+        return {
+          totalProducts: productsCount || 0,
+          totalOrders: ordersCount || 0,
+          recentOrders: recentOrders || [],
+        };
+      } catch (error) {
+        console.error('Dashboard stats error:', error);
+        throw error;
+      }
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !storeLoading,
+    retry: 2,
+    retryDelay: 1000,
   });
 
   return {
     storeData,
     storeLoading,
+    storeError,
     stats,
     statsLoading,
+    statsError,
   };
 };

@@ -147,7 +147,15 @@ serve(async (req) => {
 
     if (!resendResponse.ok) {
       const resendError = await resendResponse.text()
-      throw new Error(`Failed to send email: ${resendError}`)
+      console.error('Resend API error:', resendError)
+      
+      // If it's a 403 error (not authorized), still continue with marking first login as done
+      // to prevent blocking the auth flow
+      if (resendResponse.status === 403) {
+        console.log('Email sending not authorized, but marking first login as done')
+      } else {
+        throw new Error(`Failed to send email: ${resendError}`)
+      }
     }
 
     // Update user profile to mark welcome email as sent

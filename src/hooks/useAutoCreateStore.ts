@@ -1,16 +1,21 @@
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const useAutoCreateStore = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const isCreatingStore = useRef(false);
 
   useEffect(() => {
     const createStoreIfNeeded = async () => {
-      if (!user?.id) return;
+      if (!user?.id || isCreatingStore.current) return;
 
       try {
+        isCreatingStore.current = true;
+        
         // Check if user already has a store
         const { data: existingStore, error: checkError } = await supabase
           .from('stores')
@@ -42,13 +47,18 @@ export const useAutoCreateStore = () => {
             console.log('Error creating default store:', createError);
           } else {
             console.log('Default store created successfully');
+            // Invalidate store-related queries to refetch with new data
+            queryClient.invalidateQueries({ queryKey: ['store', user.id] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard-stats', user.id] });
           }
         }
       } catch (error) {
         console.log('Error in auto-create store process:', error);
+      } finally {
+        isCreatingStore.current = false;
       }
     };
 
     createStoreIfNeeded();
-  }, [user?.id]);
+  }, [user?.id, queryClient]);
 };

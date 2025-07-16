@@ -9,7 +9,27 @@ import { getSubdomainInfo } from "@/utils/subdomain";
 import MainAppRoutes from "@/components/MainAppRoutes";
 import StorefrontApp from "@/components/StorefrontApp";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: (failureCount, error) => {
+        // Don't retry on 4xx errors (client errors)
+        if (error && typeof error === 'object' && 'status' in error) {
+          const status = (error as any).status;
+          if (status >= 400 && status < 500) return false;
+        }
+        return failureCount < 2;
+      },
+      refetchOnWindowFocus: false,
+      networkMode: 'offlineFirst',
+    },
+    mutations: {
+      retry: 1,
+      networkMode: 'offlineFirst',
+    },
+  },
+});
 
 const App = () => {
   const subdomainInfo = getSubdomainInfo();

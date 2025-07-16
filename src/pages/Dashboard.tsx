@@ -3,6 +3,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useAutoCreateStore } from "@/hooks/useAutoCreateStore";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { LoadingPage } from "@/components/ui/loading-spinner";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
 import ShareStoreCard from "@/components/dashboard/ShareStoreCard";
 import AnnouncementBanner from "@/components/dashboard/AnnouncementBanner";
@@ -23,8 +25,8 @@ const Dashboard = () => {
   // Auto-create store if needed
   useAutoCreateStore();
 
-  const { storeData, storeLoading, stats } = useDashboardData();
-  const { data: analytics, isLoading: analyticsLoading } = useAnalytics();
+  const { storeData, storeLoading, storeError, stats, statsLoading, statsError } = useDashboardData();
+  const { data: analytics, isLoading: analyticsLoading, error: analyticsError } = useAnalytics();
 
   const storeUrl = storeData?.slug 
     ? `https://vendora.business/${storeData.slug}` 
@@ -32,11 +34,28 @@ const Dashboard = () => {
 
   const hasProducts = (analytics?.totalProducts || 0) > 0;
 
-  if (storeLoading || analyticsLoading) {
+  // Show loading state while critical data is being fetched
+  if (storeLoading) {
+    return <LoadingPage />;
+  }
+
+  // Show error state with retry option
+  if (storeError || (statsError && !stats) || (analyticsError && !analytics)) {
+    const error = storeError || statsError || analyticsError;
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="flex items-center justify-center min-h-[400px] p-4">
+          <div className="text-center space-y-4 max-w-md">
+            <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
+            <h2 className="text-xl font-semibold">Unable to load dashboard</h2>
+            <p className="text-muted-foreground">
+              {error?.message || 'There was a problem loading your dashboard data.'}
+            </p>
+            <Button onClick={() => window.location.reload()} variant="outline">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Retry
+            </Button>
+          </div>
         </div>
       </DashboardLayout>
     );
