@@ -227,29 +227,37 @@ const Settings = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Customize Your Brand</h1>
-              <p className="text-gray-600">Manage your storefront information and professional branding</p>
-            </div>
-            <div className="sm:hidden">
-              <UpgradePlanButton />
-            </div>
+      <div className="max-w-5xl mx-auto space-y-8">
+        {/* Premium Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-xl">
+                <Palette className="h-7 w-7 text-primary" />
+              </div>
+              Customize Your Brand
+            </h1>
+            <p className="text-muted-foreground mt-2 text-lg">
+              Professional branding that builds trust with your customers
+            </p>
+          </div>
+          <div className="sm:hidden">
+            <UpgradePlanButton />
           </div>
         </div>
 
         {/* Settings Form */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-8 lg:grid-cols-2">
           {/* Store Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Store className="h-5 w-5 text-blue-600" />
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Store className="h-5 w-5 text-primary" />
+                </div>
                 Business Information
               </CardTitle>
+              <p className="text-muted-foreground">Essential details for your storefront</p>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
@@ -291,12 +299,15 @@ const Settings = () => {
           </Card>
 
           {/* Store Logo */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ImageIcon className="h-5 w-5 text-blue-600" />
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <ImageIcon className="h-5 w-5 text-primary" />
+                </div>
                 Brand Logo
               </CardTitle>
+              <p className="text-muted-foreground">Upload your professional logo</p>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -354,12 +365,15 @@ const Settings = () => {
           </Card>
 
           {/* Theme Colors */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Palette className="h-5 w-5 text-blue-600" />
-                Theme Color
+          <Card className="lg:col-span-2 border-0 shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Palette className="h-5 w-5 text-primary" />
+                </div>
+                Brand Colors
               </CardTitle>
+              <p className="text-muted-foreground">Choose colors that represent your brand</p>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">

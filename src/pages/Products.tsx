@@ -205,34 +205,46 @@ const Products = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto py-6">
-        <div className="mb-6">
-          <CardTitle className="text-2xl font-bold mb-4">
-            <Package className="mr-2 inline-block" />
-            Your Storefront Items
-          </CardTitle>
+      <div className="space-y-8">
+        {/* Premium Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-xl">
+                <Package className="h-7 w-7 text-primary" />
+              </div>
+              Your Storefront Items
+            </h1>
+            <p className="text-muted-foreground mt-2 text-lg">
+              Manage your products and organize them into categories
+            </p>
+          </div>
+        </div>
 
-          <Tabs defaultValue="products" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="products" className="flex items-center gap-2">
+        <Tabs defaultValue="products" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-secondary p-1 rounded-xl h-12">
+              <TabsTrigger value="products" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm font-medium">
                 <Package className="h-4 w-4" />
                 <span className="hidden sm:inline">Products</span>
                 <span className="sm:hidden">Items</span>
               </TabsTrigger>
-              <TabsTrigger value="categories" className="flex items-center gap-2">
+              <TabsTrigger value="categories" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm font-medium">
                 <FolderOpen className="h-4 w-4" />
                 <span className="hidden sm:inline">Categories</span>
                 <span className="sm:hidden">Groups</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="products" className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">Manage Your Products</h3>
-                <Button onClick={handleOpenProductForm}>
+            <TabsContent value="products" className="space-y-6 mt-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-gradient-to-r from-primary/5 to-purple-500/5 rounded-2xl border">
+                <div>
+                  <h3 className="text-xl font-semibold text-foreground">Manage Your Products</h3>
+                  <p className="text-muted-foreground mt-1">Showcase what you offer to potential customers</p>
+                </div>
+                <Button onClick={handleOpenProductForm} size="lg" className="bg-primary hover:bg-primary/90 shadow-lg">
                   <Plus className="mr-2 h-4 w-4" />
                   <span className="hidden sm:inline">Add New Item</span>
-                  <span className="sm:hidden">Add</span>
+                  <span className="sm:hidden">Add Item</span>
                 </Button>
               </div>
 
@@ -270,41 +282,52 @@ const Products = () => {
               </AlertDialog>
 
               {isLoading ? (
-                <div className="flex items-center justify-center min-h-[200px]">
-                  <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+                <div className="flex items-center justify-center min-h-[300px]">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-12 w-12 border-2 border-primary border-t-transparent"></div>
+                    <p className="text-muted-foreground">Loading your products...</p>
+                  </div>
                 </div>
               ) : products && products.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {products.map((product) => (
-                    <Card key={product.id}>
-                      <CardHeader>
-                        <CardTitle>{product.name}</CardTitle>
-                        <CardDescription>
-                          Price: ${product.price.toFixed(2)}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
+                    <Card key={product.id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden border-0 shadow-md">
+                      <div className="relative">
                         {product.image_url && (
-                          <img
-                            src={product.image_url}
-                            alt={product.name}
-                            className="w-full h-48 object-cover mb-4 rounded-md"
-                          />
+                          <div className="aspect-[4/3] overflow-hidden">
+                            <img
+                              src={product.image_url}
+                              alt={product.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
                         )}
-                        <p className="text-sm text-gray-600">{product.description}</p>
-                        <div className="flex justify-between mt-4">
+                        <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-lg px-3 py-1">
+                          <span className="text-lg font-bold text-primary">${product.price.toFixed(2)}</span>
+                        </div>
+                      </div>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-lg group-hover:text-primary transition-colors">{product.name}</CardTitle>
+                        {product.description && (
+                          <CardDescription className="line-clamp-2">{product.description}</CardDescription>
+                        )}
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="flex gap-2">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleEditProduct(product)}
+                            className="flex-1 hover:bg-primary hover:text-primary-foreground transition-colors"
                           >
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </Button>
                           <Button
-                            variant="destructive"
+                            variant="outline"
                             size="sm"
                             onClick={() => handleDeleteProduct(product)}
+                            className="flex-1 hover:bg-destructive hover:text-destructive-foreground transition-colors"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete
@@ -315,12 +338,18 @@ const Products = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Package className="mx-auto h-12 w-12 mb-3 opacity-50" />
-                  <p>You haven't added anything to your storefront yet.</p>
-                  <p className="text-sm">
-                    Show the world what you offer — add your first item!
+                <div className="text-center py-16">
+                  <div className="mx-auto w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                    <Package className="h-12 w-12 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">No products yet</h3>
+                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                    Start building your storefront by adding your first product. Show customers what you offer!
                   </p>
+                  <Button onClick={handleOpenProductForm} size="lg" className="bg-primary hover:bg-primary/90">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Your First Product
+                  </Button>
                 </div>
               )}
             </TabsContent>
@@ -465,7 +494,6 @@ const Products = () => {
               )}
             </TabsContent>
           </Tabs>
-        </div>
       </div>
     </DashboardLayout>
   );
