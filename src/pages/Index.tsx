@@ -38,7 +38,7 @@ const Index = () => {
     {
       step: "1",
       title: "Create Your Store",
-      description: "Takes just 2 minutes"
+      description: "Takes just minutes"
     },
     {
       step: "2", 
