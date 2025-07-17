@@ -126,7 +126,7 @@ const Index = () => {
       description: "Perfect for getting started",
       features: [
         "Create your store",
-        "Add unlimited products", 
+        "Add limited products", 
         "WhatsApp integration",
         "Basic analytics",
         "Mobile-optimized storefront"
@@ -140,6 +140,7 @@ const Index = () => {
       description: "For serious sellers",
       features: [
         "Everything in Free",
+        "Add unlimited products",
         "Custom domain",
         "Advanced analytics", 
         "AI selling assistant",
