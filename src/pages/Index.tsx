@@ -7,6 +7,16 @@ import { ArrowRight, Store, MessageSquare, Users, Zap, Check, X, Star, ChevronLe
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
+interface PricingPlan {
+  name: string;
+  price: { monthly: number; yearly: number };
+  description: string;
+  features: string[];
+  cta: string;
+  popular: boolean;
+  discount?: string;
+}
+
 const Index = () => {
   const [isYearly, setIsYearly] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
@@ -109,7 +119,7 @@ const Index = () => {
     { feature: "Mobile-First", vendora: true, whatsapp: true, shopify: false }
   ];
 
-  const pricingPlans = [
+  const pricingPlans: PricingPlan[] = [
     {
       name: "Starter",
       price: { monthly: 0, yearly: 0 },
@@ -125,11 +135,11 @@ const Index = () => {
       popular: false
     },
     {
-      name: "Pro Boss",
-      price: { monthly: 29, yearly: 290 },
+      name: "Starter Plan",
+      price: { monthly: 3000, yearly: 30600 }, // 15% off for yearly: 3000 * 12 * 0.85 = 30,600
       description: "For serious sellers",
       features: [
-        "Everything in Starter",
+        "Everything in Free",
         "Custom domain",
         "Advanced analytics", 
         "AI selling assistant",
@@ -137,8 +147,26 @@ const Index = () => {
         "Custom branding",
         "Automation tools"
       ],
+      cta: "Go Starter",
+      popular: false,
+      discount: "15% off annual billing"
+    },
+    {
+      name: "Pro Plan", 
+      price: { monthly: 7500, yearly: 76500 }, // 15% off for yearly: 7500 * 12 * 0.85 = 76,500
+      description: "For growing businesses",
+      features: [
+        "Everything in Starter",
+        "White-label solution",
+        "Advanced integrations",
+        "Bulk messaging",
+        "API access",
+        "Dedicated support",
+        "Custom workflows"
+      ],
       cta: "Go Pro",
-      popular: true
+      popular: true,
+      discount: "15% off annual billing"
     }
   ];
 
@@ -455,11 +483,11 @@ const Index = () => {
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-background transition-transform ${isYearly ? 'translate-x-6' : 'translate-x-1'}`} />
               </button>
               <span className={`text-sm ${isYearly ? 'text-foreground font-semibold' : 'text-muted-foreground'}`}>Yearly</span>
-              <Badge variant="secondary" className="ml-2">Save 20%</Badge>
+              <Badge variant="secondary" className="ml-2">Save 15%</Badge>
             </div>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {pricingPlans.map((plan, index) => (
               <Card key={index} className={`relative p-8 ${plan.popular ? 'ring-2 ring-primary shadow-lg scale-105' : ''}`}>
                 {plan.popular && (
@@ -471,11 +499,16 @@ const Index = () => {
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <div className="mt-4">
                     <span className="text-4xl font-bold text-foreground">
-                      ${isYearly ? plan.price.yearly : plan.price.monthly}
+                      ₦{isYearly ? plan.price.yearly.toLocaleString() : plan.price.monthly.toLocaleString()}
                     </span>
                     <span className="text-muted-foreground">
                       /{isYearly ? 'year' : 'month'}
                     </span>
+                    {plan.discount && isYearly && (
+                      <div className="text-sm text-green-600 font-medium mt-1">
+                        {plan.discount}
+                      </div>
+                    )}
                   </div>
                   <CardDescription className="mt-2">{plan.description}</CardDescription>
                 </CardHeader>
