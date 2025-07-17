@@ -50,7 +50,7 @@ const Signup = () => {
       console.log('Signup successful');
       toast({
         title: 'Success',
-        description: 'Account created successfully! Welcome to Vendora!',
+        description: 'Account created successfully! You\'ll receive a confirmation email shortly to verify your account. Please check your inbox or spam folder to proceed.',
       });
     }
 

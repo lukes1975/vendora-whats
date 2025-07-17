@@ -6,8 +6,19 @@ import { Button } from '@/components/ui/button';
 import { Check, ArrowLeft } from 'lucide-react';
 import ProInterestModal from '@/components/dashboard/ProInterestModal';
 
+interface PricingPlan {
+  title: string;
+  badge: string;
+  badgeVariant: 'default' | 'secondary';
+  price: string;
+  period: string;
+  discount?: string;
+  features: string[];
+  isActive: boolean;
+}
+
 const Pricing = () => {
-  const plans = [
+  const plans: PricingPlan[] = [
     {
       title: 'Free (Early Access)',
       badge: 'Active Now',
@@ -23,11 +34,12 @@ const Pricing = () => {
       isActive: true
     },
     {
-      title: 'Pro (Coming Soon)',
+      title: 'Starter Plan',
       badge: 'Coming Soon',
       badgeVariant: 'secondary' as const,
-      price: '₦3,000–₦5,000',
+      price: '₦3,000',
       period: 'mo',
+      discount: '15% off annual billing',
       features: [
         'Unlimited products',
         'Custom theme color/logo',
@@ -38,13 +50,15 @@ const Pricing = () => {
       isActive: false
     },
     {
-      title: 'Elite (Coming Soon)',
+      title: 'Pro Plan',
       badge: 'Coming Soon',
       badgeVariant: 'secondary' as const,
-      price: '₦15,000+',
+      price: '₦7,500',
       period: 'mo',
+      discount: '15% off annual billing',
       features: [
-        'White-labeled',
+        'Everything in Starter',
+        'White-labeled solution',
         'Bulk messaging',
         'Priority support',
         'API integrations'
@@ -96,6 +110,11 @@ const Pricing = () => {
                     {plan.price}
                   </span>
                   <span className="text-gray-600">/{plan.period}</span>
+                  {plan.discount && (
+                    <div className="text-sm text-green-600 font-medium mt-1">
+                      {plan.discount}
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>

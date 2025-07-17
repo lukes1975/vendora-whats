@@ -38,22 +38,47 @@ interface StorefrontProps {
   storeSlug?: string;
 }
 
+// Platform reserved routes that should not be used as store slugs
+const RESERVED_ROUTES = [
+  'login', 'signup', 'dashboard', 'pricing', 'admin', 'api', 'auth', 
+  'www', 'mail', 'ftp', 'blog', 'shop', 'store', 'help', 'support',
+  'about', 'contact', 'terms', 'privacy', 'demo-store'
+];
+
 const Storefront = ({ storeSlug }: StorefrontProps = {}) => {
   const { storeId, storeSlug: urlStoreSlug } = useParams();
   // Use storeSlug prop if provided, or URL storeSlug param, or fall back to legacy storeId
-  const currentStoreId = storeSlug || urlStoreSlug || storeId;
+  const storeIdentifier = storeSlug || urlStoreSlug || storeId;
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Check if the current route is a reserved platform route
+  const isReservedRoute = storeIdentifier && RESERVED_ROUTES.includes(storeIdentifier.toLowerCase());
+
+  // If it's a reserved route, show 404
+  if (isReservedRoute) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
+          <p className="text-gray-600 mb-8">Store not found</p>
+          <a href="/" className="text-blue-600 hover:underline">
+            Return to Vendora
+          </a>
+        </div>
+      </div>
+    );
+  }
   
-  // Fetch store data by slug
+  // Fetch store data by slug or ID
   const { data: store, isLoading: storeLoading } = useQuery({
-    queryKey: ['store', currentStoreId],
+    queryKey: ['store', storeIdentifier],
     queryFn: async () => {
-      if (!currentStoreId) return null;
+      if (!storeIdentifier) return null;
       
       const { data, error } = await supabase
         .from('stores')
         .select('*')
-        .eq('slug', currentStoreId)
+        .eq('slug', storeIdentifier)
         .eq('is_active', true)
         .maybeSingle();
       
@@ -64,7 +89,7 @@ const Storefront = ({ storeSlug }: StorefrontProps = {}) => {
       
       return data as Store | null;
     },
-    enabled: !!currentStoreId,
+    enabled: !!storeIdentifier,
   });
 
   // Fetch categories
