@@ -3,8 +3,12 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Store, MessageSquare } from "lucide-react";
+import WhatsAppImportButton from "./WhatsAppImportButton";
+import { useDashboardData } from "@/hooks/useDashboardData";
 
 const QuickActions = () => {
+  const { storeData } = useDashboardData();
+  
   return (
     <Card>
       <CardHeader>
@@ -12,7 +16,7 @@ const QuickActions = () => {
         <CardDescription>Manage your branded storefront and connect with buyers</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Link to="/dashboard/products/new">
             <Button variant="outline" className="w-full justify-start h-auto py-3">
               <Plus className="mr-2 h-4 w-4" />
@@ -31,6 +35,10 @@ const QuickActions = () => {
               <span>Customize Your Brand</span>
             </Button>
           </Link>
+          <WhatsAppImportButton 
+            phone={storeData?.whatsapp_number || ""} 
+            className="w-full justify-start h-auto py-3"
+          />
         </div>
       </CardContent>
     </Card>
