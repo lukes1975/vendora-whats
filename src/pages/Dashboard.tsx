@@ -1,4 +1,5 @@
 
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAutoCreateStore } from "@/hooks/useAutoCreateStore";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -18,10 +19,14 @@ import RecentOrders from "@/components/dashboard/RecentOrders";
 import EarlyAccessBadge from "@/components/dashboard/EarlyAccessBadge";
 import UsageMeter from "@/components/dashboard/UsageMeter";
 import ProInterestModal from "@/components/dashboard/ProInterestModal";
+import FirstTimeUserGuide from "@/components/dashboard/FirstTimeUserGuide";
 
 import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
+  // First-time user guide state
+  const [showGuide, setShowGuide] = useState(false);
+  
   // Auto-create store if needed
   useAutoCreateStore();
 
@@ -33,6 +38,23 @@ const Dashboard = () => {
     : `https://vendora.business/${storeData?.id || 'your-store'}`;
 
   const hasProducts = (analytics?.totalProducts || 0) > 0;
+
+  // Determine if user should see the first-time guide
+  useEffect(() => {
+    if (!storeLoading && !analyticsLoading && storeData) {
+      const hasCompletedGuide = localStorage.getItem('vendora-guide-completed');
+      const isNewUser = !hasProducts && (!storeData.name || storeData.name.trim() === '');
+      
+      if (!hasCompletedGuide && isNewUser) {
+        setShowGuide(true);
+      }
+    }
+  }, [storeLoading, analyticsLoading, storeData, hasProducts]);
+
+  const handleCloseGuide = () => {
+    setShowGuide(false);
+    localStorage.setItem('vendora-guide-closed', 'true');
+  };
 
   // Show loading state while critical data is being fetched
   if (storeLoading) {
@@ -157,6 +179,16 @@ const Dashboard = () => {
         {/* First Product CTA for users with no products */}
         <FirstProductCTA hasProducts={hasProducts} />
       </div>
+
+      {/* First Time User Guide */}
+      <FirstTimeUserGuide
+        isVisible={showGuide}
+        onClose={handleCloseGuide}
+        hasProducts={hasProducts}
+        storeName={storeData?.name}
+        storeUrl={storeUrl}
+        totalProducts={analytics?.totalProducts || 0}
+      />
     </DashboardLayout>
   );
 };
