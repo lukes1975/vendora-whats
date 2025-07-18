@@ -3,3 +3,6 @@ project_id = "ncetgnojwfrnsxpytcia"
 
 [functions.send-confirmation-email]
 verify_jwt = false
+
+[functions.catalog-import]
+verify_jwt = false
