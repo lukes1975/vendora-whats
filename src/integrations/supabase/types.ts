@@ -343,11 +343,93 @@ export type Database = {
         }
         Relationships: []
       }
+      user_events: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          session_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_metrics: {
+        Row: {
+          created_at: string
+          first_product_added_at: string | null
+          first_sale_at: string | null
+          first_share_at: string | null
+          id: string
+          last_active_at: string | null
+          referral_code: string | null
+          referred_by: string | null
+          signup_date: string
+          store_created_at: string | null
+          total_orders: number | null
+          total_products: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          first_product_added_at?: string | null
+          first_sale_at?: string | null
+          first_share_at?: string | null
+          id?: string
+          last_active_at?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          signup_date: string
+          store_created_at?: string | null
+          total_orders?: number | null
+          total_products?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          first_product_added_at?: string | null
+          first_sale_at?: string | null
+          first_share_at?: string | null
+          id?: string
+          last_active_at?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          signup_date?: string
+          store_created_at?: string | null
+          total_orders?: number | null
+          total_products?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      generate_referral_code: {
+        Args: { user_email: string }
+        Returns: string
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["user_role"]

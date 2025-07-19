@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useAnalytics } from '@/hooks/useAnalytics';
 import ImageUpload from "@/components/ImageUpload";
 import {
   Dialog,
@@ -54,6 +55,7 @@ interface ProductFormProps {
 
 const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProps) => {
   const { user } = useAuth();
+  const { track } = useAnalytics();
   const [isLoading, setIsLoading] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(product?.image_url || "");
 
@@ -174,6 +176,13 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
           .insert(productData);
 
         if (error) throw error;
+        
+        // Track product creation
+        track('product_added', { 
+          product_name: data.name,
+          price: data.price 
+        });
+
         toast.success("Product created successfully!");
       }
 

@@ -235,7 +235,7 @@ const Storefront = ({ storeSlug }: StorefrontProps = {}) => {
         />
       </div>
 
-      <StorefrontFooter />
+      <StorefrontFooter storeName={store?.name} />
       <StorefrontFAB show={isOwner} />
     </div>
   );

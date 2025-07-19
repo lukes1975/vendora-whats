@@ -1,9 +1,11 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAutoCreateStore } from "@/hooks/useAutoCreateStore";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { RetentionNudges } from "@/components/dashboard/RetentionNudges";
 import { LoadingPage } from "@/components/ui/loading-spinner";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
@@ -31,7 +33,13 @@ const Dashboard = () => {
   useAutoCreateStore();
 
   const { storeData, storeLoading, storeError, stats, statsLoading, statsError } = useDashboardData();
-  const { data: analytics, isLoading: analyticsLoading, error: analyticsError } = useAnalytics();
+  const { data: analytics, isLoading: analyticsLoading, error: analyticsError } = useAnalyticsData();
+  const { track } = useAnalytics();
+
+  // Track dashboard view
+  React.useEffect(() => {
+    track('dashboard_viewed');
+  }, [track]);
 
   const storeUrl = storeData?.slug 
     ? `https://vendora.business/${storeData.slug}` 
@@ -89,6 +97,9 @@ const Dashboard = () => {
         {/* Announcement Banner */}
         <AnnouncementBanner />
 
+        {/* Retention Nudges */}
+        <RetentionNudges />
+
         {/* Early Access Badge */}
         <div className="flex justify-center sm:justify-start">
           <EarlyAccessBadge />
@@ -101,10 +112,7 @@ const Dashboard = () => {
 
         {/* Share Store Card */}
         <div className="bg-card rounded-2xl shadow-lg border-0">
-          <ShareStoreCard 
-            storeUrl={storeUrl}
-            storeName={storeData?.name || 'My Store'}
-          />
+          <ShareStoreCard />
         </div>
 
         {/* Enhanced Stats Grid */}
