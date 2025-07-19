@@ -6,6 +6,7 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
 import { RetentionNudges } from "@/components/dashboard/RetentionNudges";
+import NudgeScheduler from "@/components/dashboard/NudgeScheduler";
 import { LoadingPage } from "@/components/ui/loading-spinner";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
@@ -187,6 +188,9 @@ const Dashboard = () => {
         {/* First Product CTA for users with no products */}
         <FirstProductCTA hasProducts={hasProducts} />
       </div>
+
+      {/* Lightweight nudge scheduler - invisible component */}
+      <NudgeScheduler />
 
       {/* First Time User Guide */}
       <FirstTimeUserGuide

@@ -33,16 +33,8 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
-    // Check if user's email is confirmed
-    if (!user.email_confirmed_at) {
-      return new Response(
-        JSON.stringify({ error: 'Email not confirmed' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
+    // For new signups, the email might not be confirmed yet
+    // We'll still send the welcome email to help with onboarding
 
     // Get user profile to check first_login_done status
     const { data: profile, error: profileError } = await supabaseClient

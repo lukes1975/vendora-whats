@@ -22,22 +22,34 @@ const Analytics = () => {
           </div>
         </div>
 
-        {/* Motivational Tips */}
-        <Card className="border-0 shadow-sm bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-l-amber-400">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="p-2 bg-amber-100 rounded-lg">
-                <span className="text-xl">💡</span>
+        {/* Motivational Jinx Tips */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="border-0 shadow-sm bg-gradient-to-r from-emerald-50 to-teal-50 border-l-4 border-l-emerald-400">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <span className="text-lg">🚀</span>
+                <div className="flex-1">
+                  <p className="text-muted-foreground text-sm font-medium">
+                    You're 1 step away from greatness.
+                  </p>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-foreground mb-2">Seller's Insight</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  "Every successful business started with one customer who believed in the vision. Focus on delighting that first customer, then the next, and watch your empire grow."
-                </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-l-blue-400">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <span className="text-lg">💎</span>
+                <div className="flex-1">
+                  <p className="text-muted-foreground text-sm font-medium">
+                    Keep going. Big sellers once started small.
+                  </p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Coming Soon */}
         <div className="grid gap-6">

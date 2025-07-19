@@ -56,9 +56,10 @@ const DashboardStorefront = () => {
     );
   }
 
+  // Generate the branded store URL using vendora.business domain
   const storeUrl = store.slug 
-    ? `${window.location.origin}/${store.slug}`
-    : `${window.location.origin}/${store.id}`;
+    ? `https://vendora.business/${store.slug}`
+    : `https://vendora.business/${store.id}`;
 
   return (
     <DashboardLayout>
