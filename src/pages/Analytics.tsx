@@ -22,6 +22,23 @@ const Analytics = () => {
           </div>
         </div>
 
+        {/* Motivational Tips */}
+        <Card className="border-0 shadow-sm bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-l-amber-400">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-amber-100 rounded-lg">
+                <span className="text-xl">💡</span>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-foreground mb-2">Seller's Insight</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  "Every successful business started with one customer who believed in the vision. Focus on delighting that first customer, then the next, and watch your empire grow."
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Coming Soon */}
         <div className="grid gap-6">
           <Card className="border-0 shadow-lg bg-gradient-to-br from-primary/5 to-purple-500/5">

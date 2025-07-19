@@ -58,13 +58,13 @@ export const getSubdomainInfo = (): SubdomainInfo => {
 export const getStoreUrl = (storeSlug: string): string => {
   const { hostname, protocol } = window.location;
   
-  // For development, use new path-based routing
+  // For development, use path-based routing
   if (hostname === 'localhost' || hostname.includes('127.0.0.1') || hostname.includes('lovableproject.com')) {
     return `${protocol}//${hostname}/${storeSlug}`;
   }
   
-  // For production, use subdomain
-  return `${protocol}//${storeSlug}.vendora.business`;
+  // For production, use path-based routing on vendora.business
+  return `${protocol}//vendora.business/${storeSlug}`;
 };
 
 /**
