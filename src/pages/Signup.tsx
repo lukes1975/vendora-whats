@@ -41,8 +41,8 @@ const Signup = () => {
     } else {
       console.log('Signup successful');
       toast({
-        title: 'Account Created Successfully!',
-        description: 'You can now sign in with your credentials. Welcome to Vendora!',
+        title: '🏆 Empire Status: ACTIVATED!',
+        description: 'Your business transformation begins now. Welcome to the elite circle!',
       });
     }
 
@@ -70,11 +70,11 @@ const Signup = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-900">
-            Join Vendora
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+            🏆 Claim Your Empire
           </CardTitle>
-          <CardDescription>
-            Create your account and start selling online
+          <CardDescription className="text-base mt-2">
+            <strong className="text-gray-700">3 minutes to transformation.</strong> Join thousands who went from scattered DMs to commanding business presence.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -132,8 +132,8 @@ const Signup = () => {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Creating account...' : 'Create account'}
+            <Button type="submit" className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg" disabled={loading}>
+              {loading ? 'Building your empire...' : 'Launch My Business'}
             </Button>
           </form>
 

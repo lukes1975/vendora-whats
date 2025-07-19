@@ -158,17 +158,18 @@ const Dashboard = () => {
         </div>
 
         {/* Pro Interest Collection */}
-        <div className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 rounded-2xl p-8 text-center border shadow-lg">
+        <div className="bg-gradient-to-r from-primary/15 via-purple-500/15 to-orange-500/15 rounded-2xl p-8 text-center border shadow-xl">
           <div className="max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold text-foreground mb-3">
-              Ready to scale your professional business?
+              🏆 Ready to Join the Business Elite?
             </h3>
             <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
-              Get notified when Pro features with advanced automation, inventory tracking, and business insights become available.
+              <strong className="text-foreground">Serious sellers deserve serious tools.</strong> Advanced automation, predictive insights, and enterprise-level features. 
+              <strong className="text-primary">Be first in line when we open the vault.</strong>
             </p>
             <ProInterestModal>
-              <Button size="lg" className="bg-primary hover:bg-primary/90 shadow-lg">
-                Want Pro Business Tools?
+              <Button size="lg" className="bg-gradient-to-r from-primary via-purple-600 to-orange-600 hover:from-primary/90 hover:via-purple-600/90 hover:to-orange-600/90 shadow-xl text-white border-0">
+                Reserve Pro Status
               </Button>
             </ProInterestModal>
           </div>

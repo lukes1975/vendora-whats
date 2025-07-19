@@ -35,8 +35,8 @@ const Login = () => {
       });
     } else {
       toast({
-        title: 'Welcome back!',
-        description: 'You have been signed in successfully.',
+        title: '🚀 Empire Command Center: ONLINE',
+        description: 'Your business empire is ready. Time to dominate your market.',
       });
     }
 
@@ -61,11 +61,11 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-900">
-            Welcome back to Vendora
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+            👑 Welcome Back, Empire Builder
           </CardTitle>
-          <CardDescription>
-            Sign in to your account to manage your store
+          <CardDescription className="text-base mt-2">
+            <strong className="text-gray-700">Your business empire awaits.</strong> Time to check your growing influence and expanding reach.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -113,8 +113,8 @@ const Login = () => {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign in'}
+            <Button type="submit" className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg" disabled={loading}>
+              {loading ? 'Accessing empire...' : 'Enter My Empire'}
             </Button>
           </form>
 

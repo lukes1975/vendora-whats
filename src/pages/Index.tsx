@@ -249,17 +249,18 @@ const Index = () => {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-primary/5 to-accent/5">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6">
-            From Hustler to
-            <span className="text-primary block">Professional Brand</span>
+            Transform Your Side Hustle Into a
+            <span className="text-primary block">Commanding Business Empire</span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-4xl mx-auto">
-            Sell like a pro while keeping WhatsApp at the center. Vendora gives you a branded storefront that 
-            warms up buyers before they DM you — so every conversation turns into cash.
+            Join thousands who've leveled up from scattered DMs to professional storefronts. 
+            <strong className="text-foreground">Every click builds your reputation.</strong> Every share multiplies your reach. 
+            <strong className="text-foreground">Every sale proves you're unstoppable.</strong>
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Link to="/signup">
-              <Button size="lg" className="text-lg px-8 py-4 h-14">
-                Start Selling for Free
+              <Button size="lg" className="text-lg px-8 py-4 h-14 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-xl">
+                Claim Your Business Empire
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -277,10 +278,11 @@ const Index = () => {
       <section className="py-16 bg-card">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Sell with Structure, Build with Style
+            Every Pro Started Where You Are Now
           </h2>
           <p className="text-xl text-muted-foreground">
-            Transform your hustle into a scalable, professional business — no code, no stress.
+            <strong className="text-primary">The difference?</strong> They chose to build something that commands respect. 
+            Today, you level up from scattered to strategic. From invisible to undeniable.
           </p>
         </div>
       </section>

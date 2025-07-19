@@ -17,40 +17,44 @@ const EnhancedStatsGrid = ({
 }: EnhancedStatsGridProps) => {
   const stats = [
     {
-      title: "Total Revenue",
+      title: "Empire Revenue",
       value: `₦${totalRevenue.toLocaleString()}`,
       icon: DollarSign,
       trend: "+12%",
       trendUp: true,
       color: "text-green-600",
-      bgColor: "bg-green-50"
+      bgColor: "bg-green-50",
+      subtitle: "Your wealth is building"
     },
     {
-      title: "WhatsApp Messages",
+      title: "Customer Conquests",
       value: totalOrders.toString(),
       icon: ShoppingCart,
       trend: "+5%",
       trendUp: true,
       color: "text-blue-600",
-      bgColor: "bg-blue-50"
+      bgColor: "bg-blue-50",
+      subtitle: "Every chat = respect gained"
     },
     {
-      title: "Storefront Items",
+      title: "Assets In Arsenal",
       value: totalProducts.toString(),
       icon: Package,
       trend: "+2%",
       trendUp: true,
       color: "text-purple-600",
-      bgColor: "bg-purple-50"
+      bgColor: "bg-purple-50",
+      subtitle: "Your inventory commands attention"
     },
     {
-      title: "Avg Sale Value",
+      title: "Power Per Sale",
       value: `₦${avgOrderValue.toLocaleString()}`,
       icon: BarChart3,
       trend: "+8%",
       trendUp: true,
       color: "text-orange-600",
-      bgColor: "bg-orange-50"
+      bgColor: "bg-orange-50",
+      subtitle: "Premium prices = business credibility"
     }
   ];
 
@@ -63,7 +67,7 @@ const EnhancedStatsGrid = ({
         return (
           <Card key={index} className="relative overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+              <CardTitle className="text-sm font-bold text-gray-900">
                 {stat.title}
               </CardTitle>
               <div className={`p-2 rounded-full ${stat.bgColor}`}>
@@ -71,7 +75,7 @@ const EnhancedStatsGrid = ({
               </div>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mb-1">
                 <div className="text-2xl font-bold text-gray-900">
                   {stat.value}
                 </div>
@@ -79,6 +83,9 @@ const EnhancedStatsGrid = ({
                   <TrendIcon className="h-3 w-3 mr-1" />
                   {stat.trend}
                 </div>
+              </div>
+              <div className="text-xs text-gray-500 font-medium">
+                {stat.subtitle}
               </div>
             </CardContent>
           </Card>

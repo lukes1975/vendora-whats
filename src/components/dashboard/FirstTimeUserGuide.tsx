@@ -39,46 +39,46 @@ export default function FirstTimeUserGuide({
   const steps: Step[] = [
     {
       id: "store-info",
-      title: "Set Your Store Name",
-      emoji: "🏪",
-      description: "Give your business a memorable name and add your contact details",
-      action: "Customize Your Brand",
+      title: "Claim Your Business Identity",
+      emoji: "👑",
+      description: "Transform from anonymous seller to recognized brand. Your name is your power.",
+      action: "Build Your Brand",
       link: "/dashboard/settings",
       completed: !!storeName && storeName.trim() !== ""
     },
     {
       id: "first-product",
-      title: "Add Your First Item",
-      emoji: "📦",
-      description: "Upload a product photo, set the price, and write a description",
-      action: "Add New Item",
+      title: "Launch Your First Asset",
+      emoji: "🚀",
+      description: "Every product proves your expertise. Every upload builds your credibility.",
+      action: "Create Your Legacy",
       link: "/dashboard/products/new",
       completed: hasProducts && totalProducts > 0
     },
     {
       id: "customize-store",
-      title: "Design Your Storefront",
-      emoji: "🎨",
-      description: "Add your logo, colors, and make your store look professional",
-      action: "View Your Storefront",
+      title: "Command Visual Respect",
+      emoji: "⚡",
+      description: "Professional design = instant credibility. Make them remember you.",
+      action: "Dominate The Look",
       link: "/dashboard/storefront",
       completed: false // Could be enhanced to check for logo/customizations
     },
     {
       id: "share-store",
-      title: "Share Your Store Link",
-      emoji: "🔗",
-      description: "Get your unique store URL and start sharing with customers",
-      action: "Get Your Link",
+      title: "Multiply Your Reach",
+      emoji: "📈",
+      description: "Every share expands your empire. Turn one link into endless opportunities.",
+      action: "Amplify Your Power",
       link: "/dashboard",
       completed: !!storeUrl
     },
     {
       id: "first-sale",
-      title: "Ready for Sales!",
-      emoji: "💰",
-      description: "Your store is live and ready to receive orders via WhatsApp",
-      action: "Import from WhatsApp",
+      title: "Empire Status: ACTIVE",
+      emoji: "🏆",
+      description: "You're no longer just a seller. You're a business owner. Customers will feel the difference.",
+      action: "Rule Your Market",
       link: "/dashboard",
       completed: totalProducts > 0 && !!storeName && !!storeUrl
     }
@@ -108,9 +108,9 @@ export default function FirstTimeUserGuide({
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
-              <DialogTitle className="text-2xl font-bold">Welcome to Vendora! 🚀</DialogTitle>
+              <DialogTitle className="text-2xl font-bold">Your Empire Starts Now! 🏆</DialogTitle>
               <DialogDescription className="text-base mt-2">
-                Get your business online in 3 minutes. Follow these steps to create your professional storefront.
+                <strong className="text-foreground">3 minutes to transformation.</strong> From scattered DMs to commanding business presence. Every step builds your professional reputation.
               </DialogDescription>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose}>
@@ -131,12 +131,12 @@ export default function FirstTimeUserGuide({
               </div>
               <Progress value={progressPercentage} className="h-2" />
               {completedCount === steps.length && (
-                <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                  <div className="flex items-center gap-2 text-green-800">
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span className="text-sm font-medium">Congratulations! Your store is ready for customers! 🎉</span>
+                  <div className="mt-3 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200 shadow-md">
+                    <div className="flex items-center gap-2 text-green-800">
+                      <CheckCircle2 className="h-5 w-5" />
+                      <span className="text-sm font-bold">🏆 EMPIRE STATUS: ACTIVATED! You're officially a business owner, not just a seller!</span>
+                    </div>
                   </div>
-                </div>
               )}
             </CardContent>
           </Card>

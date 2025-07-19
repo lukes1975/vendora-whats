@@ -64,7 +64,7 @@ const ShareStoreCard = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Share2 className="h-5 w-5 text-primary" />
-          Share Your Store
+          Multiply Your Influence
         </CardTitle>
         <CardContent className="space-y-4">
           <div className="p-3 bg-background/50 rounded-lg border">
@@ -119,7 +119,7 @@ const ShareStoreCard = () => {
 
           <div className="text-center">
             <div className="text-xs text-muted-foreground">
-              💡 <strong>Tip:</strong> Share with friends to grow your business and help them start their own professional stores!
+              🚀 <strong>Power Move:</strong> Every share builds your reputation as a serious business owner. Watch your network see you differently.
             </div>
           </div>
         </CardContent>
