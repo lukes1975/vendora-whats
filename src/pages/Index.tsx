@@ -24,22 +24,22 @@ const Index = () => {
   const features = [
     {
       icon: Store,
-      title: "Professional Brand Page",
+      title: "Business is war. Vendora is your weapon.",
       description: "Tell your story, show your products, and make customers trust you — all before the first message."
     },
     {
       icon: MessageSquare,
-      title: "WhatsApp-First Selling",
+      title: "Add a product in 30 seconds. Sell it in 3 minutes.",
       description: "Ditch clunky websites. Your store educates buyers upfront so DMs are for closing deals, not Q&A."
     },
     {
       icon: Users,
-      title: "Business Status Upgrade",
+      title: "Automation that feels like hiring your first assistant.",
       description: "Look like a business worth buying from. No more 'small hustle' energy — you're building a brand."
     },
     {
       icon: Zap,
-      title: "Always-On Presence",
+      title: "Dashboard clarity. No guesswork. Real growth.",
       description: "Even while you sleep, your storefront works for you — 24/7 sales link that never takes a break."
     }
   ];
@@ -256,27 +256,35 @@ const Index = () => {
             />
           </div>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6">
-            Transform Your Side Hustle Into a
-            <span className="text-primary block">Commanding Business Empire</span>
+            Turn Your Hustle into a System.
+            <span className="text-primary block">Sell like a pro. Operate like a CEO.</span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-4xl mx-auto">
-            Join thousands who've leveled up from scattered DMs to professional storefronts. 
-            <strong className="text-foreground">Every click builds your reputation.</strong> Every share multiplies your reach. 
-            <strong className="text-foreground">Every sale proves you're unstoppable.</strong>
+            From WhatsApp to full-blown storefronts, Vendora gives you the tools to organize, automate, and scale your business — without the chaos.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="text-center mb-6">
+            <div className="inline-block bg-primary/10 px-6 py-2 rounded-full border border-primary/20">
+              <span className="text-primary font-semibold text-lg">Sell Everywhere. Control Everything.</span>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Link to="/signup">
               <Button size="lg" className="text-lg px-8 py-4 h-14 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-xl">
-                Claim Your Business Empire
+                Start My 3-Day Free Trial
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link to="/demo-store">
               <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-14">
                 <Play className="mr-2 h-5 w-5" />
-                View Demo Store
+                See How It Works
               </Button>
             </Link>
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground font-medium">
+              Used by Africa's boldest sellers to bring structure to their business.
+            </p>
           </div>
         </div>
       </section>
