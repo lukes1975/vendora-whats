@@ -138,7 +138,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Vendora <hello@vendora.io>',
+        from: 'Vendora <hello@vendora.business>',
         to: [user.email],
         subject: 'Your Business Just Leveled Up 🚀',
         html: emailHtml,
