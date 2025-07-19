@@ -33,24 +33,16 @@ const Signup = () => {
     if (error) {
       console.error('Signup error:', error);
       
-      // Handle specific email confirmation errors more gracefully
-      if (error.message.includes('Error sending confirmation email') || error.message.includes('535 API key not found')) {
-        toast({
-          title: 'Account Created Successfully!',
-          description: 'Your account has been created. You can now sign in with your credentials.',
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'destructive',
-        });
-      }
+      toast({
+        title: 'Sign Up Failed',
+        description: error.message,
+        variant: 'destructive',
+      });
     } else {
       console.log('Signup successful');
       toast({
-        title: 'Success',
-        description: 'Account created successfully! You\'ll receive a confirmation email shortly to verify your account. Please check your inbox or spam folder to proceed.',
+        title: 'Account Created Successfully!',
+        description: 'You can now sign in with your credentials. Welcome to Vendora!',
       });
     }
 
@@ -66,7 +58,7 @@ const Signup = () => {
     if (error) {
       console.error('Google signup error:', error);
       toast({
-        title: 'Error',
+        title: 'Google Sign Up Failed',
         description: error.message,
         variant: 'destructive',
       });

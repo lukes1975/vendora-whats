@@ -29,14 +29,14 @@ const Login = () => {
 
     if (error) {
       toast({
-        title: 'Error',
+        title: 'Sign In Failed',
         description: error.message,
         variant: 'destructive',
       });
     } else {
       toast({
-        title: 'Success',
-        description: 'Logged in successfully!',
+        title: 'Welcome back!',
+        description: 'You have been signed in successfully.',
       });
     }
 
@@ -49,7 +49,7 @@ const Login = () => {
 
     if (error) {
       toast({
-        title: 'Error',
+        title: 'Google Sign In Failed',
         description: error.message,
         variant: 'destructive',
       });

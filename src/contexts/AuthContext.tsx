@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User } from '@supabase/supabase-js';
+import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AuthContextType {
   user: User | null;
+  session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
@@ -23,6 +24,7 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,12 +40,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (mounted) {
           console.log('Initial session:', session);
+          setSession(session);
           setUser(session?.user ?? null);
           setLoading(false);
         }
       } catch (error) {
         console.error('Failed to get initial session:', error);
         if (mounted) {
+          setSession(null);
           setUser(null);
           setLoading(false);
         }
@@ -59,7 +63,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!mounted) return;
       
       console.log('Auth state change:', event, session?.user?.id);
+      setSession(session);
       setUser(session?.user ?? null);
+      setLoading(false);
       
       // Defer the welcome email to avoid blocking auth state updates
       if (event === 'SIGNED_IN' && session?.user) {
@@ -84,18 +90,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     console.log('Signing in user:', email);
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    if (error) console.error('Sign in error:', error);
+    
+    if (error) {
+      console.error('Sign in error:', error);
+      // Return user-friendly error messages
+      if (error.message === 'Invalid login credentials') {
+        return { error: { ...error, message: 'Invalid email or password. Please check your credentials and try again.' } };
+      }
+      if (error.message === 'Email not confirmed') {
+        return { error: { ...error, message: 'Please verify your email address before signing in. Check your inbox for a confirmation email.' } };
+      }
+    }
+    
     return { error };
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     console.log('Signing up user:', email, 'with name:', fullName);
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -108,6 +125,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     if (error) {
       console.error('Sign up error:', error);
+      // Return user-friendly error messages
+      if (error.message === 'User already registered') {
+        return { error: { ...error, message: 'An account with this email already exists. Please sign in instead.' } };
+      }
+      if (error.message.includes('Password should be')) {
+        return { error: { ...error, message: 'Password must be at least 6 characters long.' } };
+      }
     } else {
       console.log('Sign up successful');
     }
@@ -134,6 +158,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const value = {
     user,
+    session,
     loading,
     signIn,
     signUp,
