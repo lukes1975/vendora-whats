@@ -4,6 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  SECRETS_SCAN_ENABLED = "false"
 
 [[redirects]]
   from = "/*"
@@ -39,6 +40,5 @@
   for = "*.svg"
   [headers.values]
     cache-control = "max-age=31536000"
-      
-[build.environment]
-SECRETS_SCAN_ENABLED = "false"
+    
+
