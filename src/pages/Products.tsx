@@ -303,7 +303,7 @@ const Products = () => {
                           </div>
                         )}
                         <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-lg px-3 py-1">
-                          <span className="text-lg font-bold text-primary">${product.price.toFixed(2)}</span>
+                          <span className="text-lg font-bold text-primary">₦{product.price.toFixed(2)}</span>
                         </div>
                       </div>
                       <CardHeader className="pb-3">
