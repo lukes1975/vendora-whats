@@ -88,7 +88,7 @@ const MainAppRoutes = () => {
         <Route path="/store/:storeId" element={<Storefront />} />
         <Route path="/demo-store" element={<Storefront />} />
         {/* Dynamic store routing - must be last to avoid conflicts with platform routes */}
-        <Route path="/:storeSlug" element={<Storefront storeSlug={undefined} />} />
+        <Route path="/:storeSlug" element={<Storefront />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </ErrorBoundary>

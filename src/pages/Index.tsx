@@ -248,6 +248,13 @@ const Index = () => {
       {/* Hero Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-primary/5 to-accent/5">
         <div className="max-w-7xl mx-auto text-center">
+          <div className="flex justify-center mb-8">
+            <img 
+              src="/lovable-uploads/7ea27942-32b4-47b5-8d40-55f11cd46372.png" 
+              alt="Vendora" 
+              className="h-16 w-auto"
+            />
+          </div>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6">
             Transform Your Side Hustle Into a
             <span className="text-primary block">Commanding Business Empire</span>

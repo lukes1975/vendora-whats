@@ -1,0 +1,23 @@
+{
+  "name": "Vendora - Business Empire Platform",
+  "short_name": "Vendora",
+  "description": "Transform your business into a commanding empire",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1b23",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "/lovable-uploads/6c476ac4-1944-4eab-b781-7b6fb392cbb9.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/lovable-uploads/6c476ac4-1944-4eab-b781-7b6fb392cbb9.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

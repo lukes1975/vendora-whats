@@ -20,8 +20,12 @@ const Header = () => {
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
-        <div>
-          <h1 className="text-xl font-semibold text-gray-900">Vendora Dashboard</h1>
+        <div className="flex items-center space-x-3">
+          <img 
+            src="/lovable-uploads/7ea27942-32b4-47b5-8d40-55f11cd46372.png" 
+            alt="Vendora" 
+            className="h-8 w-auto"
+          />
         </div>
         
         {user && (

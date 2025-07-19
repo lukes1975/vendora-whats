@@ -61,6 +61,13 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <img 
+              src="/lovable-uploads/7ea27942-32b4-47b5-8d40-55f11cd46372.png" 
+              alt="Vendora" 
+              className="h-12 w-auto"
+            />
+          </div>
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
             👑 Welcome Back, Empire Builder
           </CardTitle>

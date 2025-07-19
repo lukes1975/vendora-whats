@@ -25,7 +25,13 @@ const StorefrontHeader = ({ onShare, store }: StorefrontHeaderProps) => {
     <div className="bg-background/95 backdrop-blur-sm border-b border-border sticky top-0 z-40">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14">
-          <div />
+          <div className="flex items-center">
+            <img 
+              src="/lovable-uploads/fd1cf987-9f9a-4873-8bab-01b4cd7bb0f9.png" 
+              alt="Vendora" 
+              className="h-8 w-8"
+            />
+          </div>
           
           <Button 
             variant="outline" 
