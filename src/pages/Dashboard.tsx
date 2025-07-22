@@ -22,7 +22,7 @@ import RecentOrders from "@/components/dashboard/RecentOrders";
 import EarlyAccessBadge from "@/components/dashboard/EarlyAccessBadge";
 import UsageMeter from "@/components/dashboard/UsageMeter";
 import ProInterestModal from "@/components/dashboard/ProInterestModal";
-import FirstTimeUserGuide from "@/components/dashboard/FirstTimeUserGuide";
+import EnhancedOnboarding from "@/components/dashboard/EnhancedOnboarding";
 
 import { Button } from "@/components/ui/button";
 
@@ -193,8 +193,8 @@ const Dashboard = () => {
       {/* Lightweight nudge scheduler - invisible component */}
       <NudgeScheduler />
 
-      {/* First Time User Guide */}
-      <FirstTimeUserGuide
+      {/* Enhanced Onboarding */}
+      <EnhancedOnboarding
         isVisible={showGuide}
         onClose={handleCloseGuide}
         hasProducts={hasProducts}
