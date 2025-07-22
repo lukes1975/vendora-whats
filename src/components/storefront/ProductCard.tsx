@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare } from "lucide-react";
 import { generateSecureWhatsAppUrl } from "@/utils/security";
+import PaymentButton from "@/components/payment/PaymentButton";
 
 interface Product {
   id: string;
@@ -68,18 +69,33 @@ const ProductCard = ({ product, store }: ProductCardProps) => {
           </span>
           <Badge variant="secondary" className="rounded-full">In Stock</Badge>
         </div>
-        <a
-          href={generateWhatsAppUrl()}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block"
-          onClick={handleWhatsAppClick}
-        >
-          <Button className="w-full bg-green-600 hover:bg-green-700 text-white rounded-full">
-            <MessageSquare className="mr-2 h-4 w-4" />
-            DM to Buy
-          </Button>
-        </a>
+        
+        {/* Actions */}
+        <div className="space-y-2">
+          {/* Payment Button - Primary CTA */}
+          <PaymentButton
+            productId={product.id}
+            productName={product.name}
+            price={product.price}
+            storeId={store.id}
+            storeName={store.name}
+            className="w-full rounded-full"
+          />
+          
+          {/* WhatsApp Button - Secondary CTA */}
+          <a
+            href={generateWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block"
+            onClick={handleWhatsAppClick}
+          >
+            <Button variant="outline" className="w-full rounded-full">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Ask Question
+            </Button>
+          </a>
+        </div>
       </CardContent>
     </Card>
   );

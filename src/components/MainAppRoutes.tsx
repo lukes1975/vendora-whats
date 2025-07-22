@@ -12,6 +12,7 @@ import DashboardStorefront from "@/pages/DashboardStorefront";
 import Pricing from "@/pages/Pricing";
 import NotFound from "@/pages/NotFound";
 import Storefront from "@/pages/Storefront";
+import PaymentSuccess from "@/pages/PaymentSuccess";
 
 /**
  * Main application routes for www.vendora.business
@@ -22,6 +23,7 @@ const MainAppRoutes = () => {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route 
