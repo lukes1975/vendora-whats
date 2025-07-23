@@ -161,6 +161,26 @@ serve(async (req) => {
       // Don't throw here since email was sent successfully
     }
 
+    // Schedule follow-up onboarding email after 2 minutes
+    setTimeout(async () => {
+      try {
+        await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-onboarding-followup`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: user.email,
+            fullName: profile.full_name || '',
+            userId: user.id
+          }),
+        });
+      } catch (error) {
+        console.error('Failed to schedule onboarding follow-up:', error);
+      }
+    }, 2 * 60 * 1000); // 2 minutes delay
+
     return new Response(
       JSON.stringify({ message: 'Welcome email sent successfully' }),
       { 
