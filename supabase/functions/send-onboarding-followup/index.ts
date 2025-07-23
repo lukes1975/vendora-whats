@@ -132,6 +132,35 @@ const handler = async (req: Request): Promise<Response> => {
       console.error('Failed to update onboarding_email_sent:', updateError);
     }
 
+    // Send welcome email after onboarding email (with delay)
+    setTimeout(async () => {
+      try {
+        console.log('Sending welcome email after onboarding...');
+        const welcomeResponse = await fetch(
+          `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-welcome-email`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`
+            },
+            body: JSON.stringify({
+              email,
+              fullName
+            })
+          }
+        );
+        
+        if (!welcomeResponse.ok) {
+          console.error('Welcome email failed:', await welcomeResponse.text());
+        } else {
+          console.log('Welcome email sent successfully');
+        }
+      } catch (error) {
+        console.error('Error sending welcome email:', error);
+      }
+    }, 30000); // 30 seconds delay
+
     return new Response(JSON.stringify({ success: true, messageId: emailResponse.data?.id }), {
       status: 200,
       headers: {

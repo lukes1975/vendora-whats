@@ -67,19 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
       setLoading(false);
       
-      // Defer the welcome email to avoid blocking auth state updates
-      if (event === 'SIGNED_IN' && session?.user) {
-        setTimeout(async () => {
-          try {
-            const { error } = await supabase.functions.invoke('send-welcome-email');
-            if (error) {
-              console.error('Welcome email error:', error);
-            }
-          } catch (error) {
-            console.error('Failed to send welcome email:', error);
-          }
-        }, 0);
-      }
+      // Welcome emails are now sent via the onboarding flow after email confirmation
     });
 
     return () => {
