@@ -6,3 +6,15 @@ verify_jwt = false
 
 [functions.catalog-import]
 verify_jwt = false
+
+[functions.create-subscription]
+verify_jwt = true
+
+[functions.verify-subscription]
+verify_jwt = false
+
+[functions.cancel-subscription]
+verify_jwt = true
+
+[functions.paystack-subscription-webhook]
+verify_jwt = false
