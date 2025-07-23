@@ -243,33 +243,57 @@ export type Database = {
       }
       profiles: {
         Row: {
+          billing_cycle: string | null
           created_at: string | null
           email: string
           first_login_done: boolean | null
           full_name: string | null
           id: string
+          next_billing_date: string | null
           onboarding_email_sent: boolean | null
+          paystack_customer_code: string | null
+          paystack_subscription_code: string | null
+          plan: string | null
           role: Database["public"]["Enums"]["user_role"] | null
+          subscription_created_at: string | null
+          subscription_status: string | null
+          subscription_updated_at: string | null
           updated_at: string | null
         }
         Insert: {
+          billing_cycle?: string | null
           created_at?: string | null
           email: string
           first_login_done?: boolean | null
           full_name?: string | null
           id: string
+          next_billing_date?: string | null
           onboarding_email_sent?: boolean | null
+          paystack_customer_code?: string | null
+          paystack_subscription_code?: string | null
+          plan?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          subscription_created_at?: string | null
+          subscription_status?: string | null
+          subscription_updated_at?: string | null
           updated_at?: string | null
         }
         Update: {
+          billing_cycle?: string | null
           created_at?: string | null
           email?: string
           first_login_done?: boolean | null
           full_name?: string | null
           id?: string
+          next_billing_date?: string | null
           onboarding_email_sent?: boolean | null
+          paystack_customer_code?: string | null
+          paystack_subscription_code?: string | null
+          plan?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          subscription_created_at?: string | null
+          subscription_status?: string | null
+          subscription_updated_at?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -343,6 +367,36 @@ export type Database = {
           updated_at?: string | null
           vendor_id?: string
           whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
+      subscription_plans: {
+        Row: {
+          amount: number
+          billing_cycle: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          paystack_plan_code: string
+          plan_name: string
+        }
+        Insert: {
+          amount: number
+          billing_cycle: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          paystack_plan_code: string
+          plan_name: string
+        }
+        Update: {
+          amount?: number
+          billing_cycle?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          paystack_plan_code?: string
+          plan_name?: string
         }
         Relationships: []
       }
