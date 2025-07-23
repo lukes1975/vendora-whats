@@ -247,43 +247,38 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-primary/5 to-accent/5">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="flex justify-center mb-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="flex justify-center mb-12">
             <img 
               src="/lovable-uploads/7ea27942-32b4-47b5-8d40-55f11cd46372.png" 
               alt="Vendora" 
-              className="h-16 w-auto"
+              className="h-12 w-auto opacity-90"
             />
           </div>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6">
-            Turn Your Hustle into a System.
-            <span className="text-primary block">Sell like a pro. Operate like a CEO.</span>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-light text-foreground mb-8 tracking-tight">
+            Turn Your Hustle into a
+            <span className="block font-medium text-primary mt-2">System</span>
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-4xl mx-auto">
-            From WhatsApp to full-blown storefronts, Vendora gives you the tools to organize, automate, and scale your business — without the chaos.
+          <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto font-light leading-relaxed">
+            Professional storefronts for WhatsApp sellers. 
+            Organize, automate, and scale without the chaos.
           </p>
-          <div className="text-center mb-6">
-            <div className="inline-block bg-primary/10 px-6 py-2 rounded-full border border-primary/20">
-              <span className="text-primary font-semibold text-lg">Sell Everywhere. Control Everything.</span>
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <Link to="/signup">
-              <Button size="lg" className="text-lg px-8 py-4 h-14 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-xl">
-                Start My 3-Day Free Trial
-                <ArrowRight className="ml-2 h-5 w-5" />
+              <Button size="lg" className="text-base px-8 py-6 h-12 bg-foreground text-background hover:bg-foreground/90 rounded-full font-medium">
+                Start Free Trial
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
             <Link to="/demo-store">
-              <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-14">
-                <Play className="mr-2 h-5 w-5" />
-                See How It Works
+              <Button variant="ghost" size="lg" className="text-base px-8 py-6 h-12 rounded-full font-medium">
+                View Demo
               </Button>
             </Link>
           </div>
           <div className="text-center">
-            <p className="text-sm text-muted-foreground font-medium">
-              Used by Africa's boldest sellers to bring structure to their business.
+            <p className="text-sm text-muted-foreground/70 font-light">
+              Trusted by ambitious sellers across Africa
             </p>
           </div>
         </div>
