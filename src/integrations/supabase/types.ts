@@ -248,6 +248,7 @@ export type Database = {
           first_login_done: boolean | null
           full_name: string | null
           id: string
+          onboarding_email_sent: boolean | null
           role: Database["public"]["Enums"]["user_role"] | null
           updated_at: string | null
         }
@@ -257,6 +258,7 @@ export type Database = {
           first_login_done?: boolean | null
           full_name?: string | null
           id: string
+          onboarding_email_sent?: boolean | null
           role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string | null
         }
@@ -266,6 +268,7 @@ export type Database = {
           first_login_done?: boolean | null
           full_name?: string | null
           id?: string
+          onboarding_email_sent?: boolean | null
           role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string | null
         }
