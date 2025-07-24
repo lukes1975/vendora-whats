@@ -54,7 +54,7 @@ const handler = async (req: Request): Promise<Response> => {
     const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
     const firstName = fullName?.split(' ')[0] || 'there';
     const loginUrl = `${Deno.env.get("SUPABASE_URL")?.replace('.supabase.co', '')}.vendora.business/dashboard`;
-    const feedbackUrl = "https://vendora.business/feedback";
+    const feedbackUrl = "https://vendora.business";
 
     const emailResponse = await resend.emails.send({
       from: "Vendora <team@vendora.business>",
