@@ -25,7 +25,39 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
+    // Record auth attempt for rate limiting
+    try {
+      await fetch('https://ncetgnojwfrnsxpytcia.supabase.co/functions/v1/auth-rate-limit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          success: false, // Will be updated after actual auth
+          userAgent: navigator.userAgent
+        })
+      });
+    } catch (e) {
+      console.warn('Rate limiting service unavailable');
+    }
+
     const { error } = await signIn(email, password);
+
+    // Record successful login
+    if (!error) {
+      try {
+        await fetch('https://ncetgnojwfrnsxpytcia.supabase.co/functions/v1/auth-rate-limit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            success: true,
+            userAgent: navigator.userAgent
+          })
+        });
+      } catch (e) {
+        console.warn('Rate limiting service unavailable');
+      }
+    }
 
     if (error) {
       toast({
