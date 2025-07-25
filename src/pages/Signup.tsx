@@ -41,8 +41,8 @@ const Signup = () => {
     } else {
       console.log('Signup successful');
       toast({
-        title: '🏆 Empire Status: ACTIVATED!',
-        description: 'Your business transformation begins now. Welcome to the elite circle!',
+        title: '🔥 You’re In — Almost!',
+        description: 'Your business transformation begins now! Vendora is ready to serve. Confirm your email now to unlock your dashboard and begin the takeover.',
       });
     }
 
