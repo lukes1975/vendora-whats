@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -104,7 +105,7 @@ export default function FirstTimeUserGuide({
 
   return (
     <Dialog open={isVisible} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh]">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -119,9 +120,10 @@ export default function FirstTimeUserGuide({
           </div>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Progress Section */}
-          <Card>
+        <ScrollArea className="max-h-[calc(90vh-8rem)] pr-4">
+          <div className="space-y-6">
+            {/* Progress Section */}
+            <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium">Setup Progress</span>
@@ -198,6 +200,7 @@ export default function FirstTimeUserGuide({
             </Button>
           </div>
         </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
