@@ -79,6 +79,33 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          attempt_time: string
+          email: string
+          id: string
+          ip_address: unknown | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          attempt_time?: string
+          email: string
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          attempt_time?: string
+          email?: string
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           created_at: string | null
@@ -483,6 +510,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_rate_limit: {
+        Args: {
+          user_email: string
+          client_ip: unknown
+          max_attempts?: number
+          window_minutes?: number
+        }
+        Returns: boolean
+      }
       generate_referral_code: {
         Args: { user_email: string }
         Returns: string
