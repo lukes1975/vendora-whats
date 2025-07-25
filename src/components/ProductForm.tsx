@@ -218,7 +218,7 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
             {product ? "Update your product here." : "Create a new product here."}
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="flex-1 min-h-0 px-1">
+        <ScrollArea className="flex-1 min-h-0 max-h-[60vh] px-1">
           <div className="grid gap-4 py-4 pr-3">
             <div className="grid gap-2">
               <Label htmlFor="name">Product Name</Label>
