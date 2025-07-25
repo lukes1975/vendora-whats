@@ -27,6 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required"),
@@ -210,75 +211,77 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>{product ? "Edit Product" : "Add Product"}</DialogTitle>
           <DialogDescription>
             {product ? "Update your product here." : "Create a new product here."}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="name">Product Name</Label>
-            <Input id="name" placeholder="Product name" {...register("name")} />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
-            )}
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="price">Price</Label>
-            <Input
-              id="price"
-              placeholder="0.00"
-              type="number"
-              step="0.01"
-              {...register("price", { valueAsNumber: true })}
-            />
-            {errors.price && (
-              <p className="text-sm text-red-500">{errors.price.message}</p>
-            )}
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea id="description" placeholder="Product description" {...register("description")} />
-            {errors.description && (
-              <p className="text-sm text-red-500">{errors.description.message}</p>
-            )}
-          </div>
+        <ScrollArea className="flex-1 px-1">
+          <div className="grid gap-4 py-4 pr-3">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Product Name</Label>
+              <Input id="name" placeholder="Product name" {...register("name")} />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name.message}</p>
+              )}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="price">Price</Label>
+              <Input
+                id="price"
+                placeholder="0.00"
+                type="number"
+                step="0.01"
+                {...register("price", { valueAsNumber: true })}
+              />
+              {errors.price && (
+                <p className="text-sm text-red-500">{errors.price.message}</p>
+              )}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea id="description" placeholder="Product description" {...register("description")} />
+              {errors.description && (
+                <p className="text-sm text-red-500">{errors.description.message}</p>
+              )}
+            </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="category">Category (Optional)</Label>
-            <Select onValueChange={(value) => setValue("category_id", value)} value={product?.category_id || "none"}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No Category</SelectItem>
-                {parentCategories.map((parent) => {
-                  const subcategories = getSubcategories(parent.id);
-                  return (
-                    <div key={parent.id}>
-                      <SelectItem value={parent.id} className="font-semibold">
-                        {parent.name}
-                      </SelectItem>
-                      {subcategories.map((sub) => (
-                        <SelectItem key={sub.id} value={sub.id} className="pl-6">
-                          └ {sub.name}
+            <div className="grid gap-2">
+              <Label htmlFor="category">Category (Optional)</Label>
+              <Select onValueChange={(value) => setValue("category_id", value)} value={product?.category_id || "none"}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Category</SelectItem>
+                  {parentCategories.map((parent) => {
+                    const subcategories = getSubcategories(parent.id);
+                    return (
+                      <div key={parent.id}>
+                        <SelectItem value={parent.id} className="font-semibold">
+                          {parent.name}
                         </SelectItem>
-                      ))}
-                    </div>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-          </div>
+                        {subcategories.map((sub) => (
+                          <SelectItem key={sub.id} value={sub.id} className="pl-6">
+                            └ {sub.name}
+                          </SelectItem>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <ImageUpload
-            currentImageUrl={uploadedImageUrl}
-            onImageUpload={handleImageUpload}
-            onImageRemove={handleImageRemove}
-          />
-        </div>
+            <ImageUpload
+              currentImageUrl={uploadedImageUrl}
+              onImageUpload={handleImageUpload}
+              onImageRemove={handleImageRemove}
+            />
+          </div>
+        </ScrollArea>
         <div className="flex justify-end gap-2 mt-4">
           <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
             Cancel
