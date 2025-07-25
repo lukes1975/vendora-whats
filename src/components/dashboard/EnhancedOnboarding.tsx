@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -196,8 +197,8 @@ export default function EnhancedOnboarding({
 
   return (
     <Dialog open={isVisible} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
             Transform Your Business in 3 Steps
           </DialogTitle>
@@ -206,7 +207,8 @@ export default function EnhancedOnboarding({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <ScrollArea className="flex-1 min-h-0 px-1">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full pr-3">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="foundation" className="flex items-center gap-2">
               <Trophy className="h-4 w-4" />
@@ -418,8 +420,9 @@ export default function EnhancedOnboarding({
             </div>
           </TabsContent>
         </Tabs>
+        </ScrollArea>
 
-        <div className="flex justify-between items-center pt-6 border-t">
+        <div className="flex justify-between items-center pt-6 border-t flex-shrink-0">
           <Button variant="outline" onClick={onClose}>
             Continue Later
           </Button>
