@@ -19,9 +19,13 @@ export const sanitizeHtml = (input: string): string => {
 export const validatePhoneNumber = (phone: string): boolean => {
   if (!phone) return false;
   
-  // International format: +country code followed by 6-14 digits
-  const phoneRegex = /^\+[1-9]\d{6,14}$/;
-  return phoneRegex.test(phone.trim());
+  // For Nigeria: +234 followed by exactly 10 digits
+  const nigerianPhoneRegex = /^\+234\d{10}$/;
+  // General international format as fallback: +country code followed by 6-14 digits
+  const generalPhoneRegex = /^\+[1-9]\d{6,14}$/;
+  
+  const trimmedPhone = phone.trim();
+  return nigerianPhoneRegex.test(trimmedPhone) || generalPhoneRegex.test(trimmedPhone);
 };
 
 // Sanitize text input to prevent XSS

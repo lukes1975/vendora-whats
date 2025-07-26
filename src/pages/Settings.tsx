@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -36,6 +37,7 @@ const Settings = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   const themeColors = [
     { name: 'Deep Blue', color: '#012C6D' },
@@ -93,7 +95,11 @@ const Settings = () => {
 
       if (data) {
         setValue('store_name', sanitizeTextInput(data.name || ''));
-        setValue('whatsapp_number', data.whatsapp_number || '');
+        // Extract phone number without +234 prefix for display
+        const whatsappNumber = data.whatsapp_number || '';
+        const displayNumber = whatsappNumber.startsWith('+234') ? whatsappNumber.slice(4) : whatsappNumber;
+        setPhoneNumber(displayNumber);
+        setValue('whatsapp_number', whatsappNumber); // Keep full number in form
         setValue('logo_url', data.logo_url);
         setLogoPreview(data.logo_url);
       }
@@ -185,11 +191,12 @@ const Settings = () => {
         const logoUrl = await uploadLogo();
 
         // Update store settings with sanitized data
+        const fullWhatsAppNumber = phoneNumber ? `+234${phoneNumber}` : '';
         const { error } = await supabase
           .from('stores')
           .update({
             name: formValues.store_name, // Already sanitized by form
-            whatsapp_number: formValues.whatsapp_number,
+            whatsapp_number: fullWhatsAppNumber,
             logo_url: logoUrl,
             updated_at: new Date().toISOString(),
           })
@@ -227,7 +234,8 @@ const Settings = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto space-y-8">
+      <ScrollArea className="h-[calc(100vh-120px)]">
+        <div className="max-w-5xl mx-auto space-y-8 p-4">
         {/* Premium Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -280,20 +288,30 @@ const Settings = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <div className="relative flex">
+                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md border-input">
+                    <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+                    <span className="text-sm font-medium text-foreground">+234</span>
+                  </div>
                   <Input
                     id="whatsappNumber"
-                    value={values.whatsapp_number}
-                    onChange={(e) => setValue('whatsapp_number', e.target.value)}
-                    placeholder="+234 800 000 0000"
-                    className="pl-10"
+                    value={phoneNumber}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setPhoneNumber(value);
+                      setValue('whatsapp_number', value ? `+234${value}` : '');
+                    }}
+                    placeholder="8012345678"
+                    className="rounded-l-none"
+                    maxLength={10}
                     required
                   />
-                  {errors.whatsapp_number && (
-                    <p className="text-sm text-red-600 mt-1">{errors.whatsapp_number}</p>
-                  )}
                 </div>
+                {(errors.whatsapp_number || (phoneNumber && phoneNumber.length < 10)) && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.whatsapp_number || 'Please enter a valid 10-digit number'}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -428,7 +446,8 @@ const Settings = () => {
 
         {/* Add bottom padding on mobile to account for sticky button */}
         <div className="h-20 lg:h-0" />
-      </div>
+        </div>
+      </ScrollArea>
     </DashboardLayout>
   );
 };

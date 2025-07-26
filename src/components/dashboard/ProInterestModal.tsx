@@ -70,7 +70,7 @@ const ProInterestModal = ({ trigger, children }: ProInterestModalProps) => {
       <DialogTrigger asChild>
         {trigger || children || defaultTrigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Get notified about Pro plans</DialogTitle>
         </DialogHeader>
@@ -96,12 +96,22 @@ const ProInterestModal = ({ trigger, children }: ProInterestModalProps) => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="whatsapp">WhatsApp Number (Optional)</Label>
-            <Input
-              id="whatsapp"
-              value={formData.whatsapp}
-              onChange={(e) => setFormData(prev => ({ ...prev, whatsapp: e.target.value }))}
-              placeholder="+234..."
-            />
+            <div className="flex">
+              <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md border-input">
+                <span className="text-sm font-medium text-foreground">+234</span>
+              </div>
+              <Input
+                id="whatsapp"
+                value={formData.whatsapp}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                  setFormData(prev => ({ ...prev, whatsapp: value ? `+234${value}` : '' }));
+                }}
+                placeholder="8012345678"
+                className="rounded-l-none"
+                maxLength={10}
+              />
+            </div>
           </div>
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? 'Submitting...' : 'Notify Me'}

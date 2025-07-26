@@ -86,7 +86,7 @@ export const FeatureSuggestionModal = ({ isOpen, onClose }: FeatureSuggestionMod
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] mx-4">
+      <DialogContent className="sm:max-w-[500px] mx-4 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>💬 Suggest a Feature</DialogTitle>
         </DialogHeader>
