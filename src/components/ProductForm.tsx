@@ -211,14 +211,14 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-[425px] max-h-[95vh] flex flex-col overflow-hidden">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle>{product ? "Edit Product" : "Add Product"}</DialogTitle>
           <DialogDescription>
             {product ? "Update your product here." : "Create a new product here."}
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="flex-1 min-h-0 max-h-[60vh] px-1">
+        <ScrollArea className="flex-1 overflow-y-auto px-1">
           <div className="grid gap-4 py-4 pr-3">
             <div className="grid gap-2">
               <Label htmlFor="name">Product Name</Label>
