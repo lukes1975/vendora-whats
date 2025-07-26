@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -41,8 +40,8 @@ const Signup = () => {
     } else {
       console.log('Signup successful');
       toast({
-        title: '🔥 You’re In — Almost!',
-        description: 'Your business transformation begins now! Vendora is ready to serve. Confirm your email now to unlock your dashboard and begin the takeover.',
+        title: '🔥 You\'re In — Almost!',
+        description: 'Check your email! We\'ve sent a confirmation link to activate your account. Click the link to unlock your dashboard and begin your business transformation.',
       });
     }
 

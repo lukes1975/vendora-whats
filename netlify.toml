@@ -6,6 +6,15 @@
   NODE_VERSION = "18"
   SECRETS_SCAN_ENABLED = "false"
 
+# Subdomain support for user stores
+[[redirects]]
+  from = "https://:subdomain.vendora.business/*"
+  to = "https://vendora.business/:subdomain/:splat"
+  status = 200
+  force = true
+  headers = {X-Subdomain = ":subdomain"}
+
+# Main domain redirects
 [[redirects]]
   from = "/*"
   to = "/index.html"
