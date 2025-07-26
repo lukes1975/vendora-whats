@@ -23,12 +23,14 @@ import EarlyAccessBadge from "@/components/dashboard/EarlyAccessBadge";
 import UsageMeter from "@/components/dashboard/UsageMeter";
 import ProInterestModal from "@/components/dashboard/ProInterestModal";
 import EnhancedOnboarding from "@/components/dashboard/EnhancedOnboarding";
+import SetupWizard from "@/components/dashboard/SetupWizard";
 
 import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
-  // First-time user guide state
-  const [showGuide, setShowGuide] = useState(false);
+  // Setup wizard state
+  const [showSetupWizard, setShowSetupWizard] = useState(false);
+  const [showSetupManually, setShowSetupManually] = useState(false);
   
   // Auto-create store if needed
   useAutoCreateStore();
@@ -48,21 +50,20 @@ const Dashboard = () => {
 
   const hasProducts = (analytics?.totalProducts || 0) > 0;
 
-  // Determine if user should see the first-time guide
+  // Determine if user should see the setup wizard
   useEffect(() => {
     if (!storeLoading && !analyticsLoading && storeData) {
-      const hasCompletedGuide = localStorage.getItem('vendora-guide-completed');
+      const hasCompletedSetup = localStorage.getItem('vendora-setup-completed');
       const isNewUser = !hasProducts && (!storeData.name || storeData.name.trim() === '');
       
-      if (!hasCompletedGuide && isNewUser) {
-        setShowGuide(true);
+      if (!hasCompletedSetup && isNewUser) {
+        setShowSetupWizard(true);
       }
     }
   }, [storeLoading, analyticsLoading, storeData, hasProducts]);
 
-  const handleCloseGuide = () => {
-    setShowGuide(false);
-    localStorage.setItem('vendora-guide-closed', 'true');
+  const handleTaskComplete = (taskId: string) => {
+    track('setup_task_completed' as any, { taskId });
   };
 
   // Show loading state while critical data is being fetched
@@ -95,21 +96,48 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="space-y-8 pb-24">
-        {/* Announcement Banner */}
-        <AnnouncementBanner />
+        {/* Setup Wizard for new users or manual access */}
+        {(showSetupWizard || showSetupManually) && (
+          <div className="space-y-4">
+            {showSetupManually && (
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Store Setup Guide</h2>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowSetupManually(false)}
+                >
+                  Close Setup Guide
+                </Button>
+              </div>
+            )}
+            <SetupWizard
+              storeData={storeData}
+              hasProducts={hasProducts}
+              totalProducts={analytics?.totalProducts || 0}
+              onTaskComplete={handleTaskComplete}
+            />
+          </div>
+        )}
 
-        {/* Retention Nudges */}
-        <RetentionNudges />
+        {/* Regular dashboard content */}
+        {!showSetupWizard && !showSetupManually && (
+          <>
+            {/* Announcement Banner */}
+            <AnnouncementBanner />
 
-        {/* Early Access Badge */}
-        <div className="flex justify-center sm:justify-start">
-          <EarlyAccessBadge />
-        </div>
+            {/* Retention Nudges */}
+            <RetentionNudges />
 
-        {/* Welcome Header */}
-        <div className="bg-gradient-to-r from-primary/5 via-purple-500/5 to-primary/5 rounded-2xl p-8 border shadow-sm">
-          <WelcomeSection storeName={storeData?.name} />
-        </div>
+            {/* Early Access Badge */}
+            <div className="flex justify-center sm:justify-start">
+              <EarlyAccessBadge />
+            </div>
+
+            {/* Welcome Header */}
+            <div className="bg-gradient-to-r from-primary/5 via-purple-500/5 to-primary/5 rounded-2xl p-8 border shadow-sm">
+              <WelcomeSection storeName={storeData?.name} />
+            </div>
 
         {/* Share Store Card */}
         <div className="bg-card rounded-2xl shadow-lg border-0">
@@ -175,10 +203,20 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-card rounded-2xl shadow-lg border-0">
-          <QuickActions />
-        </div>
+            {/* Quick Actions */}
+            <div className="bg-card rounded-2xl shadow-lg border-0">
+              <QuickActions />
+              <div className="p-4 border-t">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowSetupManually(true)}
+                  className="w-full"
+                >
+                  📋 Open Setup Guide
+                </Button>
+              </div>
+            </div>
 
         {/* Recent Orders */}
         <div className="bg-card rounded-2xl shadow-lg border-0">
@@ -186,22 +224,14 @@ const Dashboard = () => {
         </div>
 
 
-        {/* First Product CTA for users with no products */}
-        <FirstProductCTA hasProducts={hasProducts} />
+            {/* First Product CTA for users with no products */}
+            <FirstProductCTA hasProducts={hasProducts} />
+          </>
+        )}
       </div>
 
       {/* Lightweight nudge scheduler - invisible component */}
       <NudgeScheduler />
-
-      {/* Enhanced Onboarding */}
-      <EnhancedOnboarding
-        isVisible={showGuide}
-        onClose={handleCloseGuide}
-        hasProducts={hasProducts}
-        storeName={storeData?.name}
-        storeUrl={storeUrl}
-        totalProducts={analytics?.totalProducts || 0}
-      />
     </DashboardLayout>
   );
 };
