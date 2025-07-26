@@ -282,6 +282,7 @@ export type Database = {
           paystack_subscription_code: string | null
           plan: string | null
           role: Database["public"]["Enums"]["user_role"] | null
+          subdomain: string | null
           subscription_created_at: string | null
           subscription_status: string | null
           subscription_updated_at: string | null
@@ -300,6 +301,7 @@ export type Database = {
           paystack_subscription_code?: string | null
           plan?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          subdomain?: string | null
           subscription_created_at?: string | null
           subscription_status?: string | null
           subscription_updated_at?: string | null
@@ -318,6 +320,7 @@ export type Database = {
           paystack_subscription_code?: string | null
           plan?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          subdomain?: string | null
           subscription_created_at?: string | null
           subscription_status?: string | null
           subscription_updated_at?: string | null
@@ -535,11 +538,19 @@ export type Database = {
         }
         Returns: undefined
       }
+      send_email_reminders: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       update_user_role: {
         Args: {
           target_user_id: string
           new_role: Database["public"]["Enums"]["user_role"]
         }
+        Returns: boolean
+      }
+      validate_subdomain: {
+        Args: { subdomain_input: string }
         Returns: boolean
       }
     }
