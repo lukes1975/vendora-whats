@@ -22,17 +22,19 @@ import {
   HelpCircle,
   Lightbulb
 } from 'lucide-react';
-import Confetti from 'react-confetti';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useSetupProgress } from '@/hooks/useSetupProgress';
 import { toast } from 'sonner';
+import SetupCompletionCelebration from './SetupCompletionCelebration';
 
 interface SetupWizardProps {
   onTaskComplete?: () => void;
+  onSetupComplete?: () => void;
 }
 
 const SetupWizard: React.FC<SetupWizardProps> = ({ 
-  onTaskComplete 
+  onTaskComplete,
+  onSetupComplete 
 }) => {
   const navigate = useNavigate();
   const { track } = useAnalytics();
@@ -40,7 +42,9 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
     setupProgress, 
     isLoading, 
     markTaskCompleted, 
-    detectTaskCompletion, 
+    detectTaskCompletion,
+    validateAllTasks,
+    validateAndUpdateTask,
     TASK_DEFINITIONS 
   } = useSetupProgress();
   
@@ -55,8 +59,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
   });
   
   const [showAIAssist, setShowAIAssist] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  const [showCelebration, setShowCelebration] = useState(false);
 
   // Task definitions with all required data
   const sections = [
@@ -246,49 +249,67 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
   ];
 
   useEffect(() => {
-    // Auto-detect completion on mount
-    detectTaskCompletion();
-  }, []);
-
-  // Handle window resize for confetti
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    };
-    
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Show confetti when setup is complete
-  useEffect(() => {
-    if (setupProgress?.overallProgress === 100 && !setupProgress.isSetupCompleted) {
-      setShowConfetti(true);
-      const timer = setTimeout(() => setShowConfetti(false), 5000);
-      return () => clearTimeout(timer);
+    // Auto-validate all tasks on mount and periodically
+    if (validateAllTasks) {
+      validateAllTasks();
+      
+      // Set up periodic validation every 30 seconds
+      const interval = setInterval(() => {
+        validateAllTasks();
+      }, 30000);
+      
+      return () => clearInterval(interval);
     }
-  }, [setupProgress?.overallProgress, setupProgress?.isSetupCompleted]);
+  }, [validateAllTasks]);
 
-  // Handle task clicks
-  const handleTaskClick = (task: any) => {
+  // Setup completion detection
+  useEffect(() => {
+    if (setupProgress?.isSetupCompleted && !showCelebration) {
+      setShowCelebration(true);
+      onSetupComplete?.();
+    }
+  }, [setupProgress?.isSetupCompleted, showCelebration, onSetupComplete]);
+
+  // Handle task clicks with smart validation
+  const handleTaskClick = async (task: any) => {
+    const sectionId = sections.find(s => s.tasks.some(t => t.id === task.id))?.id;
+    
     // Navigate if route provided
     if (task.route) {
       navigate(task.route);
+      
+      // Auto-validate the task after navigation to check if completion criteria are met
+      if (sectionId && validateAndUpdateTask) {
+        setTimeout(() => {
+          validateAndUpdateTask(task.id, sectionId);
+        }, 1000); // Delay to allow navigation and data updates
+      }
     }
 
     // Execute custom action if provided
     if (task.action) {
       task.action();
-    } else {
-      // Mark task as completed for navigation tasks
-      const sectionId = sections.find(s => s.tasks.some(t => t.id === task.id))?.id;
-      if (sectionId) {
+    } else if (sectionId) {
+      // For non-action tasks, validate instead of just marking complete
+      if (validateAndUpdateTask) {
+        const validation = await validateAndUpdateTask(task.id, sectionId);
+        if (!validation?.isCompleted) {
+          // If validation fails, still mark as completed if user clicked (user override)
+          markTaskCompleted(task.id, sectionId);
+          toast.success('Task marked as completed!');
+        }
+      } else {
         markTaskCompleted(task.id, sectionId);
       }
     }
 
-    // Track analytics - TODO: Add proper event tracking
+    // Track analytics (simplified for now)
+    console.log('Setup task clicked:', {
+      taskId: task.id,
+      sectionId,
+      completed: task.completed,
+      route: task.route
+    });
 
     // Call optional callback
     onTaskComplete?.();
@@ -327,14 +348,15 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Confetti Animation */}
-        {showConfetti && (
-          <Confetti
-            width={windowSize.width}
-            height={windowSize.height}
-            recycle={false}
-            numberOfPieces={200}
-            gravity={0.2}
+        {/* Setup Completion Celebration */}
+        {showCelebration && (
+          <SetupCompletionCelebration
+            onDismiss={() => {
+              setShowCelebration(false);
+              onSetupComplete?.();
+            }}
+            storeName="My Store" // TODO: Get actual store name
+            storeSlug="my-store" // TODO: Get actual store slug
           />
         )}
 

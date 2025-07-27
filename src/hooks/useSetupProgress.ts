@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useTaskValidation } from "./useTaskValidation";
 
 interface TaskProgress {
   taskId: string;
@@ -57,6 +58,7 @@ const ALL_REQUIRED_TASKS = [
 export const useSetupProgress = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { validateTask } = useTaskValidation();
 
   // Fetch setup progress from database
   const { data: setupProgress, isLoading, error } = useQuery({
@@ -154,56 +156,142 @@ export const useSetupProgress = () => {
     },
   });
 
-  // Auto-detect task completion based on existing data
+  // Comprehensive task completion detection
   const detectTaskCompletion = async () => {
     if (!user?.id) return;
 
     try {
-      // Check products for first product
-      const { data: products } = await supabase
-        .from('products')
-        .select('id')
-        .eq('vendor_id', user.id)
-        .limit(1);
+      // Fetch all required data in parallel
+      const [
+        { data: products },
+        { data: store },
+        { data: profile },
+        { data: orders }
+      ] = await Promise.all([
+        supabase.from('products').select('id').eq('vendor_id', user.id).limit(1),
+        supabase.from('stores').select('*').eq('vendor_id', user.id).single(),
+        supabase.from('profiles').select('*').eq('id', user.id).single(),
+        supabase.from('orders').select('id').eq('vendor_id', user.id).limit(1)
+      ]);
 
+      const tasksToUpdate: Array<{ taskId: string; sectionId: string; completed: boolean }> = [];
+
+      // STORE SETUP SECTION
+      // Task: Add first product
       if (products && products.length > 0) {
-        updateTaskProgress.mutate({
+        tasksToUpdate.push({
           taskId: 'add_first_product',
           sectionId: 'store_setup',
           completed: true
         });
       }
 
-      // Check store customization
-      const { data: store } = await supabase
-        .from('stores')
-        .select('name, description, logo_url, slug, whatsapp_number')
-        .eq('vendor_id', user.id)
-        .single();
-
-      if (store && (store.name || store.description || store.logo_url)) {
-        updateTaskProgress.mutate({
+      // Task: Customize storefront (name, description, or logo)
+      if (store && (store.name !== 'My Store' && store.name || store.description || store.logo_url)) {
+        tasksToUpdate.push({
           taskId: 'customize_storefront',
           sectionId: 'store_setup',
           completed: true
         });
       }
 
+      // Task: Set store link (slug)
       if (store && store.slug) {
-        updateTaskProgress.mutate({
+        tasksToUpdate.push({
           taskId: 'set_store_link',
           sectionId: 'store_setup',
           completed: true
         });
       }
 
+      // STORE SETTINGS SECTION
+      // Task: Connect payout account (paystack customer code indicates setup)
+      if (profile && profile.paystack_customer_code) {
+        tasksToUpdate.push({
+          taskId: 'connect_payout_account',
+          sectionId: 'store_settings',
+          completed: true
+        });
+      }
+
+      // Task: Set delivery options (for now, mark as completed if WhatsApp is connected)
       if (store && store.whatsapp_number) {
-        updateTaskProgress.mutate({
+        tasksToUpdate.push({
+          taskId: 'set_delivery_options',
+          sectionId: 'store_settings',
+          completed: true
+        });
+      }
+
+      // ORDER MESSAGING SECTION
+      // Task: Set notification preference (default to completed if user has logged in)
+      tasksToUpdate.push({
+        taskId: 'set_notification_preference',
+        sectionId: 'order_messaging',
+        completed: true
+      });
+
+      // Task: Connect WhatsApp
+      if (store && store.whatsapp_number) {
+        tasksToUpdate.push({
           taskId: 'connect_whatsapp',
           sectionId: 'order_messaging',
           completed: true
         });
       }
+
+      // BUSINESS PROFILE SECTION
+      // Task: Add business info (full name and store name)
+      if (profile && profile.full_name && store && store.name && store.name !== 'My Store') {
+        tasksToUpdate.push({
+          taskId: 'add_business_info',
+          sectionId: 'business_profile',
+          completed: true
+        });
+      }
+
+      // PREFERENCES SECTION
+      // Task: Choose selling method (default to completed if has products)
+      if (products && products.length > 0) {
+        tasksToUpdate.push({
+          taskId: 'choose_selling_method',
+          sectionId: 'preferences',
+          completed: true
+        });
+      }
+
+      // LAUNCH CHECKLIST SECTION
+      // Task: Preview store (mark completed if store has basic setup)
+      if (store && store.name && products && products.length > 0) {
+        tasksToUpdate.push({
+          taskId: 'preview_store',
+          sectionId: 'launch_checklist',
+          completed: true
+        });
+      }
+
+      // Task: Share store link (mark completed if has slug)
+      if (store && store.slug) {
+        tasksToUpdate.push({
+          taskId: 'share_store_link',
+          sectionId: 'launch_checklist',
+          completed: true
+        });
+      }
+
+      // Task: Launch store (mark completed if has received an order or manually triggered)
+      if (orders && orders.length > 0) {
+        tasksToUpdate.push({
+          taskId: 'launch_store',
+          sectionId: 'launch_checklist',
+          completed: true
+        });
+      }
+
+      // Batch update all detected tasks
+      tasksToUpdate.forEach(task => {
+        updateTaskProgress.mutate(task);
+      });
 
     } catch (error) {
       console.error('Error detecting task completion:', error);
@@ -226,6 +314,53 @@ export const useSetupProgress = () => {
     });
   };
 
+  // Smart task validation
+  const validateAndUpdateTask = async (taskId: string, sectionId: string) => {
+    if (!user?.id) return;
+    
+    try {
+      const validation = await validateTask(taskId, user.id);
+      updateTaskProgress.mutate({
+        taskId,
+        sectionId,
+        completed: validation.isCompleted
+      });
+      return validation;
+    } catch (error) {
+      console.error(`Error validating task ${taskId}:`, error);
+    }
+  };
+
+  // Auto-validate all tasks
+  const validateAllTasks = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Validate all tasks in parallel
+      const validationPromises = Object.entries(TASK_DEFINITIONS).flatMap(([sectionId, taskIds]) =>
+        taskIds.map(async (taskId) => {
+          const validation = await validateTask(taskId, user.id);
+          return { taskId, sectionId, validation };
+        })
+      );
+
+      const results = await Promise.all(validationPromises);
+      
+      // Update all tasks based on validation results
+      results.forEach(({ taskId, sectionId, validation }) => {
+        updateTaskProgress.mutate({
+          taskId,
+          sectionId,
+          completed: validation.isCompleted
+        });
+      });
+      
+      return results;
+    } catch (error) {
+      console.error('Error validating all tasks:', error);
+    }
+  };
+
   return {
     setupProgress,
     isLoading,
@@ -233,6 +368,8 @@ export const useSetupProgress = () => {
     markTaskCompleted,
     markTaskIncomplete,
     detectTaskCompletion,
+    validateAndUpdateTask,
+    validateAllTasks,
     isUpdating: updateTaskProgress.isPending,
     TASK_DEFINITIONS,
     ALL_REQUIRED_TASKS

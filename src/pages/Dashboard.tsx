@@ -67,9 +67,10 @@ const Dashboard = () => {
       return data;
     },
     enabled: !!user?.id,
+    refetchInterval: 5000, // Check every 5 seconds for completion updates
   });
 
-  const shouldShowSetupWizard = !profileData?.setup_completed || showSetupManually;
+  const shouldShowSetupWizard = profileData?.setup_completed === false || showSetupManually;
 
   // Show loading state while critical data is being fetched
   if (storeLoading) {
@@ -122,6 +123,12 @@ const Dashboard = () => {
                 queryClient.invalidateQueries({ queryKey: ['store', user?.id] });
                 queryClient.invalidateQueries({ queryKey: ['dashboard-stats', user?.id] });
                 queryClient.invalidateQueries({ queryKey: ['profile-setup', user?.id] });
+              }}
+              onSetupComplete={() => {
+                // Hide setup wizard when complete
+                setShowSetupManually(false);
+                // Refresh all data
+                queryClient.invalidateQueries();
               }}
             />
           </div>
