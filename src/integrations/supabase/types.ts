@@ -282,6 +282,8 @@ export type Database = {
           paystack_subscription_code: string | null
           plan: string | null
           role: Database["public"]["Enums"]["user_role"] | null
+          setup_completed: boolean | null
+          setup_completed_at: string | null
           subdomain: string | null
           subscription_created_at: string | null
           subscription_status: string | null
@@ -301,6 +303,8 @@ export type Database = {
           paystack_subscription_code?: string | null
           plan?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          setup_completed?: boolean | null
+          setup_completed_at?: string | null
           subdomain?: string | null
           subscription_created_at?: string | null
           subscription_status?: string | null
@@ -320,6 +324,8 @@ export type Database = {
           paystack_subscription_code?: string | null
           plan?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          setup_completed?: boolean | null
+          setup_completed_at?: string | null
           subdomain?: string | null
           subscription_created_at?: string | null
           subscription_status?: string | null
@@ -504,6 +510,39 @@ export type Database = {
           total_orders?: number | null
           total_products?: number | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_setup_progress: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          section_id: string
+          task_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          section_id: string
+          task_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          section_id?: string
+          task_id?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
