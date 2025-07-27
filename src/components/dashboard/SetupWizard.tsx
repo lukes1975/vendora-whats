@@ -1,273 +1,261 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Confetti from "react-confetti";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
-  Check, 
-  Store, 
-  Settings, 
-  MessageCircle, 
-  Building, 
-  Heart, 
-  Rocket,
-  ChevronDown,
+  CheckCircle2, 
+  Circle, 
+  ChevronDown, 
   ChevronRight,
-  Lightbulb,
-  Sparkles,
-  Target,
-  Share2,
-  Eye,
-  Clock,
-  Zap
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Progress } from "@/components/ui/progress";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
-import { useAnalytics } from "@/hooks/useAnalytics";
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  buttonText: string;
-  route?: string;
-  action?: () => void;
-  completed: boolean;
-  tooltip?: string;
-  icon?: React.ReactNode;
-}
-
-interface Section {
-  id: string;
-  title: string;
-  icon: React.ReactNode;
-  description: string;
-  tasks: Task[];
-  color: string;
-}
+  Store,
+  Package,
+  Settings,
+  MessageSquare,
+  Building2,
+  Sliders,
+  Rocket,
+  Bot,
+  HelpCircle,
+  Lightbulb
+} from 'lucide-react';
+import Confetti from 'react-confetti';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { useSetupProgress } from '@/hooks/useSetupProgress';
+import { toast } from 'sonner';
 
 interface SetupWizardProps {
-  storeData?: any;
-  hasProducts: boolean;
-  totalProducts: number;
-  onTaskComplete?: (taskId: string) => void;
+  onTaskComplete?: () => void;
 }
 
-const SetupWizard: React.FC<SetupWizardProps> = ({
-  storeData,
-  hasProducts,
-  totalProducts,
-  onTaskComplete
+const SetupWizard: React.FC<SetupWizardProps> = ({ 
+  onTaskComplete 
 }) => {
   const navigate = useNavigate();
   const { track } = useAnalytics();
-  const [openSections, setOpenSections] = useState<string[]>(['store-setup']);
+  const { 
+    setupProgress, 
+    isLoading, 
+    markTaskCompleted, 
+    detectTaskCompletion, 
+    TASK_DEFINITIONS 
+  } = useSetupProgress();
+  
+  // State management
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    store_setup: true, // Default open
+    store_settings: false,
+    order_messaging: false,
+    business_profile: false,
+    preferences: false,
+    launch_checklist: false,
+  });
+  
   const [showAIAssist, setShowAIAssist] = useState(false);
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
-  const sections: Section[] = [
+  // Task definitions with all required data
+  const sections = [
     {
-      id: 'store-setup',
+      id: 'store_setup',
       title: 'Store Setup',
-      icon: <Store className="h-5 w-5" />,
-      description: 'Set up your basic store foundation',
-      color: 'from-emerald-500 to-teal-600',
+      icon: Store,
+      description: 'Get your basic store ready',
+      color: 'emerald',
       tasks: [
         {
-          id: 'add-product',
+          id: 'add_first_product',
           title: 'Add your first product',
           description: 'Write a name, add photos, and set a price.',
           buttonText: 'Add Product',
           route: '/products',
-          completed: hasProducts,
-          tooltip: 'Start building your catalog with your first product',
-          icon: <Target className="h-4 w-4" />
+          completed: setupProgress?.tasks['add_first_product']?.completed || false,
+          tooltip: 'Products are the foundation of your store',
+          icon: Package,
         },
         {
-          id: 'customize-store',
+          id: 'customize_storefront',
           title: 'Customize your storefront',
           description: 'Upload your logo, pick brand colors, and write a short tagline or intro.',
           buttonText: 'Customize Store',
           route: '/settings',
-          completed: !!storeData?.name,
-          tooltip: 'Make your store uniquely yours',
-          icon: <Sparkles className="h-4 w-4" />
+          completed: setupProgress?.tasks['customize_storefront']?.completed || false,
+          tooltip: 'This is what customers see first',
+          icon: Store,
         },
         {
-          id: 'set-store-url',
+          id: 'set_store_link',
           title: 'Set your store link',
           description: 'Choose your subdomain (e.g., vendora.store/yourname).',
           buttonText: 'Set Store URL',
           route: '/settings',
-          completed: !!storeData?.slug,
-          tooltip: 'Create a memorable web address for your store',
-          icon: <Share2 className="h-4 w-4" />
-        }
-      ]
+          completed: setupProgress?.tasks['set_store_link']?.completed || false,
+          tooltip: 'Your unique store address',
+          icon: Lightbulb,
+        },
+      ],
     },
     {
-      id: 'store-settings',
+      id: 'store_settings',
       title: 'Store Settings',
-      icon: <Settings className="h-5 w-5" />,
+      icon: Settings,
       description: 'Configure payments and delivery',
-      color: 'from-blue-500 to-indigo-600',
+      color: 'blue',
       tasks: [
         {
-          id: 'connect-payout',
+          id: 'connect_payout_account',
           title: 'Connect payout account',
           description: 'Enter your bank or mobile money details to receive payments.',
           buttonText: 'Connect Account',
           route: '/settings',
-          completed: false,
-          tooltip: 'Set up how you\'ll receive your earnings',
-          icon: <Zap className="h-4 w-4" />
+          completed: setupProgress?.tasks['connect_payout_account']?.completed || false,
+          tooltip: 'Secure payment processing',
+          icon: Settings,
         },
         {
-          id: 'set-delivery',
+          id: 'set_delivery_options',
           title: 'Set shipping/delivery options',
           description: 'Configure delivery zones, flat rates, or free shipping.',
           buttonText: 'Set Delivery',
           route: '/settings',
-          completed: false,
-          tooltip: 'Define how products reach your customers',
-          icon: <Clock className="h-4 w-4" />
-        }
-      ]
+          completed: setupProgress?.tasks['set_delivery_options']?.completed || false,
+          tooltip: 'Customer delivery preferences',
+          icon: Settings,
+        },
+      ],
     },
     {
-      id: 'messaging-setup',
+      id: 'order_messaging',
       title: 'Order & Messaging Setup',
-      icon: <MessageCircle className="h-5 w-5" />,
+      icon: MessageSquare,
       description: 'Connect communication channels',
-      color: 'from-purple-500 to-pink-600',
+      color: 'purple',
       tasks: [
         {
-          id: 'set-notifications',
+          id: 'set_notification_preference',
           title: 'Choose order notification preference',
           description: 'Select how you\'d like to receive order alerts: WhatsApp, email, or dashboard only.',
           buttonText: 'Set Notification Preference',
           route: '/settings',
-          completed: false,
-          tooltip: 'Never miss an order with smart notifications',
-          icon: <MessageCircle className="h-4 w-4" />
+          completed: setupProgress?.tasks['set_notification_preference']?.completed || false,
+          tooltip: 'Stay updated on new orders',
+          icon: MessageSquare,
         },
         {
-          id: 'connect-whatsapp',
+          id: 'connect_whatsapp',
           title: 'Connect your WhatsApp number',
           description: 'Link your WhatsApp so customers can place orders or reach out.',
           buttonText: 'Connect WhatsApp',
           route: '/settings',
-          completed: !!storeData?.whatsapp_number,
-          tooltip: 'Enable direct customer communication',
-          icon: <MessageCircle className="h-4 w-4" />
-        }
-      ]
+          completed: setupProgress?.tasks['connect_whatsapp']?.completed || false,
+          tooltip: 'Direct customer communication',
+          icon: MessageSquare,
+        },
+      ],
     },
     {
-      id: 'business-profile',
+      id: 'business_profile',
       title: 'Business Profile',
-      icon: <Building className="h-5 w-5" />,
+      icon: Building2,
       description: 'Complete your business information',
-      color: 'from-orange-500 to-red-600',
+      color: 'orange',
       tasks: [
         {
-          id: 'add-business-info',
+          id: 'add_business_info',
           title: 'Add business information',
           description: 'Input your business name, category, location, and working hours.',
           buttonText: 'Add Business Info',
           route: '/settings',
-          completed: false,
-          tooltip: 'Help customers learn about your business',
-          icon: <Building className="h-4 w-4" />
-        }
-      ]
+          completed: setupProgress?.tasks['add_business_info']?.completed || false,
+          tooltip: 'Professional business profile',
+          icon: Building2,
+        },
+      ],
     },
     {
       id: 'preferences',
       title: 'Preferences',
-      icon: <Heart className="h-5 w-5" />,
+      icon: Sliders,
       description: 'Choose your selling method',
-      color: 'from-pink-500 to-rose-600',
+      color: 'pink',
       tasks: [
         {
-          id: 'choose-method',
+          id: 'choose_selling_method',
           title: 'Choose Selling Method',
           description: 'Do you want to sell via WhatsApp only, Website Storefront only, or both?',
           buttonText: 'Choose Method',
           route: '/settings',
-          completed: false,
-          tooltip: 'Optimize your sales channels',
-          icon: <Heart className="h-4 w-4" />
-        }
-      ]
+          completed: setupProgress?.tasks['choose_selling_method']?.completed || false,
+          tooltip: 'Define your sales channels',
+          icon: Sliders,
+        },
+      ],
     },
     {
-      id: 'launch-checklist',
+      id: 'launch_checklist',
       title: 'Launch Checklist',
-      icon: <Rocket className="h-5 w-5" />,
+      icon: Rocket,
       description: 'Final steps to go live',
-      color: 'from-teal-500 to-cyan-600',
+      color: 'teal',
       tasks: [
         {
-          id: 'preview-store',
+          id: 'preview_store',
           title: 'Preview your store',
           description: 'See how your website store looks on desktop and mobile.',
           buttonText: 'Preview Store',
-          route: `/storefront/${storeData?.slug || 'preview'}`,
-          completed: false,
-          tooltip: 'Check your store before customers see it',
-          icon: <Eye className="h-4 w-4" />
+          action: () => {
+            markTaskCompleted('preview_store', 'launch_checklist');
+            toast.success('Store preview opened!');
+          },
+          completed: setupProgress?.tasks['preview_store']?.completed || false,
+          tooltip: 'Test your customer experience',
+          icon: Rocket,
         },
         {
-          id: 'share-store',
+          id: 'share_store_link',
           title: 'Share your website store link',
           description: 'Send your website store link to friends or customers (share to WhatsApp, Instagram, Facebook).',
           buttonText: 'Share Website',
-          completed: false,
-          tooltip: 'Spread the word about your new store',
-          icon: <Share2 className="h-4 w-4" />
+          action: () => {
+            markTaskCompleted('share_store_link', 'launch_checklist');
+            toast.success('Store link shared!');
+          },
+          completed: setupProgress?.tasks['share_store_link']?.completed || false,
+          tooltip: 'Spread the word about your store',
+          icon: Rocket,
         },
         {
-          id: 'launch-store',
+          id: 'launch_store',
           title: 'Mark store as LIVE',
           description: 'You\'re ready to sell. Activate your store now.',
           buttonText: 'Launch Website Store',
-          completed: false,
+          action: () => {
+            markTaskCompleted('launch_store', 'launch_checklist');
+            toast.success('🎉 Congratulations! Your store is now LIVE!');
+          },
+          completed: setupProgress?.tasks['launch_store']?.completed || false,
           tooltip: 'Go live and start selling!',
-          icon: <Rocket className="h-4 w-4" />
-        }
-      ]
-    }
+          icon: Rocket,
+        },
+      ],
+    },
   ];
 
-  // Initialize completed tasks based on current state
   useEffect(() => {
-    const completed = new Set<string>();
-    
-    // Check which tasks are already completed
-    if (hasProducts) completed.add('add-product');
-    if (storeData?.name) completed.add('customize-store');
-    if (storeData?.slug) completed.add('set-store-url');
-    if (storeData?.whatsapp_number) completed.add('connect-whatsapp');
-    
-    setCompletedTasks(completed);
-  }, [storeData, hasProducts]);
+    // Auto-detect completion on mount
+    detectTaskCompletion();
+  }, []);
 
   // Handle window resize for confetti
   useEffect(() => {
     const handleResize = () => {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
     };
-
+    
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -275,243 +263,234 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
 
   // Show confetti when setup is complete
   useEffect(() => {
-    const totalTasks = sections.reduce((acc, section) => acc + section.tasks.length, 0);
-    const completedCount = completedTasks.size;
-    const progressPercentage = (completedCount / totalTasks) * 100;
-    
-    if (progressPercentage === 100 && !showConfetti) {
+    if (setupProgress?.overallProgress === 100 && !setupProgress.isSetupCompleted) {
       setShowConfetti(true);
-      localStorage.setItem('vendora-setup-completed', 'true');
-      setTimeout(() => setShowConfetti(false), 5000);
+      const timer = setTimeout(() => setShowConfetti(false), 5000);
+      return () => clearTimeout(timer);
     }
-  }, [completedTasks, sections, showConfetti]);
+  }, [setupProgress?.overallProgress, setupProgress?.isSetupCompleted]);
 
-  const totalTasks = sections.reduce((acc, section) => acc + section.tasks.length, 0);
-  const completedTasksCount = completedTasks.size;
-  const progressPercentage = (completedTasksCount / totalTasks) * 100;
-
-  const handleTaskClick = (task: Task) => {
-    track('button_clicked' as any, { 
-      context: 'setup_wizard', 
-      taskId: task.id, 
-      taskTitle: task.title 
-    });
-    
+  // Handle task clicks
+  const handleTaskClick = (task: any) => {
+    // Navigate if route provided
     if (task.route) {
       navigate(task.route);
-    } else if (task.action) {
+    }
+
+    // Execute custom action if provided
+    if (task.action) {
       task.action();
+    } else {
+      // Mark task as completed for navigation tasks
+      const sectionId = sections.find(s => s.tasks.some(t => t.id === task.id))?.id;
+      if (sectionId) {
+        markTaskCompleted(task.id, sectionId);
+      }
     }
-    
-    if (onTaskComplete) {
-      onTaskComplete(task.id);
-    }
+
+    // Track analytics - TODO: Add proper event tracking
+
+    // Call optional callback
+    onTaskComplete?.();
   };
 
+  // Toggle section visibility
   const toggleSection = (sectionId: string) => {
-    setOpenSections(prev => 
-      prev.includes(sectionId) 
-        ? prev.filter(id => id !== sectionId)
-        : [...prev, sectionId]
-    );
+    setOpenSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
   };
 
+  // Handle AI assistance
   const handleAIAssist = () => {
     setShowAIAssist(true);
-    track('button_clicked' as any, { 
-      context: 'setup_wizard_ai_assist' 
-    });
-    // TODO: Implement AI assistance modal
+    // TODO: Add proper event tracking
   };
 
-  const getSectionProgress = (section: Section) => {
-    const sectionCompletedTasks = section.tasks.filter(task => completedTasks.has(task.id)).length;
-    return (sectionCompletedTasks / section.tasks.length) * 100;
+  // Calculate overall progress
+  const getSectionProgress = (sectionId: string) => {
+    return setupProgress?.sectionsProgress[sectionId] || 0;
   };
+
+  const overallProgress = setupProgress?.overallProgress || 0;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
+        <div className="animate-pulse bg-gray-200 h-64 rounded-lg"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6 relative">
-      {/* Confetti Animation */}
-      {showConfetti && (
-        <Confetti
-          width={windowSize.width}
-          height={windowSize.height}
-          recycle={false}
-          numberOfPieces={200}
-          gravity={0.2}
-        />
-      )}
-      {/* Header with Progress */}
-      <div className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-teal-500/10 rounded-2xl p-6 border shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">Setup Your Store</h2>
-            <p className="text-muted-foreground mt-1">Complete these steps to launch your business</p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleAIAssist}
-            className="hidden sm:flex items-center gap-2"
-          >
-            <Lightbulb className="h-4 w-4" />
-            AI Smart Start
-          </Button>
-        </div>
-        
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">
-              {completedTasksCount} of {totalTasks} tasks completed
-            </span>
-            <span className="font-medium text-primary">
-              {Math.round(progressPercentage)}%
-            </span>
-          </div>
-          <Progress value={progressPercentage} className="h-3" />
-          {progressPercentage === 100 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center text-emerald-600 font-medium"
-            >
-              🎉 Congratulations! Your store is ready to launch!
-            </motion.div>
-          )}
-        </div>
-      </div>
+    <TooltipProvider>
+      <div className="space-y-6">
+        {/* Confetti Animation */}
+        {showConfetti && (
+          <Confetti
+            width={windowSize.width}
+            height={windowSize.height}
+            recycle={false}
+            numberOfPieces={200}
+            gravity={0.2}
+          />
+        )}
 
-      {/* Setup Sections */}
-      <div className="space-y-4">
-        {sections.map((section) => {
-          const isOpen = openSections.includes(section.id);
-          const sectionProgress = getSectionProgress(section);
-          const isCompleted = sectionProgress === 100;
+        {/* Header */}
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-teal-500/10">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl">Setup Your Store</CardTitle>
+                <p className="text-muted-foreground">Complete these steps to launch your business</p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAIAssist}
+                className="hidden sm:flex items-center gap-2"
+              >
+                <Bot className="h-4 w-4" />
+                AI Smart Start
+              </Button>
+            </div>
+            
+            <div className="mt-6 space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  Setup Progress
+                </span>
+                <span className="font-medium text-primary">
+                  {Math.round(overallProgress)}%
+                </span>
+              </div>
+              <Progress value={overallProgress} className="h-3" />
+              {overallProgress === 100 && (
+                <div className="text-center text-emerald-600 font-medium">
+                  🎉 Congratulations! Your store setup is complete!
+                </div>
+              )}
+            </div>
+          </CardHeader>
+        </Card>
 
-          return (
-            <Card key={section.id} className="overflow-hidden">
-              <Collapsible open={isOpen} onOpenChange={() => toggleSection(section.id)}>
-                <CollapsibleTrigger asChild>
-                  <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={cn(
-                          "p-2 rounded-lg bg-gradient-to-r text-white",
-                          section.color
-                        )}>
-                          {section.icon}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-lg">{section.title}</h3>
-                            {isCompleted && (
-                              <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
-                                <Check className="h-3 w-3 mr-1" />
-                                Complete
-                              </Badge>
-                            )}
+        {/* Setup Sections */}
+        <div className="space-y-4">
+          {sections.map((section) => {
+            const isOpen = openSections[section.id];
+            const sectionProgress = getSectionProgress(section.id);
+            const completedTasks = section.tasks.filter(task => task.completed).length;
+            const totalTasks = section.tasks.length;
+            const isCompleted = completedTasks === totalTasks;
+
+            return (
+              <Card key={section.id} className="overflow-hidden">
+                <Collapsible open={isOpen} onOpenChange={() => toggleSection(section.id)}>
+                  <CollapsibleTrigger asChild>
+                    <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg bg-${section.color}-100 text-${section.color}-600`}>
+                            <section.icon className="h-5 w-5" />
                           </div>
-                          <p className="text-muted-foreground text-sm">{section.description}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="text-right">
-                          <div className="text-sm font-medium">
-                            {section.tasks.filter(task => completedTasks.has(task.id)).length}/{section.tasks.length}
-                          </div>
-                          <div className="text-xs text-muted-foreground">tasks</div>
-                        </div>
-                        {isOpen ? (
-                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                        ) : (
-                          <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                        )}
-                      </div>
-                    </div>
-                    {sectionProgress > 0 && (
-                      <Progress value={sectionProgress} className="mt-3 h-2" />
-                    )}
-                  </CardHeader>
-                </CollapsibleTrigger>
-
-                <CollapsibleContent>
-                  <CardContent className="pt-0 pb-4">
-                    <div className="space-y-3">
-                      {section.tasks.map((task) => {
-                        const isTaskCompleted = completedTasks.has(task.id);
-                        
-                        return (
-                          <TooltipProvider key={task.id}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <motion.div
-                                  initial={{ opacity: 0, x: -20 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  className={cn(
-                                    "flex items-center justify-between p-4 rounded-lg border-2 transition-all",
-                                    isTaskCompleted 
-                                      ? "bg-emerald-50 border-emerald-200" 
-                                      : "bg-background border-border hover:border-primary/30"
-                                  )}
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <div className={cn(
-                                      "p-2 rounded-lg",
-                                      isTaskCompleted 
-                                        ? "bg-emerald-100 text-emerald-600" 
-                                        : "bg-accent text-muted-foreground"
-                                    )}>
-                                      {isTaskCompleted ? (
-                                        <Check className="h-4 w-4" />
-                                      ) : (
-                                        task.icon || <Target className="h-4 w-4" />
-                                      )}
-                                    </div>
-                                    <div>
-                                      <h4 className="font-medium">{task.title}</h4>
-                                      <p className="text-sm text-muted-foreground">{task.description}</p>
-                                    </div>
-                                  </div>
-                                  <Button
-                                    variant={isTaskCompleted ? "secondary" : "default"}
-                                    size="sm"
-                                    onClick={() => handleTaskClick(task)}
-                                    disabled={isTaskCompleted}
-                                  >
-                                    {isTaskCompleted ? "Completed" : task.buttonText}
-                                  </Button>
-                                </motion.div>
-                              </TooltipTrigger>
-                              {task.tooltip && (
-                                <TooltipContent>
-                                  <p>{task.tooltip}</p>
-                                </TooltipContent>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold text-lg">{section.title}</h3>
+                              {isCompleted && (
+                                <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
+                                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                                  Complete
+                                </Badge>
                               )}
-                            </Tooltip>
-                          </TooltipProvider>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </CollapsibleContent>
-              </Collapsible>
-            </Card>
-          );
-        })}
-      </div>
+                            </div>
+                            <p className="text-muted-foreground text-sm">{section.description}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <div className="text-sm font-medium">
+                              {completedTasks}/{totalTasks}
+                            </div>
+                            <div className="text-xs text-muted-foreground">tasks</div>
+                          </div>
+                          {isOpen ? (
+                            <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                          ) : (
+                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                          )}
+                        </div>
+                      </div>
+                      {sectionProgress > 0 && (
+                        <Progress value={sectionProgress} className="mt-3 h-2" />
+                      )}
+                    </CardHeader>
+                  </CollapsibleTrigger>
 
-      {/* Mobile AI Assist Button */}
-      <div className="sm:hidden fixed bottom-20 right-4 z-50">
-        <Button
-          onClick={handleAIAssist}
-          className="rounded-full shadow-lg bg-primary hover:bg-primary/90"
-          size="lg"
-        >
-          <Lightbulb className="h-5 w-5 mr-2" />
-          AI Help
-        </Button>
+                  <CollapsibleContent>
+                    <CardContent className="pt-0 pb-4">
+                      <div className="space-y-3">
+                        {section.tasks.map((task) => (
+                          <Tooltip key={task.id}>
+                            <TooltipTrigger asChild>
+                              <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all cursor-pointer hover:shadow-md ${
+                                task.completed 
+                                  ? 'bg-emerald-50 border-emerald-200' 
+                                  : 'bg-background border-border hover:border-primary/30'
+                              }`}>
+                                <div className="flex items-center gap-3">
+                                  <div className={`p-2 rounded-lg ${
+                                    task.completed 
+                                      ? 'bg-emerald-100 text-emerald-600' 
+                                      : 'bg-accent text-muted-foreground'
+                                  }`}>
+                                    {task.completed ? (
+                                      <CheckCircle2 className="h-4 w-4" />
+                                    ) : (
+                                      <Circle className="h-4 w-4" />
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h4 className="font-medium">{task.title}</h4>
+                                    <p className="text-sm text-muted-foreground">{task.description}</p>
+                                  </div>
+                                </div>
+                                <Button
+                                  variant={task.completed ? "secondary" : "default"}
+                                  size="sm"
+                                  onClick={() => handleTaskClick(task)}
+                                  disabled={task.completed}
+                                >
+                                  {task.completed ? "Completed" : task.buttonText}
+                                </Button>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{task.tooltip}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </CollapsibleContent>
+                </Collapsible>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* AI Assist FAB for mobile */}
+        {!showAIAssist && (
+          <Button
+            className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg sm:hidden z-50"
+            onClick={handleAIAssist}
+          >
+            <Bot className="h-6 w-6" />
+          </Button>
+        )}
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
 

@@ -5,6 +5,9 @@ import { useAutoCreateStore } from "@/hooks/useAutoCreateStore";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { RetentionNudges } from "@/components/dashboard/RetentionNudges";
 import NudgeScheduler from "@/components/dashboard/NudgeScheduler";
 import { LoadingPage } from "@/components/ui/loading-spinner";
@@ -29,12 +32,13 @@ import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
   // Setup wizard state
-  const [showSetupWizard, setShowSetupWizard] = useState(false);
   const [showSetupManually, setShowSetupManually] = useState(false);
   
   // Auto-create store if needed
   useAutoCreateStore();
 
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { storeData, storeLoading, storeError, stats, statsLoading, statsError } = useDashboardData();
   const { data: analytics, isLoading: analyticsLoading, error: analyticsError } = useAnalyticsData();
   const { track } = useAnalytics();
@@ -50,21 +54,22 @@ const Dashboard = () => {
 
   const hasProducts = (analytics?.totalProducts || 0) > 0;
 
-  // Determine if user should see the setup wizard
-  useEffect(() => {
-    if (!storeLoading && !analyticsLoading && storeData) {
-      const hasCompletedSetup = localStorage.getItem('vendora-setup-completed');
-      const isNewUser = !hasProducts && (!storeData.name || storeData.name.trim() === '');
-      
-      if (!hasCompletedSetup && isNewUser) {
-        setShowSetupWizard(true);
-      }
-    }
-  }, [storeLoading, analyticsLoading, storeData, hasProducts]);
+  // Show setup wizard logic - only show if setup is not completed
+  const { data: profileData } = useQuery({
+    queryKey: ['profile-setup', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('setup_completed')
+        .eq('id', user.id)
+        .single();
+      return data;
+    },
+    enabled: !!user?.id,
+  });
 
-  const handleTaskComplete = (taskId: string) => {
-    track('setup_task_completed' as any, { taskId });
-  };
+  const shouldShowSetupWizard = !profileData?.setup_completed || showSetupManually;
 
   // Show loading state while critical data is being fetched
   if (storeLoading) {
@@ -97,7 +102,7 @@ const Dashboard = () => {
     <DashboardLayout>
       <div className="space-y-8 pb-24">
         {/* Setup Wizard for new users or manual access */}
-        {(showSetupWizard || showSetupManually) && (
+        {shouldShowSetupWizard && (
           <div className="space-y-4">
             {showSetupManually && (
               <div className="flex justify-between items-center">
@@ -111,17 +116,19 @@ const Dashboard = () => {
                 </Button>
               </div>
             )}
-            <SetupWizard
-              storeData={storeData}
-              hasProducts={hasProducts}
-              totalProducts={analytics?.totalProducts || 0}
-              onTaskComplete={handleTaskComplete}
+            <SetupWizard 
+              onTaskComplete={() => {
+                // Refresh data when task is completed
+                queryClient.invalidateQueries({ queryKey: ['store', user?.id] });
+                queryClient.invalidateQueries({ queryKey: ['dashboard-stats', user?.id] });
+                queryClient.invalidateQueries({ queryKey: ['profile-setup', user?.id] });
+              }}
             />
           </div>
         )}
 
         {/* Regular dashboard content */}
-        {!showSetupWizard && !showSetupManually && (
+        {!shouldShowSetupWizard && (
           <>
             {/* Announcement Banner */}
             <AnnouncementBanner />
