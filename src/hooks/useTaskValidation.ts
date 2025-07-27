@@ -115,45 +115,53 @@ export const useTaskValidation = () => {
   };
 
   const validatePayoutAccount = async (userId: string): Promise<TaskValidationResult> => {
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('paystack_customer_code')
-      .eq('id', userId)
+    const { data: bankAccount, error } = await supabase
+      .from('bank_accounts')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('is_active', true)
       .single();
 
-    if (error) throw error;
+    if (error && error.code !== 'PGRST116') throw error;
     
     return {
-      isCompleted: !!profile?.paystack_customer_code,
-      reason: profile?.paystack_customer_code ? 'Payout account connected' : 'No payout account',
-      data: { hasPaystackAccount: !!profile?.paystack_customer_code }
+      isCompleted: !!bankAccount,
+      reason: bankAccount ? 'Bank account connected' : 'No bank account found',
+      data: { hasBankAccount: !!bankAccount }
     };
   };
 
   const validateDeliveryOptions = async (userId: string): Promise<TaskValidationResult> => {
-    // For now, we'll consider delivery options set if WhatsApp is connected
-    // This can be expanded when delivery options are properly implemented
-    const { data: store, error } = await supabase
-      .from('stores')
-      .select('whatsapp_number')
-      .eq('vendor_id', userId)
-      .single();
+    const { data: deliveryOptions, error } = await supabase
+      .from('delivery_options')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('is_active', true);
 
-    if (error) throw error;
+    if (error && error.code !== 'PGRST116') throw error;
+    
+    const hasOptions = deliveryOptions && deliveryOptions.length > 0;
     
     return {
-      isCompleted: !!store?.whatsapp_number,
-      reason: store?.whatsapp_number ? 'Delivery via WhatsApp set' : 'No delivery method set',
-      data: { hasWhatsApp: !!store?.whatsapp_number }
+      isCompleted: !!hasOptions,
+      reason: hasOptions ? 'Delivery options configured' : 'No delivery options set',
+      data: { optionsCount: deliveryOptions?.length || 0 }
     };
   };
 
   const validateNotificationPreference = async (userId: string): Promise<TaskValidationResult> => {
-    // Default to completed - notification preferences can be set later
+    const { data: preferences, error } = await supabase
+      .from('notification_preferences')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error;
+    
     return {
-      isCompleted: true,
-      reason: 'Default notification preferences applied',
-      data: { useDefault: true }
+      isCompleted: !!preferences,
+      reason: preferences ? 'Notification preferences set' : 'Default preferences will be used',
+      data: { hasPreferences: !!preferences }
     };
   };
 
@@ -192,19 +200,18 @@ export const useTaskValidation = () => {
   };
 
   const validateSellingMethod = async (userId: string): Promise<TaskValidationResult> => {
-    // Consider selling method chosen if user has products
-    const { data: products, error } = await supabase
-      .from('products')
-      .select('id')
-      .eq('vendor_id', userId)
-      .limit(1);
+    const { data: sellingMethod, error } = await supabase
+      .from('selling_methods')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
 
-    if (error) throw error;
+    if (error && error.code !== 'PGRST116') throw error;
     
     return {
-      isCompleted: products && products.length > 0,
-      reason: products && products.length > 0 ? 'Selling method chosen' : 'No selling method chosen',
-      data: { hasProducts: products && products.length > 0 }
+      isCompleted: !!sellingMethod,
+      reason: sellingMethod ? 'Selling method chosen' : 'No selling method selected',
+      data: { method: sellingMethod?.method }
     };
   };
 

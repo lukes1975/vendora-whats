@@ -48,11 +48,12 @@ const ALL_REQUIRED_TASKS = [
   'add_first_product',
   'customize_storefront', 
   'set_store_link',
+  'connect_payout_account',
+  'set_delivery_options',
+  'set_notification_preference',
   'connect_whatsapp',
   'add_business_info',
-  'choose_selling_method',
-  'preview_store',
-  'launch_store'
+  'choose_selling_method'
 ];
 
 export const useSetupProgress = () => {

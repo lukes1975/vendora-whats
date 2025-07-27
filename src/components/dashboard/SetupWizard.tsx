@@ -20,12 +20,19 @@ import {
   Rocket,
   Bot,
   HelpCircle,
-  Lightbulb
+  Lightbulb,
+  ExternalLink
 } from 'lucide-react';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useSetupProgress } from '@/hooks/useSetupProgress';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import SetupCompletionCelebration from './SetupCompletionCelebration';
+import BankAccountForm from './setup-forms/BankAccountForm';
+import DeliveryOptionsForm from './setup-forms/DeliveryOptionsForm';
+import NotificationPreferencesForm from './setup-forms/NotificationPreferencesForm';
+import SellingMethodForm from './setup-forms/SellingMethodForm';
 
 interface SetupWizardProps {
   onTaskComplete?: () => void;
@@ -37,6 +44,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
   onSetupComplete 
 }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { track } = useAnalytics();
   const { 
     setupProgress, 
@@ -60,6 +68,13 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
   
   const [showAIAssist, setShowAIAssist] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  
+  // Form modals state
+  const [showBankAccountForm, setShowBankAccountForm] = useState(false);
+  const [showDeliveryOptionsForm, setShowDeliveryOptionsForm] = useState(false);
+  const [showNotificationPreferencesForm, setShowNotificationPreferencesForm] = useState(false);
+  const [showSellingMethodForm, setShowSellingMethodForm] = useState(false);
+  const [userStore, setUserStore] = useState<any>(null);
 
   // Task definitions with all required data
   const sections = [
@@ -262,6 +277,31 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
     }
   }, [validateAllTasks]);
 
+  // Load user store data
+  useEffect(() => {
+    if (user) {
+      loadUserStore();
+    }
+  }, [user]);
+
+  const loadUserStore = async () => {
+    if (!user) return;
+    
+    try {
+      const { data: store, error } = await supabase
+        .from('stores')
+        .select('*')
+        .eq('vendor_id', user.id)
+        .single();
+      
+      if (store && !error) {
+        setUserStore(store);
+      }
+    } catch (error) {
+      console.log('No store found');
+    }
+  };
+
   // Setup completion detection
   useEffect(() => {
     if (setupProgress?.isSetupCompleted && !showCelebration) {
@@ -270,46 +310,81 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
     }
   }, [setupProgress?.isSetupCompleted, showCelebration, onSetupComplete]);
 
-  // Handle task clicks with smart validation
+  // Handle task clicks with smart validation and custom actions
   const handleTaskClick = async (task: any) => {
     const sectionId = sections.find(s => s.tasks.some(t => t.id === task.id))?.id;
     
-    // Navigate if route provided
-    if (task.route) {
-      navigate(task.route);
+    // Handle specific task actions
+    switch (task.id) {
+      case 'add_first_product':
+        navigate('/products');
+        break;
       
-      // Auto-validate the task after navigation to check if completion criteria are met
-      if (sectionId && validateAndUpdateTask) {
-        setTimeout(() => {
-          validateAndUpdateTask(task.id, sectionId);
-        }, 1000); // Delay to allow navigation and data updates
-      }
-    }
-
-    // Execute custom action if provided
-    if (task.action) {
-      task.action();
-    } else if (sectionId) {
-      // For non-action tasks, validate instead of just marking complete
-      if (validateAndUpdateTask) {
-        const validation = await validateAndUpdateTask(task.id, sectionId);
-        if (!validation?.isCompleted) {
-          // If validation fails, still mark as completed if user clicked (user override)
-          markTaskCompleted(task.id, sectionId);
-          toast.success('Task marked as completed!');
+      case 'customize_storefront':
+      case 'set_store_link':
+      case 'connect_whatsapp':
+      case 'add_business_info':
+        navigate('/settings');
+        break;
+      
+      case 'connect_payout_account':
+        setShowBankAccountForm(true);
+        return;
+      
+      case 'set_delivery_options':
+        setShowDeliveryOptionsForm(true);
+        return;
+      
+      case 'set_notification_preference':
+        setShowNotificationPreferencesForm(true);
+        return;
+      
+      case 'choose_selling_method':
+        setShowSellingMethodForm(true);
+        return;
+      
+      case 'preview_store':
+        if (userStore?.slug) {
+          window.open(`/store/${userStore.slug}`, '_blank');
+          markTaskCompleted('preview_store', 'launch_checklist');
+          toast.success('Store preview opened!');
+        } else {
+          toast.error('Please set your store link first');
         }
-      } else {
-        markTaskCompleted(task.id, sectionId);
-      }
+        return;
+      
+      case 'share_store_link':
+        if (userStore?.slug) {
+          const storeUrl = `${window.location.origin}/store/${userStore.slug}`;
+          navigator.clipboard.writeText(storeUrl);
+          markTaskCompleted('share_store_link', 'launch_checklist');
+          toast.success('Store link copied to clipboard!');
+        } else {
+          toast.error('Please set your store link first');
+        }
+        return;
+      
+      case 'launch_store':
+        markTaskCompleted('launch_store', 'launch_checklist');
+        toast.success('🎉 Congratulations! Your store is now LIVE!');
+        return;
+      
+      default:
+        // Handle custom action if provided
+        if (task.action) {
+          task.action();
+        } else if (task.route) {
+          navigate(task.route);
+        }
+        break;
     }
 
-    // Track analytics (simplified for now)
-    console.log('Setup task clicked:', {
-      taskId: task.id,
-      sectionId,
-      completed: task.completed,
-      route: task.route
-    });
+    // Auto-validate the task after navigation
+    if (sectionId && validateAndUpdateTask && task.route) {
+      setTimeout(() => {
+        validateAndUpdateTask(task.id, sectionId);
+      }, 1000);
+    }
 
     // Call optional callback
     onTaskComplete?.();
@@ -406,6 +481,10 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
             const completedTasks = section.tasks.filter(task => task.completed).length;
             const totalTasks = section.tasks.length;
             const isCompleted = completedTasks === totalTasks;
+            
+            // Check if section is required (first 5 sections are required)
+            const requiredSections = ['store_setup', 'store_settings', 'order_messaging', 'business_profile', 'preferences'];
+            const isRequired = requiredSections.includes(section.id);
 
             return (
               <Card key={section.id} className="overflow-hidden">
@@ -420,6 +499,11 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
                           <div>
                             <div className="flex items-center gap-2">
                               <h3 className="font-semibold text-lg">{section.title}</h3>
+                              {isRequired && (
+                                <Badge variant="outline" className="text-xs">
+                                  Required
+                                </Badge>
+                              )}
                               {isCompleted && (
                                 <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
                                   <CheckCircle2 className="h-3 w-3 mr-1" />
@@ -511,6 +595,43 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
             <Bot className="h-6 w-6" />
           </Button>
         )}
+
+        {/* Setup Forms */}
+        <BankAccountForm
+          open={showBankAccountForm}
+          onOpenChange={setShowBankAccountForm}
+          onComplete={() => {
+            validateAndUpdateTask?.('connect_payout_account', 'store_settings');
+            onTaskComplete?.();
+          }}
+        />
+
+        <DeliveryOptionsForm
+          open={showDeliveryOptionsForm}
+          onOpenChange={setShowDeliveryOptionsForm}
+          onComplete={() => {
+            validateAndUpdateTask?.('set_delivery_options', 'store_settings');
+            onTaskComplete?.();
+          }}
+        />
+
+        <NotificationPreferencesForm
+          open={showNotificationPreferencesForm}
+          onOpenChange={setShowNotificationPreferencesForm}
+          onComplete={() => {
+            validateAndUpdateTask?.('set_notification_preference', 'order_messaging');
+            onTaskComplete?.();
+          }}
+        />
+
+        <SellingMethodForm
+          open={showSellingMethodForm}
+          onOpenChange={setShowSellingMethodForm}
+          onComplete={() => {
+            validateAndUpdateTask?.('choose_selling_method', 'preferences');
+            onTaskComplete?.();
+          }}
+        />
       </div>
     </TooltipProvider>
   );
