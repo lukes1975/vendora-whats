@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      bank_accounts: {
+        Row: {
+          account_holder_name: string
+          account_number: string
+          bank_name: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_holder_name: string
+          account_number: string
+          bank_name: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_holder_name?: string
+          account_number?: string
+          bank_name?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -57,6 +90,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      delivery_options: {
+        Row: {
+          created_at: string
+          delivery_fee: number
+          id: string
+          is_active: boolean | null
+          is_free_shipping: boolean | null
+          location_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_fee?: number
+          id?: string
+          is_active?: boolean | null
+          is_free_shipping?: boolean | null
+          location_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delivery_fee?: number
+          id?: string
+          is_active?: boolean | null
+          is_free_shipping?: boolean | null
+          location_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       feature_suggestions: {
         Row: {
@@ -103,6 +169,36 @@ export type Database = {
           ip_address?: unknown | null
           success?: boolean
           user_agent?: string | null
+        }
+        Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          dashboard_notifications: boolean | null
+          email_notifications: boolean | null
+          id: string
+          updated_at: string
+          user_id: string
+          whatsapp_notifications: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          dashboard_notifications?: boolean | null
+          email_notifications?: boolean | null
+          id?: string
+          updated_at?: string
+          user_id: string
+          whatsapp_notifications?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          dashboard_notifications?: boolean | null
+          email_notifications?: boolean | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+          whatsapp_notifications?: boolean | null
         }
         Relationships: []
       }
@@ -361,6 +457,30 @@ export type Database = {
           ip_address?: unknown | null
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      selling_methods: {
+        Row: {
+          created_at: string
+          id: string
+          method: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          method: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          method?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
