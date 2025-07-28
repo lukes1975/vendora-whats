@@ -74,6 +74,34 @@ serve(async (req) => {
     // Generate unique reference if not provided
     const reference = paymentData.reference || `vendora_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
+    // Get vendor's subaccount for direct payments
+    let subaccountCode = null;
+    if (paymentData.metadata?.store_id) {
+      logStep("Fetching vendor subaccount", { store_id: paymentData.metadata.store_id });
+      
+      const { data: storeData } = await supabaseService
+        .from("stores")
+        .select("vendor_id")
+        .eq("id", paymentData.metadata.store_id)
+        .single();
+
+      if (storeData?.vendor_id) {
+        const { data: bankData } = await supabaseService
+          .from("bank_accounts")
+          .select("subaccount_code, subaccount_status")
+          .eq("user_id", storeData.vendor_id)
+          .eq("is_active", true)
+          .single();
+
+        if (bankData?.subaccount_code && bankData.subaccount_status === 'active') {
+          subaccountCode = bankData.subaccount_code;
+          logStep("Using vendor subaccount", { subaccount_code: subaccountCode });
+        } else {
+          logStep("No active subaccount found for vendor", { vendor_id: storeData.vendor_id });
+        }
+      }
+    }
+
     // Prepare Paystack payload
     const paystackPayload = {
       amount: paymentData.amount,
@@ -81,6 +109,7 @@ serve(async (req) => {
       currency: paymentData.currency || "NGN",
       reference: reference,
       callback_url: paymentData.callback_url || `${req.headers.get("origin")}/payment-success`,
+      ...(subaccountCode && { subaccount: subaccountCode }), // Add subaccount if available
       metadata: {
         vendora_user_id: user.id,
         vendora_store_id: paymentData.metadata?.store_id,
@@ -88,7 +117,8 @@ serve(async (req) => {
         product_name: paymentData.metadata?.product_name,
         customer_name: paymentData.metadata?.customer_name,
         customer_phone: paymentData.metadata?.customer_phone,
-        source: "vendora_storefront"
+        source: "vendora_storefront",
+        uses_subaccount: subaccountCode ? "yes" : "no"
       }
     };
 
