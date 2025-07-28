@@ -147,6 +147,7 @@ export const useSetupProgress = () => {
     enabled: !!user?.id,
     retry: 2,
     retryDelay: 1000,
+    staleTime: 5 * 60 * 1000, // 5 minutes - setup progress doesn't change frequently
   });
 
   // Mutation to update task progress

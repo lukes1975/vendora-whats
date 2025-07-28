@@ -12,7 +12,8 @@ import StorefrontApp from "@/components/StorefrontApp";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 15 * 60 * 1000, // 15 minutes - longer cache for better performance
+      gcTime: 30 * 60 * 1000, // 30 minutes - keep in memory longer (renamed from cacheTime in react-query v5)
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors (client errors)
         if (error && typeof error === 'object' && 'status' in error) {
@@ -22,6 +23,7 @@ const queryClient = new QueryClient({
         return failureCount < 2;
       },
       refetchOnWindowFocus: false,
+      refetchOnMount: false, // Prevent unnecessary refetches
       networkMode: 'offlineFirst',
     },
     mutations: {

@@ -67,7 +67,8 @@ const Dashboard = () => {
       return data;
     },
     enabled: !!user?.id,
-    refetchInterval: 3000, // Check every 3 seconds for completion updates
+    refetchInterval: 30000, // Check every 30 seconds instead of 3 seconds
+    staleTime: 10 * 60 * 1000, // Cache profile data for 10 minutes
   });
 
   const shouldShowSetupWizard = (profileData?.setup_completed === false || profileData?.setup_completed === null) || showSetupManually;

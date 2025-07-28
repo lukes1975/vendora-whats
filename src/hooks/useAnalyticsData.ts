@@ -35,38 +35,39 @@ export const useAnalyticsData = () => {
       if (!user?.id) throw new Error('User not authenticated');
 
       try {
-        // Get total revenue and orders
-        const { data: orders, error: ordersError } = await supabase
-          .from('orders')
-          .select('total_price, created_at, product_id')
-          .eq('vendor_id', user.id);
+        // Use Promise.all to fetch all data in parallel
+        const [
+          { data: orders, error: ordersError },
+          { count: totalProducts, error: productsError },
+          { data: products, error: productsDataError }
+        ] = await Promise.all([
+          supabase
+            .from('orders')
+            .select('total_price, created_at, product_id')
+            .eq('vendor_id', user.id),
+          supabase
+            .from('products')
+            .select('*', { count: 'exact', head: true })
+            .eq('vendor_id', user.id),
+          supabase
+            .from('products')
+            .select('id, name')
+            .eq('vendor_id', user.id)
+        ]);
 
         if (ordersError) throw ordersError;
+        if (productsError) throw productsError;
+        if (productsDataError) throw productsDataError;
 
         const totalRevenue = orders?.reduce((sum, order) => sum + order.total_price, 0) || 0;
         const totalOrders = orders?.length || 0;
         const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-
-        // Get total products
-        const { count: totalProducts, error: productsError } = await supabase
-          .from('products')
-          .select('*', { count: 'exact', head: true })
-          .eq('vendor_id', user.id);
-
-        if (productsError) throw productsError;
 
         // Get top products by revenue
         const productRevenue = orders?.reduce((acc, order) => {
           acc[order.product_id] = (acc[order.product_id] || 0) + order.total_price;
           return acc;
         }, {} as Record<string, number>) || {};
-
-        const { data: products, error: productsDataError } = await supabase
-          .from('products')
-          .select('id, name')
-          .eq('vendor_id', user.id);
-
-        if (productsDataError) throw productsDataError;
 
         const topProducts = Object.entries(productRevenue)
           .map(([productId, revenue]) => {
@@ -138,6 +139,6 @@ export const useAnalyticsData = () => {
     enabled: !!user?.id,
     retry: 2,
     retryDelay: 1000,
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes - analytics data doesn't change frequently
   });
 };
