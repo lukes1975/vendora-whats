@@ -306,7 +306,10 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
   useEffect(() => {
     if (setupProgress?.isSetupCompleted && !showCelebration) {
       setShowCelebration(true);
-      onSetupComplete?.();
+      // Auto-hide wizard after celebration
+      setTimeout(() => {
+        onSetupComplete?.();
+      }, 3000);
     }
   }, [setupProgress?.isSetupCompleted, showCelebration, onSetupComplete]);
 

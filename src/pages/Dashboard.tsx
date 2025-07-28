@@ -67,10 +67,10 @@ const Dashboard = () => {
       return data;
     },
     enabled: !!user?.id,
-    refetchInterval: 5000, // Check every 5 seconds for completion updates
+    refetchInterval: 3000, // Check every 3 seconds for completion updates
   });
 
-  const shouldShowSetupWizard = profileData?.setup_completed === false || showSetupManually;
+  const shouldShowSetupWizard = (profileData?.setup_completed === false || profileData?.setup_completed === null) || showSetupManually;
 
   // Show loading state while critical data is being fetched
   if (storeLoading) {

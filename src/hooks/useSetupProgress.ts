@@ -118,10 +118,28 @@ export const useSetupProgress = () => {
       // Calculate overall progress based on required tasks only
       const completedRequiredTasks = ALL_REQUIRED_TASKS.filter(taskId => tasks[taskId]?.completed).length;
       const overallProgress = (completedRequiredTasks / ALL_REQUIRED_TASKS.length) * 100;
+      
+      // Auto-update setup completion if all required tasks are done
+      const isSetupCompleted = completedRequiredTasks === ALL_REQUIRED_TASKS.length;
+      
+      // Update profile if setup completion status changed
+      if (isSetupCompleted && !profileData?.setup_completed) {
+        supabase
+          .from('profiles')
+          .update({ 
+            setup_completed: true, 
+            setup_completed_at: new Date().toISOString() 
+          })
+          .eq('id', user.id)
+          .then(() => {
+            // Invalidate profile query to reflect changes
+            queryClient.invalidateQueries({ queryKey: ['profile-setup', user.id] });
+          });
+      }
 
       return {
         overallProgress,
-        isSetupCompleted: profileData?.setup_completed || false,
+        isSetupCompleted,
         tasks,
         sectionsProgress
       };
