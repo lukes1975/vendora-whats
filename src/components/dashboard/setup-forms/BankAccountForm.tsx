@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { CreditCard, Building, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { CreditCard, Building, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useBankResolution } from '@/hooks/useBankResolution';
 
 interface BankAccountFormProps {
   open: boolean;
@@ -28,12 +30,16 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
   const [bankAccount, setBankAccount] = useState({
     account_number: '',
     bank_name: '',
+    bank_code: '',
     account_holder_name: ''
   });
+  const [isVerified, setIsVerified] = useState(false);
+  const { banks, fetchBanks, resolveAccount, isLoadingBanks, isResolvingAccount } = useBankResolution();
 
   useEffect(() => {
     if (open && user) {
       loadExistingBankAccount();
+      fetchBanks();
     }
   }, [open, user]);
 
@@ -51,9 +57,11 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
         setBankAccount({
           account_number: data.account_number,
           bank_name: data.bank_name,
+          bank_code: data.bank_code || '',
           account_holder_name: data.account_holder_name
         });
         setSubaccountStatus(data.subaccount_code ? 'active' : 'none');
+        setIsVerified(!!data.account_holder_name);
       }
     } catch (error) {
       // No existing bank account, which is fine
@@ -106,12 +114,19 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
 
     setLoading(true);
     try {
+      // Verify account before saving
+      if (!isVerified) {
+        toast.error('Please verify your account details first');
+        return;
+      }
+
       const { error } = await supabase
         .from('bank_accounts')
         .upsert({
           user_id: user.id,
           account_number: bankAccount.account_number,
           bank_name: bankAccount.bank_name,
+          bank_code: bankAccount.bank_code,
           account_holder_name: bankAccount.account_holder_name,
           is_active: true
         }, {
@@ -168,31 +183,72 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="account_number">Account Number</Label>
-            <Input
-              id="account_number"
-              value={bankAccount.account_number}
-              onChange={(e) => setBankAccount(prev => ({
-                ...prev,
-                account_number: e.target.value
-              }))}
-              placeholder="Enter your account number"
-              required
-            />
+            <Label htmlFor="bank_name">Select Bank</Label>
+            <Select 
+              value={bankAccount.bank_code} 
+              onValueChange={(value) => {
+                const selectedBank = banks.find(bank => bank.code === value);
+                setBankAccount(prev => ({
+                  ...prev,
+                  bank_code: value,
+                  bank_name: selectedBank?.name || ''
+                }));
+                setIsVerified(false);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={isLoadingBanks ? "Loading banks..." : "Select your bank"} />
+              </SelectTrigger>
+              <SelectContent>
+                {banks.map((bank) => (
+                  <SelectItem key={bank.code} value={bank.code}>
+                    {bank.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="bank_name">Bank Name</Label>
-            <Input
-              id="bank_name"
-              value={bankAccount.bank_name}
-              onChange={(e) => setBankAccount(prev => ({
-                ...prev,
-                bank_name: e.target.value
-              }))}
-              placeholder="Enter your bank name"
-              required
-            />
+            <Label htmlFor="account_number">Account Number</Label>
+            <div className="flex gap-2">
+              <Input
+                id="account_number"
+                value={bankAccount.account_number}
+                onChange={(e) => {
+                  setBankAccount(prev => ({
+                    ...prev,
+                    account_number: e.target.value
+                  }));
+                  setIsVerified(false);
+                }}
+                placeholder="Enter your account number"
+                required
+              />
+              <Button 
+                type="button"
+                variant="outline"
+                onClick={async () => {
+                  if (!bankAccount.account_number || !bankAccount.bank_code) {
+                    toast.error('Please enter account number and select bank');
+                    return;
+                  }
+                  
+                  const resolved = await resolveAccount(bankAccount.account_number, bankAccount.bank_code);
+                  if (resolved) {
+                    setBankAccount(prev => ({
+                      ...prev,
+                      account_holder_name: resolved.account_name
+                    }));
+                    setIsVerified(true);
+                    toast.success('Account verified successfully!');
+                  }
+                }}
+                disabled={isResolvingAccount || !bankAccount.account_number || !bankAccount.bank_code}
+              >
+                {isResolvingAccount ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Verify'}
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -204,9 +260,17 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
                 ...prev,
                 account_holder_name: e.target.value
               }))}
-              placeholder="Enter account holder's full name"
+              placeholder={isVerified ? "Verified account name" : "Enter account holder's full name"}
               required
+              disabled={isVerified}
+              className={isVerified ? "bg-green-50 border-green-200" : ""}
             />
+            {isVerified && (
+              <div className="flex items-center gap-1 text-green-600 text-sm">
+                <CheckCircle2 className="h-3 w-3" />
+                Account verified
+              </div>
+            )}
           </div>
 
           <div className="flex gap-2 pt-4">
@@ -220,12 +284,12 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
             </Button>
             <Button 
               type="submit" 
-              disabled={loading || creatingSubaccount}
+              disabled={loading || creatingSubaccount || !isVerified}
               className="flex-1"
             >
               {loading ? 'Saving...' : 
                creatingSubaccount ? 'Setting up payments...' : 
-               'Save & Setup Payments'}
+               isVerified ? 'Save & Setup Payments' : 'Verify Account First'}
             </Button>
           </div>
           
