@@ -90,7 +90,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           title: 'Add your first product',
           description: 'Write a name, add photos, and set a price.',
           buttonText: 'Add Product',
-          route: '/products',
+          route: '/dashboard/products',
           completed: setupProgress?.tasks['add_first_product']?.completed || false,
           tooltip: 'Products are the foundation of your store',
           icon: Package,
@@ -100,7 +100,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           title: 'Customize your storefront',
           description: 'Upload your logo, pick brand colors, and write a short tagline or intro.',
           buttonText: 'Customize Store',
-          route: '/settings',
+          route: '/dashboard/settings',
           completed: setupProgress?.tasks['customize_storefront']?.completed || false,
           tooltip: 'This is what customers see first',
           icon: Store,
@@ -110,7 +110,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           title: 'Set your store link',
           description: 'Choose your subdomain (e.g., vendora.store/yourname).',
           buttonText: 'Set Store URL',
-          route: '/settings',
+          route: '/dashboard/settings',
           completed: setupProgress?.tasks['set_store_link']?.completed || false,
           tooltip: 'Your unique store address',
           icon: Lightbulb,
@@ -129,7 +129,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           title: 'Connect payout account',
           description: 'Enter your bank or mobile money details to receive payments.',
           buttonText: 'Connect Account',
-          route: '/settings',
+          route: '/dashboard/settings',
           completed: setupProgress?.tasks['connect_payout_account']?.completed || false,
           tooltip: 'Secure payment processing',
           icon: Settings,
@@ -139,7 +139,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           title: 'Set shipping/delivery options',
           description: 'Configure delivery zones, flat rates, or free shipping.',
           buttonText: 'Set Delivery',
-          route: '/settings',
+          route: '/dashboard/settings',
           completed: setupProgress?.tasks['set_delivery_options']?.completed || false,
           tooltip: 'Customer delivery preferences',
           icon: Settings,
@@ -158,7 +158,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           title: 'Choose order notification preference',
           description: 'Select how you\'d like to receive order alerts: WhatsApp, email, or dashboard only.',
           buttonText: 'Set Notification Preference',
-          route: '/settings',
+          route: '/dashboard/settings',
           completed: setupProgress?.tasks['set_notification_preference']?.completed || false,
           tooltip: 'Stay updated on new orders',
           icon: MessageSquare,
@@ -168,7 +168,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           title: 'Connect your WhatsApp number',
           description: 'Link your WhatsApp so customers can place orders or reach out.',
           buttonText: 'Connect WhatsApp',
-          route: '/settings',
+          route: '/dashboard/settings',
           completed: setupProgress?.tasks['connect_whatsapp']?.completed || false,
           tooltip: 'Direct customer communication',
           icon: MessageSquare,
@@ -187,7 +187,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           title: 'Add business information',
           description: 'Input your business name, category, location, and working hours.',
           buttonText: 'Add Business Info',
-          route: '/settings',
+          route: '/dashboard/settings',
           completed: setupProgress?.tasks['add_business_info']?.completed || false,
           tooltip: 'Professional business profile',
           icon: Building2,
@@ -206,7 +206,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           title: 'Choose Selling Method',
           description: 'Do you want to sell via WhatsApp only, Website Storefront only, or both?',
           buttonText: 'Choose Method',
-          route: '/settings',
+          route: '/dashboard/settings',
           completed: setupProgress?.tasks['choose_selling_method']?.completed || false,
           tooltip: 'Define your sales channels',
           icon: Sliders,
@@ -320,14 +320,14 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
     // Handle specific task actions
     switch (task.id) {
       case 'add_first_product':
-        navigate('/products');
+        navigate('/dashboard/products');
         break;
       
       case 'customize_storefront':
       case 'set_store_link':
       case 'connect_whatsapp':
       case 'add_business_info':
-        navigate('/settings');
+        navigate('/dashboard/settings');
         break;
       
       case 'connect_payout_account':

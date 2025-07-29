@@ -70,9 +70,24 @@ const ProductCard = ({ product, store }: ProductCardProps) => {
           <Badge variant="secondary" className="rounded-full">In Stock</Badge>
         </div>
         
-        {/* Actions */}
+        {/* Actions - WhatsApp Only Mode for v1 */}
         <div className="space-y-2">
-          {/* Payment Button - Primary CTA */}
+          {/* WhatsApp Order Button - Primary CTA */}
+          <a
+            href={generateWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block"
+            onClick={handleWhatsAppClick}
+          >
+            <Button className="w-full rounded-full">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Order via WhatsApp
+            </Button>
+          </a>
+          
+          {/* Payment Button - Hidden for v1, keeping code for future use */}
+          {/* 
           <PaymentButton
             productId={product.id}
             productName={product.name}
@@ -81,20 +96,7 @@ const ProductCard = ({ product, store }: ProductCardProps) => {
             storeName={store.name}
             className="w-full rounded-full"
           />
-          
-          {/* WhatsApp Button - Secondary CTA */}
-          <a
-            href={generateWhatsAppUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block"
-            onClick={handleWhatsAppClick}
-          >
-            <Button variant="outline" className="w-full rounded-full">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Ask Question
-            </Button>
-          </a>
+          */}
         </div>
       </CardContent>
     </Card>
