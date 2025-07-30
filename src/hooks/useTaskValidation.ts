@@ -9,93 +9,127 @@ interface TaskValidationResult {
 export const useTaskValidation = () => {
   
   const validateTask = async (taskId: string, userId: string): Promise<TaskValidationResult> => {
-    try {
-      switch (taskId) {
-        case 'add_first_product':
-          return await validateFirstProduct(userId);
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries) {
+      try {
+        switch (taskId) {
+          case 'add_first_product':
+            return await validateFirstProduct(userId);
+          
+          case 'customize_storefront':
+            return await validateStorefrontCustomization(userId);
+          
+          case 'set_store_link':
+            return await validateStoreLink(userId);
+          
+          case 'connect_payout_account':
+            return await validatePayoutAccount(userId);
+          
+          case 'set_delivery_options':
+            return await validateDeliveryOptions(userId);
+          
+          case 'set_notification_preference':
+            return await validateNotificationPreference(userId);
+          
+          case 'connect_whatsapp':
+            return await validateWhatsApp(userId);
+          
+          case 'add_business_info':
+            return await validateBusinessInfo(userId);
+          
+          case 'choose_selling_method':
+            return await validateSellingMethod(userId);
+          
+          case 'preview_store':
+            return await validateStorePreview(userId);
+          
+          case 'share_store_link':
+            return await validateStoreShare(userId);
+          
+          case 'launch_store':
+            return await validateStoreLaunch(userId);
+          
+          default:
+            return { isCompleted: false, reason: 'Unknown task' };
+        }
+      } catch (error) {
+        retryCount++;
+        console.warn(`Task validation attempt ${retryCount} failed for ${taskId}:`, error);
         
-        case 'customize_storefront':
-          return await validateStorefrontCustomization(userId);
+        if (retryCount >= maxRetries) {
+          console.error(`Task validation failed after ${maxRetries} attempts for ${taskId}:`, error);
+          return { isCompleted: false, reason: `Validation failed: ${error.message}` };
+        }
         
-        case 'set_store_link':
-          return await validateStoreLink(userId);
-        
-        case 'connect_payout_account':
-          return await validatePayoutAccount(userId);
-        
-        case 'set_delivery_options':
-          return await validateDeliveryOptions(userId);
-        
-        case 'set_notification_preference':
-          return await validateNotificationPreference(userId);
-        
-        case 'connect_whatsapp':
-          return await validateWhatsApp(userId);
-        
-        case 'add_business_info':
-          return await validateBusinessInfo(userId);
-        
-        case 'choose_selling_method':
-          return await validateSellingMethod(userId);
-        
-        case 'preview_store':
-          return await validateStorePreview(userId);
-        
-        case 'share_store_link':
-          return await validateStoreShare(userId);
-        
-        case 'launch_store':
-          return await validateStoreLaunch(userId);
-        
-        default:
-          return { isCompleted: false, reason: 'Unknown task' };
+        // Exponential backoff: wait 1s, 2s, 4s between retries
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount - 1) * 1000));
       }
-    } catch (error) {
-      console.error(`Error validating task ${taskId}:`, error);
-      return { isCompleted: false, reason: 'Validation error' };
     }
+    
+    return { isCompleted: false, reason: 'Validation timeout' };
   };
 
   const validateFirstProduct = async (userId: string): Promise<TaskValidationResult> => {
-    const { data: products, error } = await supabase
-      .from('products')
-      .select('id, name')
-      .eq('vendor_id', userId)
-      .limit(1);
+    try {
+      const { data: products, error } = await supabase
+        .from('products')
+        .select('id, name')
+        .eq('vendor_id', userId)
+        .limit(1);
 
-    if (error) throw error;
-    
-    return {
-      isCompleted: products && products.length > 0,
-      reason: products && products.length > 0 ? 'Product added' : 'No products found',
-      data: { productCount: products?.length || 0 }
-    };
+      if (error) throw error;
+      
+      return {
+        isCompleted: products && products.length > 0,
+        reason: products && products.length > 0 ? 'Product added' : 'No products found',
+        data: { productCount: products?.length || 0 }
+      };
+    } catch (error) {
+      // Fallback validation - assume incomplete on error
+      console.warn('First product validation failed, assuming incomplete:', error);
+      return {
+        isCompleted: false,
+        reason: 'Unable to verify product status',
+        data: { productCount: 0 }
+      };
+    }
   };
 
   const validateStorefrontCustomization = async (userId: string): Promise<TaskValidationResult> => {
-    const { data: store, error } = await supabase
-      .from('stores')
-      .select('name, description, logo_url')
-      .eq('vendor_id', userId)
-      .single();
+    try {
+      const { data: store, error } = await supabase
+        .from('stores')
+        .select('name, description, logo_url')
+        .eq('vendor_id', userId)
+        .single();
 
-    if (error) throw error;
-    
-    const hasCustomization = store && (
-      (store.name && store.name !== 'My Store') || 
-      store.description || 
-      store.logo_url
-    );
-    
-    return {
-      isCompleted: !!hasCustomization,
-      reason: hasCustomization ? 'Store customized' : 'Store needs customization',
-      data: { 
-        hasName: store?.name && store.name !== 'My Store',
-        hasDescription: !!store?.description,
-        hasLogo: !!store?.logo_url
-      }
-    };
+      if (error && error.code !== 'PGRST116') throw error;
+      
+      const hasCustomization = store && (
+        (store.name && store.name !== 'My Store') || 
+        store.description || 
+        store.logo_url
+      );
+      
+      return {
+        isCompleted: !!hasCustomization,
+        reason: hasCustomization ? 'Store customized' : 'Store needs customization',
+        data: { 
+          hasName: store?.name && store.name !== 'My Store',
+          hasDescription: !!store?.description,
+          hasLogo: !!store?.logo_url
+        }
+      };
+    } catch (error) {
+      console.warn('Storefront customization validation failed:', error);
+      return {
+        isCompleted: false,
+        reason: 'Unable to verify store customization',
+        data: { hasName: false, hasDescription: false, hasLogo: false }
+      };
+    }
   };
 
   const validateStoreLink = async (userId: string): Promise<TaskValidationResult> => {

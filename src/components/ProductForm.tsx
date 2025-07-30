@@ -1,9 +1,9 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -57,6 +57,7 @@ interface ProductFormProps {
 const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProps) => {
   const { user } = useAuth();
   const { track } = useAnalytics();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(product?.image_url || "");
 
@@ -65,6 +66,7 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -76,6 +78,31 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
       category_id: product?.category_id || "",
     },
   });
+
+  const selectedCategoryId = watch("category_id");
+
+  // Reset form when product prop changes (for editing)
+  useEffect(() => {
+    if (product) {
+      reset({
+        name: product.name,
+        price: product.price,
+        description: product.description,
+        image_url: product.image_url,
+        category_id: product.category_id || "",
+      });
+      setUploadedImageUrl(product.image_url || "");
+    } else {
+      reset({
+        name: "",
+        price: 0,
+        description: "",
+        image_url: "",
+        category_id: "",
+      });
+      setUploadedImageUrl("");
+    }
+  }, [product, reset]);
 
   // Fetch categories for selection
   const { data: categories = [] } = useQuery({
@@ -187,8 +214,18 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
         toast.success("Product created successfully!");
       }
 
-      reset();
+      reset({
+        name: "",
+        price: 0,
+        description: "",
+        image_url: "",
+        category_id: "",
+      });
       setUploadedImageUrl("");
+      
+      // Invalidate setup progress to trigger task validation
+      queryClient.invalidateQueries({ queryKey: ['setup-progress', user?.id] });
+      
       onOpenChange(false);
       onSuccess();
     } catch (error) {
@@ -250,7 +287,10 @@ const ProductForm = ({ open, onOpenChange, product, onSuccess }: ProductFormProp
 
             <div className="grid gap-2">
               <Label htmlFor="category">Category (Optional)</Label>
-              <Select onValueChange={(value) => setValue("category_id", value)} value={product?.category_id || "none"}>
+              <Select 
+                onValueChange={(value) => setValue("category_id", value)} 
+                value={selectedCategoryId || "none"}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>

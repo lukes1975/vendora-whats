@@ -61,7 +61,7 @@ export const useSetupProgress = () => {
   const queryClient = useQueryClient();
   const { validateTask } = useTaskValidation();
 
-  // Fetch setup progress from database
+  // Fetch setup progress from database with auto-refresh
   const { data: setupProgress, isLoading, error } = useQuery({
     queryKey: ['setup-progress', user?.id],
     queryFn: async (): Promise<SetupProgress> => {
@@ -145,9 +145,11 @@ export const useSetupProgress = () => {
       };
     },
     enabled: !!user?.id,
-    retry: 2,
-    retryDelay: 1000,
-    staleTime: 5 * 60 * 1000, // 5 minutes - setup progress doesn't change frequently
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 30 * 1000, // 30 seconds - more frequent refresh for better UX
+    refetchInterval: 60 * 1000, // Auto-refresh every minute
+    refetchOnWindowFocus: true
   });
 
   // Mutation to update task progress
