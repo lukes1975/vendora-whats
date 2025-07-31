@@ -46,7 +46,7 @@ export const useDashboardData = () => {
       return data as StoreData | null;
     },
     enabled: !!user?.id,
-    staleTime: 10 * 60 * 1000, // Store data rarely changes, cache for 10 minutes
+    staleTime: 15 * 60 * 1000, // Store data rarely changes, cache for 15 minutes
     retry: 2,
     retryDelay: 1000,
   });
@@ -77,7 +77,7 @@ export const useDashboardData = () => {
             .select('id, customer_name, status, created_at, total_price')
             .eq('vendor_id', user.id)
             .order('created_at', { ascending: false })
-            .limit(5)
+            .limit(3)
         ]);
 
         if (productsError) throw productsError;
@@ -95,7 +95,7 @@ export const useDashboardData = () => {
       }
     },
     enabled: !!user?.id,
-    staleTime: 2 * 60 * 1000, // Cache stats for 2 minutes
+    staleTime: 10 * 60 * 1000, // Cache stats for 10 minutes
     retry: 2,
     retryDelay: 1000,
   });

@@ -8,24 +8,15 @@ import { useAnalyticsData } from "@/hooks/useAnalyticsData";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { RetentionNudges } from "@/components/dashboard/RetentionNudges";
-import NudgeScheduler from "@/components/dashboard/NudgeScheduler";
 import { LoadingPage } from "@/components/ui/loading-spinner";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
 import ShareStoreCard from "@/components/dashboard/ShareStoreCard";
 import AnnouncementBanner from "@/components/dashboard/AnnouncementBanner";
 import FirstProductCTA from "@/components/dashboard/FirstProductCTA";
-import EnhancedStatsGrid from "@/components/dashboard/EnhancedStatsGrid";
-import AnalyticsChart from "@/components/dashboard/AnalyticsChart";
-import TopProductsCard from "@/components/dashboard/TopProductsCard";
-import LowStockAlert from "@/components/dashboard/LowStockAlert";
-import QuickActions from "@/components/dashboard/QuickActions";
-import RecentOrders from "@/components/dashboard/RecentOrders";
-import EarlyAccessBadge from "@/components/dashboard/EarlyAccessBadge";
-import UsageMeter from "@/components/dashboard/UsageMeter";
-import ProInterestModal from "@/components/dashboard/ProInterestModal";
-import EnhancedOnboarding from "@/components/dashboard/EnhancedOnboarding";
+import SimplifiedStatsGrid from "@/components/dashboard/SimplifiedStatsGrid";
+import EssentialQuickActions from "@/components/dashboard/EssentialQuickActions";
+import LightRecentOrders from "@/components/dashboard/LightRecentOrders";
 import SetupWizard from "@/components/dashboard/SetupWizard";
 
 import { Button } from "@/components/ui/button";
@@ -67,8 +58,8 @@ const Dashboard = () => {
       return data;
     },
     enabled: !!user?.id,
-    refetchInterval: 30000, // Check every 30 seconds instead of 3 seconds
-    staleTime: 10 * 60 * 1000, // Cache profile data for 10 minutes
+    refetchInterval: 5 * 60 * 1000, // Check every 5 minutes
+    staleTime: 15 * 60 * 1000, // Cache profile data for 15 minutes
   });
 
   const shouldShowSetupWizard = (profileData?.setup_completed === false || profileData?.setup_completed === null) || showSetupManually;
@@ -141,101 +132,35 @@ const Dashboard = () => {
             {/* Announcement Banner */}
             <AnnouncementBanner />
 
-            {/* Retention Nudges */}
-            <RetentionNudges />
-
-            {/* Early Access Badge */}
-            <div className="flex justify-center sm:justify-start">
-              <EarlyAccessBadge />
-            </div>
-
             {/* Welcome Header */}
-            <div className="bg-gradient-to-r from-primary/5 via-purple-500/5 to-primary/5 rounded-2xl p-8 border shadow-sm">
+            <div className="rounded-xl p-6 border">
               <WelcomeSection storeName={storeData?.name} />
             </div>
 
         {/* Share Store Card */}
-        <div className="bg-card rounded-2xl shadow-lg border-0">
-          <ShareStoreCard />
-        </div>
+        <ShareStoreCard />
 
-        {/* Enhanced Stats Grid */}
-        <div className="bg-gradient-to-r from-card to-accent/5 rounded-2xl p-6 shadow-lg border-0">
-          <EnhancedStatsGrid 
-            totalRevenue={analytics?.totalRevenue || 0}
-            totalOrders={analytics?.totalOrders || 0}
-            totalProducts={analytics?.totalProducts || 0}
-            avgOrderValue={analytics?.avgOrderValue || 0}
-          />
-        </div>
+        {/* Simplified Stats */}
+        <SimplifiedStatsGrid 
+          totalRevenue={analytics?.totalRevenue || 0}
+          totalOrders={analytics?.totalOrders || 0}
+          totalProducts={analytics?.totalProducts || 0}
+        />
 
-        {/* Usage Meter */}
-        <div className="bg-card rounded-2xl shadow-lg border-0 p-6">
-          <UsageMeter totalProducts={analytics?.totalProducts || 0} />
-        </div>
-
-        {/* Analytics Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-card rounded-2xl shadow-lg border-0 p-6">
-            <AnalyticsChart 
-              data={analytics?.revenueByDay || []}
-              type="revenue"
-            />
-          </div>
-          <div className="bg-card rounded-2xl shadow-lg border-0 p-6">
-            <AnalyticsChart 
-              data={analytics?.revenueByDay || []}
-              type="orders"
-            />
-          </div>
-        </div>
-
-        {/* Top Products and Alerts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-card rounded-2xl shadow-lg border-0">
-            <TopProductsCard products={analytics?.topProducts || []} />
-          </div>
-          <div className="bg-card rounded-2xl shadow-lg border-0">
-            <LowStockAlert products={analytics?.lowStockProducts || []} />
-          </div>
-        </div>
-
-        {/* Pro Interest Collection */}
-        <div className="bg-gradient-to-r from-primary/15 via-purple-500/15 to-orange-500/15 rounded-2xl p-8 text-center border shadow-xl">
-          <div className="max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-foreground mb-3">
-              🏆 Ready to Join the Business Elite?
-            </h3>
-            <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
-              <strong className="text-foreground">Serious sellers deserve serious tools.</strong> Advanced automation, predictive insights, and enterprise-level features. 
-              <strong className="text-primary">Be first in line when we open the vault.</strong>
-            </p>
-            <ProInterestModal>
-              <Button size="lg" className="bg-gradient-to-r from-primary via-purple-600 to-orange-600 hover:from-primary/90 hover:via-purple-600/90 hover:to-orange-600/90 shadow-xl text-white border-0">
-                Reserve Pro Status
-              </Button>
-            </ProInterestModal>
-          </div>
-        </div>
-
-            {/* Quick Actions */}
-            <div className="bg-card rounded-2xl shadow-lg border-0">
-              <QuickActions />
-              <div className="p-4 border-t">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setShowSetupManually(true)}
-                  className="w-full"
-                >
-                  📋 Open Setup Guide
-                </Button>
-              </div>
-            </div>
+        {/* Essential Quick Actions */}
+        <EssentialQuickActions />
 
         {/* Recent Orders */}
-        <div className="bg-card rounded-2xl shadow-lg border-0">
-          <RecentOrders orders={stats?.recentOrders || []} />
+        <LightRecentOrders orders={stats?.recentOrders || []} />
+
+        {/* Setup Guide Access */}
+        <div className="text-center">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowSetupManually(true)}
+          >
+            📋 Open Setup Guide
+          </Button>
         </div>
 
 
@@ -245,8 +170,6 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Lightweight nudge scheduler - invisible component */}
-      <NudgeScheduler />
     </DashboardLayout>
   );
 };

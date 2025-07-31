@@ -139,6 +139,6 @@ export const useAnalyticsData = () => {
     enabled: !!user?.id,
     retry: 2,
     retryDelay: 1000,
-    staleTime: 5 * 60 * 1000, // 5 minutes - analytics data doesn't change frequently
+    staleTime: 15 * 60 * 1000, // 15 minutes - analytics data doesn't change frequently
   });
 };
