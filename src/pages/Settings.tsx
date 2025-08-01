@@ -452,7 +452,7 @@ const Settings = () => {
         </div>
 
         {/* Save Button */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 lg:relative lg:bg-transparent lg:border-t-0 lg:p-0 lg:mt-8">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t p-4 lg:relative lg:bg-transparent lg:border-t-0 lg:p-0 lg:mt-8">
           <div className="max-w-4xl mx-auto">
             <Button
               onClick={handleSaveSettings}
