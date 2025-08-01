@@ -63,7 +63,14 @@ const Settings = () => {
     },
     {
       store_name: commonValidationRules.storeName,
-      whatsapp_number: commonValidationRules.whatsappNumber,
+      // Make WhatsApp number optional for now
+      whatsapp_number: {
+        required: false,
+        custom: (value: string) => {
+          if (!value || value.trim() === '') return true; // Allow empty
+          return value.startsWith('+234') && value.length === 14; // If provided, must be valid
+        },
+      },
     }
   );
 
@@ -185,13 +192,27 @@ const Settings = () => {
   const handleSaveSettings = async () => {
     if (!user) return;
 
+    console.log('Starting save process...', { 
+      store_name: values.store_name, 
+      phoneNumber, 
+      whatsapp_number: values.whatsapp_number 
+    });
+
     await handleSubmit(async (formValues) => {
       try {
+        console.log('Form validation passed, uploading logo...');
         // Upload logo if changed
         const logoUrl = await uploadLogo();
 
         // Update store settings with sanitized data
         const fullWhatsAppNumber = phoneNumber ? `+234${phoneNumber}` : '';
+        
+        console.log('Updating store with data:', {
+          name: formValues.store_name,
+          whatsapp_number: fullWhatsAppNumber,
+          logo_url: logoUrl,
+        });
+
         const { error } = await supabase
           .from('stores')
           .update({
@@ -202,8 +223,12 @@ const Settings = () => {
           })
           .eq('vendor_id', user.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Database update error:', error);
+          throw error;
+        }
 
+        console.log('Settings saved successfully');
         logSecurityEvent('Settings updated', { userId: user.id });
         toast({
           title: 'Success',
@@ -213,7 +238,9 @@ const Settings = () => {
         // Clear logo file after successful save
         setLogoFile(null);
         setValue('logo_url', logoUrl);
+        setValue('whatsapp_number', fullWhatsAppNumber);
       } catch (error) {
+        console.error('Save settings error:', error);
         logSecurityEvent('Settings update error', { userId: user.id, error });
         throw error; // Re-throw to be handled by handleSubmit
       }
@@ -286,8 +313,8 @@ const Settings = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
+                <div className="space-y-2">
+                <Label htmlFor="whatsappNumber">WhatsApp Number (Optional)</Label>
                 <div className="relative flex">
                   <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md border-input">
                     <Phone className="h-4 w-4 text-muted-foreground mr-2" />
@@ -304,12 +331,16 @@ const Settings = () => {
                     placeholder="8012345678"
                     className="rounded-l-none"
                     maxLength={10}
-                    required
                   />
                 </div>
-                {(errors.whatsapp_number || (phoneNumber && phoneNumber.length < 10)) && (
+                {phoneNumber && phoneNumber.length > 0 && phoneNumber.length < 10 && (
                   <p className="text-sm text-red-600 mt-1">
-                    {errors.whatsapp_number || 'Please enter a valid 10-digit number'}
+                    Please enter a valid 10-digit number
+                  </p>
+                )}
+                {errors.whatsapp_number && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.whatsapp_number}
                   </p>
                 )}
               </div>
