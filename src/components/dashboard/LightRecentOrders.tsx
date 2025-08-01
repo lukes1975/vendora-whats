@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 
 interface Order {
   id: string;
@@ -16,40 +16,41 @@ interface LightRecentOrdersProps {
 const LightRecentOrders = ({ orders }: LightRecentOrdersProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'confirmed': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'processing': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'delivered': return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200';
-      default: return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'confirmed': return 'status-success';
+      case 'processing': return 'status-info';
+      case 'delivered': return 'status-success';
+      default: return 'status-warning';
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Recent Orders</CardTitle>
-        <CardDescription>Latest customer orders</CardDescription>
+    <Card className="glass-card border-border/50">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg font-semibold">Recent Orders</CardTitle>
+        <CardDescription>Latest customer orders from your store</CardDescription>
       </CardHeader>
       <CardContent>
         {orders && orders.length > 0 ? (
-          <div className="space-y-2">
-            {orders.slice(0, 3).map((order) => (
-              <div key={order.id} className="flex items-center justify-between p-2 border rounded">
-                <div>
-                  <div className="font-medium text-sm">{order.customer_name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    ₦{order.total_price.toLocaleString()}
-                  </div>
+          <div className="space-y-3">
+            {orders.slice(0, 3).map((order, index) => (
+              <div key={order.id} className="flex items-center justify-between p-4 border border-border/50 rounded-xl hover:border-primary/20 hover:bg-primary/5 transition-all group animate-fade-in" style={{animationDelay: `${index * 100}ms`}}>
+                <div className="flex-1 space-y-1">
+                  <div className="font-medium text-foreground group-hover:text-primary transition-colors">{order.customer_name}</div>
+                  <div className="text-sm text-muted-foreground">₦{order.total_price.toLocaleString()}</div>
                 </div>
-                <Badge className={`text-xs ${getStatusColor(order.status || 'pending')}`}>
+                <Badge className={`${getStatusColor(order.status || 'pending')} px-3 py-1 text-xs font-medium rounded-full border transition-all`}>
                   {order.status || 'pending'}
                 </Badge>
               </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-4 text-muted-foreground">
-            <MessageSquare className="mx-auto h-8 w-8 mb-2 opacity-50" />
-            <p className="text-sm">No orders yet</p>
+          <div className="text-center py-12 animate-fade-in">
+            <div className="h-16 w-16 mx-auto rounded-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center mb-4">
+              <ShoppingCart className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <p className="text-muted-foreground text-base">No orders yet</p>
+            <p className="text-sm text-muted-foreground/70 mt-1">Your first order will appear here</p>
           </div>
         )}
       </CardContent>
