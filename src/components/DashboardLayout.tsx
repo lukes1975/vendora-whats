@@ -11,7 +11,8 @@ import {
   BarChart3,
   Store,
   Menu,
-  X
+  X,
+  MessageSquare
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -60,6 +61,7 @@ const DashboardLayout = ({ children }: { children?: React.ReactNode }) => {
     { icon: Home, label: 'Dashboard', shortLabel: 'Home', path: '/dashboard' },
     { icon: Package, label: 'Products', shortLabel: 'Products', path: '/dashboard/products' },
     { icon: Store, label: 'Storefront', shortLabel: 'Store', path: '/dashboard/storefront' },
+    { icon: MessageSquare, label: 'WhatsApp', shortLabel: 'Chat', path: '/dashboard/whatsapp' },
     { icon: BarChart3, label: 'Analytics', shortLabel: 'Stats', path: '/dashboard/analytics' },
     { icon: Settings, label: 'Settings', shortLabel: 'Settings', path: '/dashboard/settings' },
   ];

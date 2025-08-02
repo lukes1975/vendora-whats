@@ -9,6 +9,7 @@ import Products from "@/pages/Products";
 import Settings from "@/pages/Settings";
 import Analytics from "@/pages/Analytics";
 import DashboardStorefront from "@/pages/DashboardStorefront";
+import WhatsApp from "@/pages/WhatsApp";
 import Pricing from "@/pages/Pricing";
 import NotFound from "@/pages/NotFound";
 import Storefront from "@/pages/Storefront";
@@ -72,6 +73,16 @@ const MainAppRoutes = () => {
             <ProtectedRoute>
               <ErrorBoundary>
                 <DashboardStorefront />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/dashboard/whatsapp" 
+          element={
+            <ProtectedRoute>
+              <ErrorBoundary>
+                <WhatsApp />
               </ErrorBoundary>
             </ProtectedRoute>
           } 
