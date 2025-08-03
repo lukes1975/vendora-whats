@@ -48,16 +48,26 @@ export const useWhatsAppSocket = () => {
   }, []);
 
   const connect = useCallback(async () => {
+    console.log('🔗 WhatsApp Connect called:', { 
+      isConnecting: connectionStatus.isConnecting, 
+      isConnected: connectionStatus.isConnected 
+    });
+    
     if (connectionStatus.isConnecting || connectionStatus.isConnected) {
+      console.log('⚠️ Connection attempt skipped - already connecting or connected');
       return;
     }
 
+    console.log('🚀 Starting WhatsApp connection...');
     setConnectionStatus(prev => ({ ...prev, isConnecting: true, error: null }));
 
     try {
       await whatsappSocketService.connect();
+      console.log('✅ WhatsApp connection successful');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to connect';
+      console.error('❌ WhatsApp connection failed:', errorMessage);
+      
       setConnectionStatus(prev => ({ 
         ...prev, 
         isConnecting: false, 
@@ -179,9 +189,15 @@ export const useWhatsAppSocket = () => {
   // Auto-connect on mount if not connected
   useEffect(() => {
     if (!connectionStatus.isConnected && !connectionStatus.isConnecting) {
-      connect();
+      const timer = setTimeout(() => {
+        connect().catch((error) => {
+          console.error('Auto-connect failed:', error);
+        });
+      }, 1000); // Delay auto-connect to avoid immediate connection pressure
+      
+      return () => clearTimeout(timer);
     }
-  }, []);
+  }, [connectionStatus.isConnected, connectionStatus.isConnecting, connect]);
 
   return {
     connectionStatus,

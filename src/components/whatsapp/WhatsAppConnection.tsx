@@ -11,6 +11,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 export const WhatsAppConnection: React.FC = () => {
   const { connectionStatus, connect, disconnect, refreshQR, isConnected, isConnecting } = useWhatsAppSocket();
   const [qrCodeDataUrl, setQrCodeDataUrl] = React.useState<string | null>(null);
+  
+  // Debug info
+  const whatsappApiBase = import.meta.env.VITE_WHATSAPP_API_BASE || 'https://baileys-whatsapp-bot-zip.onrender.com';
+  
+  React.useEffect(() => {
+    console.log('🔧 WhatsApp Connection Component - API Base:', whatsappApiBase);
+    console.log('🔧 Connection Status:', connectionStatus);
+  }, [connectionStatus, whatsappApiBase]);
 
   // Generate QR code data URL when QR code changes
   React.useEffect(() => {
@@ -198,13 +206,39 @@ export const WhatsAppConnection: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            className="p-3 bg-destructive/10 border border-destructive/20 rounded-md"
+            className="p-4 bg-destructive/10 border border-destructive/20 rounded-md space-y-3"
           >
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-destructive" />
-              <p className="text-sm text-destructive">{connectionStatus.error}</p>
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+              <div className="space-y-1 flex-1">
+                <p className="text-sm font-medium text-destructive">Connection Failed</p>
+                <p className="text-xs text-muted-foreground">{connectionStatus.error}</p>
+                <div className="text-xs text-muted-foreground">
+                  <p>• Check your internet connection</p>
+                  <p>• WhatsApp server may be temporarily unavailable</p>
+                  <p>• Try again in a few moments</p>
+                </div>
+              </div>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={connect}
+              className="w-full flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Retry Connection
+            </Button>
           </motion.div>
+        )}
+        
+        {/* Debug Info - Only in development */}
+        {import.meta.env.DEV && (
+          <div className="mt-4 p-2 bg-muted/50 rounded text-xs space-y-1">
+            <p><strong>API Base:</strong> {whatsappApiBase}</p>
+            <p><strong>Status:</strong> {isConnected ? 'Connected' : isConnecting ? 'Connecting' : 'Disconnected'}</p>
+            {connectionStatus.error && <p><strong>Error:</strong> {connectionStatus.error}</p>}
+          </div>
         )}
       </CardContent>
     </Card>

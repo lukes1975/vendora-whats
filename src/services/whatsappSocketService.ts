@@ -31,9 +31,11 @@ export interface WhatsAppSocketEvents {
 class WhatsAppSocketService {
   private socket: Socket | null = null;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
+  private maxReconnectAttempts = 3; // Reduced from 5 to fail faster
   private baseUrl: string;
   private listeners: Map<string, Set<Function>> = new Map();
+  private connectionTimeout: NodeJS.Timeout | null = null;
+  private isManualDisconnect = false;
 
   constructor() {
     this.baseUrl = import.meta.env.VITE_WHATSAPP_API_BASE || 'https://baileys-whatsapp-bot-zip.onrender.com';
@@ -47,14 +49,35 @@ class WhatsAppSocketService {
           return;
         }
 
+        this.isManualDisconnect = false;
+        
+        // Clear any existing timeout
+        if (this.connectionTimeout) {
+          clearTimeout(this.connectionTimeout);
+        }
+
+        // Set connection timeout
+        this.connectionTimeout = setTimeout(() => {
+          if (this.socket && !this.socket.connected) {
+            this.socket.disconnect();
+            this.emit('error', 'Connection timeout - WhatsApp server may be unavailable');
+            reject(new Error('Connection timeout'));
+          }
+        }, 15000); // 15 second timeout
+
         this.socket = io(this.baseUrl, {
           transports: ['websocket', 'polling'],
           timeout: 10000,
           forceNew: true,
+          autoConnect: true,
         });
 
         this.socket.on('connect', () => {
-          console.log('WhatsApp socket connected');
+          console.log('WhatsApp socket connected to:', this.baseUrl);
+          if (this.connectionTimeout) {
+            clearTimeout(this.connectionTimeout);
+            this.connectionTimeout = null;
+          }
           this.reconnectAttempts = 0;
           this.emit('connected');
           resolve();
@@ -62,19 +85,42 @@ class WhatsAppSocketService {
 
         this.socket.on('disconnect', (reason) => {
           console.log('WhatsApp socket disconnected:', reason);
-          this.emit('disconnected', reason);
+          if (this.connectionTimeout) {
+            clearTimeout(this.connectionTimeout);
+            this.connectionTimeout = null;
+          }
+          
+          if (!this.isManualDisconnect) {
+            this.emit('disconnected', reason);
+          }
         });
 
         this.socket.on('connect_error', (error) => {
           console.error('WhatsApp socket connection error:', error);
-          this.emit('error', error.message || 'Connection failed');
           
-          if (this.reconnectAttempts < this.maxReconnectAttempts) {
+          if (this.connectionTimeout) {
+            clearTimeout(this.connectionTimeout);
+            this.connectionTimeout = null;
+          }
+          
+          const errorMsg = error?.message || 'Connection failed';
+          this.emit('error', errorMsg);
+          
+          if (this.reconnectAttempts < this.maxReconnectAttempts && !this.isManualDisconnect) {
             this.reconnectAttempts++;
             this.emit('reconnecting', this.reconnectAttempts);
-            setTimeout(() => this.connect(), Math.pow(2, this.reconnectAttempts) * 1000);
+            
+            // Exponential backoff with jitter
+            const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts) + Math.random() * 1000, 10000);
+            setTimeout(() => {
+              if (!this.isManualDisconnect) {
+                this.connect().catch(() => {
+                  // Ignore errors in retry attempts
+                });
+              }
+            }, delay);
           } else {
-            reject(new Error('Max reconnection attempts reached'));
+            reject(new Error(`Connection failed after ${this.maxReconnectAttempts} attempts: ${errorMsg}`));
           }
         });
 
@@ -88,19 +134,36 @@ class WhatsAppSocketService {
           this.emit('msg-received', data);
         });
 
-        logSecurityEvent('WhatsApp socket connection initiated', { baseUrl: this.baseUrl });
+        logSecurityEvent('WhatsApp socket connection initiated', { 
+          baseUrl: this.baseUrl,
+          attempt: this.reconnectAttempts + 1 
+        });
+        
       } catch (error) {
         console.error('Failed to initialize WhatsApp socket:', error);
+        if (this.connectionTimeout) {
+          clearTimeout(this.connectionTimeout);
+          this.connectionTimeout = null;
+        }
         reject(error);
       }
     });
   }
 
   disconnect(): void {
+    this.isManualDisconnect = true;
+    
+    if (this.connectionTimeout) {
+      clearTimeout(this.connectionTimeout);
+      this.connectionTimeout = null;
+    }
+    
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
     }
+    
+    this.reconnectAttempts = 0;
     this.listeners.clear();
   }
 
