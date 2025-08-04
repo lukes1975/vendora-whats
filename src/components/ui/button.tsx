@@ -15,14 +15,15 @@ const buttonVariants = cva(
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground hover:border-primary/20",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:scale-105",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/90 hover:scale-105 hover:shadow-glow-secondary",
         ghost: "hover:bg-accent hover:text-accent-foreground hover:scale-105",
         link: "text-primary underline-offset-4 hover:underline hover:text-primary/80",
         premium: "gradient-primary text-primary-foreground hover:shadow-glow hover:scale-105 shadow-lg",
         glass: "glass text-foreground hover:bg-white/10 hover:scale-105 backdrop-blur-lg",
         hero: "gradient-hero text-white hover:shadow-floating hover:scale-105 shadow-xl font-semibold",
-        success: "bg-green-600 text-white hover:bg-green-700 hover:scale-105 hover:shadow-lg",
+        success: "bg-success text-success-foreground hover:bg-success/90 hover:scale-105 hover:shadow-glow-success",
         warning: "bg-amber-600 text-white hover:bg-amber-700 hover:scale-105 hover:shadow-lg",
+        action: "gradient-secondary text-secondary-foreground hover:shadow-glow-secondary hover:scale-105 shadow-md font-medium",
       },
       size: {
         default: "h-11 px-6 py-2",

@@ -2,53 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import '@fontsource/dm-sans/300.css';
+@import '@fontsource/dm-sans/400.css';
+@import '@fontsource/dm-sans/500.css';
+@import '@fontsource/dm-sans/600.css';
+@import '@fontsource/dm-sans/700.css';
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    /* Core colors - Premium palette */
+    /* Enhanced Color Psychology System */
+    /* Trust Blues - Professional & Trustworthy */
     --background: 0 0% 100%;
-    --foreground: 224 71% 4%;
-
+    --foreground: 215 25% 27%; /* Deep charcoal */
+    
     --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
-
+    --card-foreground: 215 25% 27%;
+    
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
-
-    /* Enhanced primary - Richer, more confident */
-    --primary: 221 100% 60%;
-    --primary-foreground: 0 0% 98%;
-    --primary-glow: 221 100% 75%;
-    --primary-muted: 221 100% 85%;
-
-    /* Sophisticated secondary */
-    --secondary: 210 20% 97%;
-    --secondary-foreground: 222 47% 11%;
-
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 16% 47%;
-
-    --accent: 262 90% 65%;
-    --accent-foreground: 0 0% 98%;
-
+    --popover-foreground: 215 25% 27%;
+    
+    /* Primary - Deep Navy (Trust) */
+    --primary: 214 84% 21%; /* Deep navy #1e3a8a */
+    --primary-foreground: 210 20% 98%;
+    --primary-glow: 214 84% 35%; /* Lighter navy for effects */
+    --primary-muted: 214 84% 85%;
+    
+    /* Secondary - Warm Coral (Action) */
+    --secondary: 22 86% 48%; /* Warm coral #ea580c */
+    --secondary-foreground: 210 20% 98%;
+    
+    /* Success - Forest Green (Growth) */
+    --success: 149 80% 20%; /* Forest green #166534 */
+    --success-foreground: 210 20% 98%;
+    --success-light: 149 43% 80%; /* Mint background #bbf7d0 */
+    
+    /* Neutral System */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    
+    --accent: 22 86% 48%; /* Warm coral as accent */
+    --accent-foreground: 210 20% 98%;
+    
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 100% 60%;
+    --destructive-foreground: 210 20% 98%;
+    
+    /* Interface Elements */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 214 84% 21%;
 
     --radius: 12px;
     
-    /* Premium gradient system */
-    --gradient-primary: linear-gradient(135deg, hsl(221 100% 60%), hsl(262 90% 65%));
+    /* Premium gradient system with psychology */
+    --gradient-primary: linear-gradient(135deg, hsl(214 84% 21%), hsl(214 84% 35%));
+    --gradient-secondary: linear-gradient(135deg, hsl(22 86% 48%), hsl(22 86% 60%));
+    --gradient-success: linear-gradient(135deg, hsl(149 80% 20%), hsl(149 65% 35%));
     --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 20% 99%));
-    --gradient-glow: linear-gradient(135deg, hsl(221 100% 75% / 0.3), hsl(262 90% 75% / 0.3));
-    --gradient-hero: linear-gradient(135deg, hsl(221 100% 60% / 0.9), hsl(262 90% 65% / 0.9));
+    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 14% 99%));
+    --gradient-glow: linear-gradient(135deg, hsl(214 84% 35% / 0.3), hsl(22 86% 60% / 0.3));
+    --gradient-hero: linear-gradient(135deg, hsl(214 84% 21% / 0.9), hsl(22 86% 48% / 0.9));
     
     /* Premium shadow system with depth */
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
@@ -58,7 +75,9 @@ All colors MUST be HSL.
     --shadow-glass: 0 8px 32px hsl(31 38% 53% / 0.1);
     --shadow-elevated: 0 20px 40px -12px hsl(0 0% 0% / 0.12);
     --shadow-floating: 0 32px 64px -24px hsl(0 0% 0% / 0.08);
-    --shadow-glow: 0 0 40px hsl(221 100% 75% / 0.4);
+    --shadow-glow: 0 0 40px hsl(214 84% 35% / 0.4);
+    --shadow-glow-secondary: 0 0 40px hsl(22 86% 60% / 0.4);
+    --shadow-glow-success: 0 0 40px hsl(149 80% 35% / 0.4);
 
     /* Premium spacing scale */
     --spacing-xs: 4px;
@@ -92,41 +111,55 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Premium dark palette */
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
-
-    --card: 224 71% 4%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 224 71% 4%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 221 100% 60%;
-    --primary-foreground: 224 71% 4%;
-    --primary-glow: 221 100% 75%;
-    --primary-muted: 221 100% 20%;
-
-    --secondary: 215 27% 12%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 215 27% 12%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 262 90% 65%;
-    --accent-foreground: 224 71% 4%;
-
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 215 27% 17%;
-    --input: 215 27% 17%;
-    --ring: 221 100% 60%;
+    /* Dark Mode - Enhanced for Trust & Sophistication */
+    --background: 215 28% 5%; /* Deep navy background */
+    --foreground: 210 20% 98%;
+    
+    --card: 215 25% 7%;
+    --card-foreground: 210 20% 98%;
+    
+    --popover: 215 25% 7%;
+    --popover-foreground: 210 20% 98%;
+    
+    /* Primary - Bright Sapphire (Dark Mode) */
+    --primary: 214 95% 65%; /* Brighter blue for dark mode */
+    --primary-foreground: 215 28% 5%;
+    --primary-glow: 214 95% 75%;
+    --primary-muted: 214 95% 20%;
+    
+    /* Secondary - Warm Orange (Action) */
+    --secondary: 22 86% 55%; /* Slightly brighter coral */
+    --secondary-foreground: 215 28% 5%;
+    
+    /* Success - Bright Green */
+    --success: 149 65% 45%; /* Brighter green for dark mode */
+    --success-foreground: 215 28% 5%;
+    --success-light: 149 30% 15%;
+    
+    /* Dark Mode Neutrals */
+    --muted: 215 20% 12%;
+    --muted-foreground: 217 10% 65%;
+    
+    --accent: 22 86% 55%; /* Warm orange as accent */
+    --accent-foreground: 215 28% 5%;
+    
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 210 20% 98%;
+    
+    /* Dark Interface */
+    --border: 215 20% 15%;
+    --input: 215 20% 15%;
+    --ring: 214 95% 65%;
 
     /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(214 95% 65%), hsl(214 95% 75%));
+    --gradient-secondary: linear-gradient(135deg, hsl(22 86% 55%), hsl(22 86% 65%));
+    --gradient-success: linear-gradient(135deg, hsl(149 65% 45%), hsl(149 65% 55%));
     --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-    --gradient-surface: linear-gradient(180deg, hsl(224 71% 4%), hsl(215 27% 12%));
-    --shadow-glow: 0 0 40px hsl(221 100% 60% / 0.2);
+    --gradient-surface: linear-gradient(180deg, hsl(215 28% 5%), hsl(215 20% 12%));
+    --shadow-glow: 0 0 40px hsl(214 95% 65% / 0.2);
+    --shadow-glow-secondary: 0 0 40px hsl(22 86% 55% / 0.2);
+    --shadow-glow-success: 0 0 40px hsl(149 65% 45% / 0.2);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -148,21 +181,50 @@ All colors MUST be HSL.
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
-  /* Typography improvements */
+  /* Enhanced Typography Hierarchy */
   h1, h2, h3, h4, h5, h6 {
-    @apply tracking-tight;
+    @apply font-display tracking-tight;
   }
 
   h1 {
-    @apply text-4xl font-bold lg:text-5xl;
+    @apply text-5xl font-bold lg:text-7xl leading-tight;
   }
 
   h2 {
-    @apply text-3xl font-semibold lg:text-4xl;
+    @apply text-4xl font-semibold lg:text-5xl leading-tight;
   }
 
   h3 {
-    @apply text-2xl font-semibold lg:text-3xl;
+    @apply text-3xl font-semibold lg:text-4xl leading-snug;
+  }
+
+  h4 {
+    @apply text-2xl font-medium lg:text-3xl leading-snug;
+  }
+
+  h5 {
+    @apply text-xl font-medium lg:text-2xl leading-normal;
+  }
+
+  h6 {
+    @apply text-lg font-medium lg:text-xl leading-normal;
+  }
+
+  /* Body text refinements */
+  p {
+    @apply leading-relaxed;
+  }
+
+  .text-hero {
+    @apply text-6xl font-bold lg:text-7xl tracking-tight font-display;
+  }
+
+  .text-headline {
+    @apply text-4xl font-bold lg:text-5xl tracking-tight font-display;
+  }
+
+  .text-subheading {
+    @apply text-2xl font-medium lg:text-3xl leading-snug font-display;
   }
 
   /* Focus styles for accessibility */
@@ -186,6 +248,14 @@ All colors MUST be HSL.
   /* Gradient utilities */
   .gradient-primary {
     background: var(--gradient-primary);
+  }
+
+  .gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+
+  .gradient-success {
+    background: var(--gradient-success);
   }
 
   .gradient-surface {
@@ -249,6 +319,14 @@ All colors MUST be HSL.
 
   .shadow-glow {
     box-shadow: var(--shadow-glow);
+  }
+
+  .shadow-glow-secondary {
+    box-shadow: var(--shadow-glow-secondary);
+  }
+
+  .shadow-glow-success {
+    box-shadow: var(--shadow-glow-success);
   }
 
   /* Status indicators */
