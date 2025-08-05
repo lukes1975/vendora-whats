@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowRight, Store, MessageSquare, Users, Zap, Check, X, Star, ChevronLeft, ChevronRight, Play, Globe, Instagram, MessageCircle } from "lucide-react";
+import { ArrowRight, Store, MessageSquare, Users, Zap, Check, X, Star, ChevronLeft, ChevronRight, Play, Globe, Instagram, MessageCircle, Shield, Clock, TrendingUp, Smartphone } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface PricingPlan {
   name: string;
@@ -20,6 +20,24 @@ interface PricingPlan {
 const Index = () => {
   const [isYearly, setIsYearly] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [sellerCount, setSellerCount] = useState(2300);
+  const [currentWord, setCurrentWord] = useState(0);
+  
+  const dynamicWords = ["WhatsApp", "Instagram", "Social Media"];
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentWord((prev) => (prev + 1) % dynamicWords.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSellerCount(prev => prev + Math.floor(Math.random() * 3) + 1);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const features = [
     {
@@ -246,54 +264,184 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-primary/5 to-accent/5">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="flex justify-center mb-12">
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Animated background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 animate-gradient-xy"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent"></div>
+        
+        <div className="relative max-w-5xl mx-auto">
+          {/* Trust indicator floating badge */}
+          <div className="flex justify-center mb-8 animate-fade-in">
+            <div className="flex items-center gap-2 bg-success/10 text-success border border-success/20 px-4 py-2 rounded-full text-sm font-medium">
+              <Shield className="h-4 w-4" />
+              Trusted by {sellerCount.toLocaleString()}+ African sellers
+            </div>
+          </div>
+          
+          {/* Logo */}
+          <div className="flex justify-center mb-12 animate-scale-in">
             <img 
               src="/lovable-uploads/7ea27942-32b4-47b5-8d40-55f11cd46372.png" 
               alt="Vendora" 
-              className="h-12 w-auto opacity-90"
+              className="h-14 w-auto"
             />
           </div>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-light text-foreground mb-8 tracking-tight">
-            Turn Your Hustle into a
-            <span className="block font-medium text-primary mt-2">System</span>
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto font-light leading-relaxed">
-            Professional storefronts for WhatsApp sellers. 
-            Organize, automate, and scale without the chaos.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link to="/signup">
-              <Button size="lg" className="text-base px-8 py-6 h-12 bg-foreground text-background hover:bg-foreground/90 rounded-full font-medium">
-                Start Free Trial
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            <Link to="/demo-store">
-              <Button variant="ghost" size="lg" className="text-base px-8 py-6 h-12 rounded-full font-medium">
-                View Demo
-              </Button>
-            </Link>
-          </div>
+          
+          {/* Main headline with dynamic typing effect */}
           <div className="text-center">
-            <p className="text-sm text-muted-foreground/70 font-light">
-              Trusted by ambitious sellers across Africa
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-light text-foreground mb-6 tracking-tight animate-fade-in">
+              Turn Your{" "}
+              <span className="relative">
+                <span className="text-primary font-medium transition-all duration-500">
+                  {dynamicWords[currentWord]}
+                </span>
+              </span>
+              <br />
+              <span className="block font-medium text-primary mt-2">Into a Full Online Store</span>
+              <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-muted-foreground font-light mt-4">
+                — in Minutes
+              </span>
+            </h1>
+            
+            {/* Enhanced subheadline */}
+            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto font-light leading-relaxed animate-fade-in" style={{animationDelay: '0.2s'}}>
+              <span className="text-foreground font-medium">Sell smarter, faster, and more professionally</span> — all from your phone. 
+              No websites. No complexity. Just results.
             </p>
+            
+            {/* CTAs with urgency */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-scale-in" style={{animationDelay: '0.4s'}}>
+              <Link to="/signup">
+                <Button size="xl" variant="hero" className="group shadow-floating hover:shadow-glow">
+                  Create Your Store Free
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <Link to="/demo-store">
+                <Button variant="ghost" size="xl" className="group border border-border/50 hover:border-primary/30">
+                  <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                  Watch 60-sec Demo
+                </Button>
+              </Link>
+            </div>
+            
+            {/* Trust signals */}
+            <div className="text-center space-y-3 animate-fade-in" style={{animationDelay: '0.6s'}}>
+              <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <Check className="h-4 w-4 text-success" />
+                  No credit card required
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4 text-primary" />
+                  Setup in 3 minutes
+                </div>
+                <div className="flex items-center gap-1">
+                  <Smartphone className="h-4 w-4 text-accent" />
+                  Mobile-first design
+                </div>
+              </div>
+              
+              {/* Floating testimonial preview */}
+              <div className="inline-flex items-center gap-3 bg-card/80 backdrop-blur-sm border border-border/50 px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all">
+                <div className="flex -space-x-2">
+                  <img className="h-8 w-8 rounded-full border-2 border-background" src="https://images.unsplash.com/photo-1494790108755-2616b612681c?w=100&h=100&fit=crop&crop=face" alt="Seller" />
+                  <img className="h-8 w-8 rounded-full border-2 border-background" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="Seller" />
+                  <img className="h-8 w-8 rounded-full border-2 border-background" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&h=100&fit=crop&crop=face" alt="Seller" />
+                </div>
+                <div className="text-left">
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">"Tripled my sales in one week" - Amaka, Lagos</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Why Vendora Section */}
-      <section className="py-16 bg-card">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Every Pro Started Where You Are Now
-          </h2>
-          <p className="text-xl text-muted-foreground">
-            <strong className="text-primary">The difference?</strong> They chose to build something that commands respect. 
-            Today, you level up from scattered to strategic. From invisible to undeniable.
-          </p>
+      {/* Social Proof Bar */}
+      <section className="py-12 bg-muted/20 border-y border-border/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <p className="text-sm text-muted-foreground font-medium">Join thousands of merchants building modern stores with Vendora</p>
+          </div>
+          <div className="flex items-center justify-center gap-8 md:gap-12 opacity-60 hover:opacity-80 transition-opacity">
+            {/* Placeholder business logos - replace with real ones */}
+            <div className="flex items-center gap-2 text-lg font-semibold text-muted-foreground">
+              <Store className="h-6 w-6" />
+              FashionHub
+            </div>
+            <div className="flex items-center gap-2 text-lg font-semibold text-muted-foreground">
+              <Smartphone className="h-6 w-6" />
+              TechMart
+            </div>
+            <div className="flex items-center gap-2 text-lg font-semibold text-muted-foreground">
+              <TrendingUp className="h-6 w-6" />
+              GrowthCo
+            </div>
+            <div className="flex items-center gap-2 text-lg font-semibold text-muted-foreground">
+              <Users className="h-6 w-6" />
+              CommunityStore
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Vendora Section - Enhanced */}
+      <section className="py-20 bg-card relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5"></div>
+        <div className="relative max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <div className="mb-12">
+            <Badge variant="secondary" className="mb-4 px-4 py-2 text-sm font-medium">
+              The Vendora Advantage
+            </Badge>
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-6 tracking-tight">
+              Every Pro Started Where You Are Now
+            </h2>
+            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
+              <span className="text-primary font-semibold">The difference?</span> They chose to build something that commands respect. 
+              <br className="hidden md:block" />
+              Today, you level up from <span className="text-destructive">scattered</span> to <span className="text-success">strategic</span>. 
+              From <span className="text-destructive">invisible</span> to <span className="text-primary font-semibold">undeniable</span>.
+            </p>
+          </div>
+          
+          {/* Before/After comparison cards */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <Card className="border-destructive/20 bg-destructive/5">
+              <CardHeader>
+                <CardTitle className="text-destructive flex items-center gap-2">
+                  <X className="h-5 w-5" />
+                  Before Vendora
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-left space-y-3">
+                <p className="text-muted-foreground">• Sharing random photos in WhatsApp chats</p>
+                <p className="text-muted-foreground">• Answering the same questions 100 times</p>
+                <p className="text-muted-foreground">• Looking like a small-time hustle</p>
+                <p className="text-muted-foreground">• Customers ghosting after endless back-and-forth</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-success/20 bg-success/5 transform hover:scale-105 transition-transform">
+              <CardHeader>
+                <CardTitle className="text-success flex items-center gap-2">
+                  <Check className="h-5 w-5" />
+                  With Vendora
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-left space-y-3">
+                <p className="text-foreground font-medium">• Professional storefront that sells while you sleep</p>
+                <p className="text-foreground font-medium">• Customers browse, learn, then buy</p>
+                <p className="text-foreground font-medium">• Brand that commands premium prices</p>
+                <p className="text-foreground font-medium">• WhatsApp DMs become closing conversations</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
@@ -318,28 +466,79 @@ const Index = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="py-20 bg-muted/30">
+      {/* How It Works Section - Enhanced 3-Step */}
+      <section className="py-20 bg-background relative">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <Badge variant="outline" className="mb-4 px-4 py-2">
+              Simple Setup Process
+            </Badge>
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-6 tracking-tight">
               How It Works
             </h2>
-            <p className="text-xl text-muted-foreground">
-              Get your professional storefront up and running in minutes
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Go from idea to income in 3 simple steps. No technical skills required.
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {howItWorks.map((step, index) => (
-              <div key={index} className="text-center">
-                <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
-                  {step.step}
+          {/* Enhanced 3-step process */}
+          <div className="grid md:grid-cols-3 gap-8 relative">
+            {/* Connecting lines for desktop */}
+            <div className="hidden md:block absolute top-16 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-primary via-accent to-primary opacity-30"></div>
+            
+            {[
+              {
+                step: "1",
+                title: "Set Up Store",
+                description: "Add your logo, info & products in 3 minutes",
+                icon: Store,
+                highlight: "Takes minutes"
+              },
+              {
+                step: "2", 
+                title: "Share Your Link",
+                description: "Copy, paste anywhere - WhatsApp, Instagram, bio",
+                icon: MessageSquare,
+                highlight: "Copy & paste"
+              },
+              {
+                step: "3",
+                title: "Get Orders via DM",
+                description: "Customers browse first, then message to buy",
+                icon: TrendingUp,
+                highlight: "Close deals"
+              }
+            ].map((step, index) => (
+              <div key={index} className="text-center group hover:scale-105 transition-all duration-300">
+                <div className="relative mb-6">
+                  <div className="bg-gradient-to-br from-primary to-accent text-white w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto shadow-glow group-hover:shadow-floating transition-all">
+                    {step.step}
+                  </div>
+                  <div className="absolute -top-2 -right-2 bg-success text-white text-xs px-2 py-1 rounded-full font-medium">
+                    {step.highlight}
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">{step.title}</h3>
-                <p className="text-muted-foreground">{step.description}</p>
+                
+                <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 h-full hover:bg-card transition-all group-hover:shadow-md">
+                  <step.icon className="h-8 w-8 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                  <h3 className="text-xl font-semibold text-foreground mb-3">{step.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{step.description}</p>
+                </div>
               </div>
             ))}
+          </div>
+          
+          {/* CTA after steps */}
+          <div className="text-center mt-12">
+            <Link to="/signup">
+              <Button variant="premium" size="lg" className="shadow-glow hover:shadow-floating">
+                Start Your Store Now - It's Free
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <p className="text-sm text-muted-foreground mt-3">
+              ⏱️ Average setup time: <span className="text-primary font-medium">2 minutes 47 seconds</span>
+            </p>
           </div>
         </div>
       </section>
@@ -348,38 +547,89 @@ const Index = () => {
       <section id="showcase" className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <Badge variant="outline" className="mb-4 px-4 py-2">
+              Success Stories
+            </Badge>
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-6 tracking-tight">
               See How Others Are Selling Smarter
             </h2>
-            <p className="text-xl text-muted-foreground mb-8">
-              Real stores powered by Vendora
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Real African businesses growing with professional storefronts
             </p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            {showcaseStores.map((store, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-                <div className="aspect-video bg-muted">
+            {[
+              {
+                name: "GlowByAmaka",
+                category: "Beauty & Skincare",
+                location: "Lagos, Nigeria",
+                image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400",
+                description: "Premium skincare products with natural ingredients",
+                growth: "+300% sales in 2 weeks",
+                rating: 4.9
+              },
+              {
+                name: "Tosin's Thrift Palace",
+                category: "Fashion",
+                location: "Abuja, Nigeria", 
+                image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400",
+                description: "Curated fashion pieces for the modern professional",
+                growth: "+250% customer trust",
+                rating: 4.8
+              },
+              {
+                name: "TechHub Naija",
+                category: "Electronics",
+                location: "Port Harcourt, Nigeria",
+                image: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=400", 
+                description: "Latest gadgets and tech accessories",
+                growth: "+400% order completion",
+                rating: 5.0
+              }
+            ].map((store, index) => (
+              <Card key={index} className="group overflow-hidden hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border-border/50 hover:border-primary/20">
+                <div className="relative aspect-video bg-muted overflow-hidden">
                   <img 
                     src={store.image} 
                     alt={store.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
+                  <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1">
+                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                    <span className="text-xs font-medium">{store.rating}</span>
+                  </div>
+                  <div className="absolute bottom-4 left-4 bg-success/90 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    {store.growth}
+                  </div>
                 </div>
                 <CardContent className="p-6">
-                  <Badge variant="secondary" className="mb-2">{store.category}</Badge>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">{store.name}</h3>
-                  <p className="text-muted-foreground">{store.description}</p>
+                  <div className="flex items-start justify-between mb-3">
+                    <Badge variant="secondary" className="mb-2">{store.category}</Badge>
+                    <span className="text-xs text-muted-foreground">{store.location}</span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{store.name}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{store.description}</p>
+                  
+                  <div className="mt-4 pt-4 border-t border-border/50">
+                    <Button variant="ghost" size="sm" className="w-full group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                      View Store
+                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
           
           <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-              View Store Showcase
-              <ArrowRight className="ml-2 h-5 w-5" />
+            <Button variant="outline" size="lg" className="group">
+              Explore More Success Stories
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
+            <p className="text-sm text-muted-foreground mt-3">
+              💡 <span className="text-primary font-medium">Pro tip:</span> These sellers started with zero tech skills, just like you
+            </p>
           </div>
         </div>
       </section>

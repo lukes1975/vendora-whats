@@ -150,6 +150,16 @@ export default {
 					'50%': { 
 						boxShadow: '0 0 40px hsl(var(--primary) / 0.6)' 
 					}
+				},
+				'gradient-xy': {
+					'0%, 100%': {
+						'background-size': '400% 400%',
+						'background-position': 'left center'
+					},
+					'50%': {
+						'background-size': '200% 200%', 
+						'background-position': 'right center'
+					}
 				}
 			},
 			animation: {
@@ -163,7 +173,8 @@ export default {
 				'slide-in-right': 'slide-in-right 0.3s ease-out',
 				'slide-out-right': 'slide-out-right 0.3s ease-out',
 				'glow': 'glow 2s ease-in-out infinite',
-				'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+				'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+				'gradient-xy': 'gradient-xy 15s ease infinite'
 			},
 			fontFamily: {
 				sans: ['Inter', 'system-ui', 'sans-serif'],
