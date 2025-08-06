@@ -235,14 +235,14 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Navigation Bar */}
       <header className="bg-card/95 backdrop-blur-sm border-b border-border sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Store className="h-8 w-8 text-primary mr-2" />
-              <span className="text-2xl font-bold text-foreground">Vendora</span>
+            <div className="flex items-center min-w-0">
+              <Store className="h-6 w-6 sm:h-8 sm:w-8 text-primary mr-2 flex-shrink-0" />
+              <span className="text-lg sm:text-2xl font-bold text-foreground truncate">Vendora</span>
             </div>
             <nav className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</a>
@@ -251,12 +251,12 @@ const Index = () => {
               <a href="#blog" className="text-muted-foreground hover:text-foreground transition-colors">Blog</a>
               <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
             </nav>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <Link to="/login">
-                <Button variant="ghost">Login</Button>
+                <Button variant="ghost" size="sm" className="hidden sm:inline-flex">Login</Button>
               </Link>
               <Link to="/signup">
-                <Button>Get Started</Button>
+                <Button size="sm" className="text-xs sm:text-sm">Get Started</Button>
               </Link>
             </div>
           </div>
@@ -264,98 +264,99 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative py-12 sm:py-20 px-3 sm:px-6 lg:px-8 overflow-hidden">
         {/* Animated background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 animate-gradient-xy"></div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent"></div>
         
         <div className="relative max-w-5xl mx-auto">
           {/* Trust indicator floating badge */}
-          <div className="flex justify-center mb-8 animate-fade-in">
-            <div className="flex items-center gap-2 bg-success/10 text-success border border-success/20 px-4 py-2 rounded-full text-sm font-medium">
-              <Shield className="h-4 w-4" />
-              Trusted by {sellerCount.toLocaleString()}+ African sellers
+          <div className="flex justify-center mb-6 sm:mb-8 animate-fade-in px-4">
+            <div className="flex items-center gap-2 bg-success/10 text-success border border-success/20 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium">
+              <Shield className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="whitespace-nowrap">Trusted by {sellerCount.toLocaleString()}+ African sellers</span>
             </div>
           </div>
           
           {/* Logo */}
-          <div className="flex justify-center mb-12 animate-scale-in">
+          <div className="flex justify-center mb-8 sm:mb-12 animate-scale-in">
             <img 
               src="/lovable-uploads/7ea27942-32b4-47b5-8d40-55f11cd46372.png" 
               alt="Vendora" 
-              className="h-14 w-auto"
+              className="h-10 sm:h-14 w-auto"
             />
           </div>
           
           {/* Main headline with dynamic typing effect */}
-          <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-light text-foreground mb-6 tracking-tight animate-fade-in">
-              Turn Your{" "}
+          <div className="text-center px-4">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-light text-foreground mb-4 sm:mb-6 tracking-tight animate-fade-in leading-tight">
+              <span className="block">Turn Your</span>{" "}
               <span className="relative">
                 <span className="text-primary font-medium transition-all duration-500">
                   {dynamicWords[currentWord]}
                 </span>
               </span>
               <br />
-              <span className="block font-medium text-primary mt-2">Into a Full Online Store</span>
-              <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-muted-foreground font-light mt-4">
+              <span className="block font-medium text-primary mt-1 sm:mt-2">Into a Full Online Store</span>
+              <span className="block text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-muted-foreground font-light mt-2 sm:mt-4">
                 — in Minutes
               </span>
             </h1>
             
             {/* Enhanced subheadline */}
-            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto font-light leading-relaxed animate-fade-in" style={{animationDelay: '0.2s'}}>
+            <p className="text-sm sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto font-light leading-relaxed animate-fade-in" style={{animationDelay: '0.2s'}}>
               <span className="text-foreground font-medium">Sell smarter, faster, and more professionally</span> — all from your phone. 
+              <br className="block sm:hidden" />
               No websites. No complexity. Just results.
             </p>
             
             {/* CTAs with urgency */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-scale-in" style={{animationDelay: '0.4s'}}>
-              <Link to="/signup">
-                <Button size="xl" variant="hero" className="group shadow-floating hover:shadow-glow">
-                  Create Your Store Free
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 sm:mb-12 animate-scale-in" style={{animationDelay: '0.4s'}}>
+              <Link to="/signup" className="w-full sm:w-auto">
+                <Button size="lg" variant="hero" className="group shadow-floating hover:shadow-glow w-full sm:w-auto">
+                  <span className="text-sm sm:text-base">Create Your Store Free</span>
+                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Link to="/demo-store">
-                <Button variant="ghost" size="xl" className="group border border-border/50 hover:border-primary/30">
-                  <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                  Watch 60-sec Demo
+              <Link to="/demo-store" className="w-full sm:w-auto">
+                <Button variant="ghost" size="lg" className="group border border-border/50 hover:border-primary/30 w-full sm:w-auto">
+                  <Play className="mr-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform" />
+                  <span className="text-sm sm:text-base">Watch 60-sec Demo</span>
                 </Button>
               </Link>
             </div>
             
             {/* Trust signals */}
             <div className="text-center space-y-3 animate-fade-in" style={{animationDelay: '0.6s'}}>
-              <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
-                  <Check className="h-4 w-4 text-success" />
-                  No credit card required
+                  <Check className="h-3 w-3 sm:h-4 sm:w-4 text-success flex-shrink-0" />
+                  <span className="whitespace-nowrap">No credit card required</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4 text-primary" />
-                  Setup in 3 minutes
+                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+                  <span className="whitespace-nowrap">Setup in 3 minutes</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Smartphone className="h-4 w-4 text-accent" />
-                  Mobile-first design
+                  <Smartphone className="h-3 w-3 sm:h-4 sm:w-4 text-accent flex-shrink-0" />
+                  <span className="whitespace-nowrap">Mobile-first design</span>
                 </div>
               </div>
               
               {/* Floating testimonial preview */}
-              <div className="inline-flex items-center gap-3 bg-card/80 backdrop-blur-sm border border-border/50 px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all">
-                <div className="flex -space-x-2">
-                  <img className="h-8 w-8 rounded-full border-2 border-background" src="https://images.unsplash.com/photo-1494790108755-2616b612681c?w=100&h=100&fit=crop&crop=face" alt="Seller" />
-                  <img className="h-8 w-8 rounded-full border-2 border-background" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="Seller" />
-                  <img className="h-8 w-8 rounded-full border-2 border-background" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&h=100&fit=crop&crop=face" alt="Seller" />
+              <div className="inline-flex items-center gap-2 sm:gap-3 bg-card/80 backdrop-blur-sm border border-border/50 px-3 sm:px-6 py-2 sm:py-3 rounded-full shadow-md hover:shadow-lg transition-all max-w-sm mx-auto">
+                <div className="flex -space-x-1 sm:-space-x-2">
+                  <img className="h-6 w-6 sm:h-8 sm:w-8 rounded-full border-2 border-background" src="https://images.unsplash.com/photo-1494790108755-2616b612681c?w=100&h=100&fit=crop&crop=face" alt="Seller" />
+                  <img className="h-6 w-6 sm:h-8 sm:w-8 rounded-full border-2 border-background" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="Seller" />
+                  <img className="h-6 w-6 sm:h-8 sm:w-8 rounded-full border-2 border-background" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&h=100&fit=crop&crop=face" alt="Seller" />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <div className="flex items-center gap-1">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
+                      <Star key={i} className="h-2 w-2 sm:h-3 sm:w-3 fill-amber-400 text-amber-400" />
                     ))}
                   </div>
-                  <p className="text-xs text-muted-foreground">"Tripled my sales in one week" - Amaka, Lagos</p>
+                  <p className="text-xs text-muted-foreground truncate">"Tripled my sales in one week" - Amaka, Lagos</p>
                 </div>
               </div>
             </div>
@@ -364,28 +365,28 @@ const Index = () => {
       </section>
 
       {/* Social Proof Bar */}
-      <section className="py-12 bg-muted/20 border-y border-border/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <p className="text-sm text-muted-foreground font-medium">Join thousands of merchants building modern stores with Vendora</p>
+      <section className="py-8 sm:py-12 bg-muted/20 border-y border-border/50 overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="text-center mb-6 sm:mb-8">
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium px-4">Join thousands of merchants building modern stores with Vendora</p>
           </div>
-          <div className="flex items-center justify-center gap-8 md:gap-12 opacity-60 hover:opacity-80 transition-opacity">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 md:gap-12 opacity-60 hover:opacity-80 transition-opacity">
             {/* Placeholder business logos - replace with real ones */}
-            <div className="flex items-center gap-2 text-lg font-semibold text-muted-foreground">
-              <Store className="h-6 w-6" />
-              FashionHub
+            <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-lg font-semibold text-muted-foreground">
+              <Store className="h-4 w-4 sm:h-6 sm:w-6 flex-shrink-0" />
+              <span className="whitespace-nowrap">FashionHub</span>
             </div>
-            <div className="flex items-center gap-2 text-lg font-semibold text-muted-foreground">
-              <Smartphone className="h-6 w-6" />
-              TechMart
+            <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-lg font-semibold text-muted-foreground">
+              <Smartphone className="h-4 w-4 sm:h-6 sm:w-6 flex-shrink-0" />
+              <span className="whitespace-nowrap">TechMart</span>
             </div>
-            <div className="flex items-center gap-2 text-lg font-semibold text-muted-foreground">
-              <TrendingUp className="h-6 w-6" />
-              GrowthCo
+            <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-lg font-semibold text-muted-foreground">
+              <TrendingUp className="h-4 w-4 sm:h-6 sm:w-6 flex-shrink-0" />
+              <span className="whitespace-nowrap">GrowthCo</span>
             </div>
-            <div className="flex items-center gap-2 text-lg font-semibold text-muted-foreground">
-              <Users className="h-6 w-6" />
-              CommunityStore
+            <div className="flex items-center gap-1 sm:gap-2 text-sm sm:text-lg font-semibold text-muted-foreground">
+              <Users className="h-4 w-4 sm:h-6 sm:w-6 flex-shrink-0" />
+              <span className="whitespace-nowrap">CommunityStore</span>
             </div>
           </div>
         </div>
