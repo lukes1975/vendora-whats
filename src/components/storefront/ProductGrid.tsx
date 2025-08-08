@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import ProductCard from "./ProductCard";
 
@@ -31,8 +30,25 @@ interface ProductGridProps {
 const ProductGrid = ({ products, store, isLoading }: ProductGridProps) => {
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Card key={i}>
+            <CardContent className="p-3">
+              <div className="space-y-3">
+                <div className="w-full aspect-square rounded-2xl bg-muted animate-pulse" />
+                <div className="space-y-2">
+                  <div className="h-4 w-3/4 bg-muted rounded" />
+                  <div className="h-3 w-full bg-muted rounded" />
+                  <div className="h-3 w-5/6 bg-muted rounded" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="h-6 w-24 bg-muted rounded" />
+                  <div className="h-8 w-28 bg-muted rounded-full" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }

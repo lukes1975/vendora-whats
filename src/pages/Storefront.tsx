@@ -13,6 +13,9 @@ import StorefrontFAB from "@/components/storefront/StorefrontFAB";
 import { CategoryFilter } from "@/components/storefront/CategoryFilter";
 import { seedDummyProductsWithImages } from "@/utils/seedImages";
 import { useAuth } from "@/contexts/AuthContext";
+import DeliveryEstimatorBanner from "@/components/storefront/DeliveryEstimatorBanner";
+import SearchCommand from "@/components/storefront/SearchCommand";
+import MobileActionBar from "@/components/storefront/MobileActionBar";
 
 interface Store {
   id: string;
@@ -209,7 +212,10 @@ const Storefront = ({ storeSlug }: StorefrontProps = {}) => {
     <div className="min-h-screen bg-background">
       <StorefrontHeader onShare={shareStore} store={store} />
       <StoreProfile store={store} />
-      
+
+      {/* Delivery Estimator */}
+      <DeliveryEstimatorBanner />
+
       {/* Products Section */}
       <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8 pb-8 sm:pb-12">
         <div className="mb-6 sm:mb-8 pt-2">
@@ -237,6 +243,11 @@ const Storefront = ({ storeSlug }: StorefrontProps = {}) => {
 
       <StorefrontFooter storeName={store?.name} />
       <StorefrontFAB show={isOwner} />
+
+      {/* Global search (Cmd/Ctrl+K) */}
+      <SearchCommand products={products} />
+      {/* Mobile sticky cart bar */}
+      <MobileActionBar store={store} />
     </div>
   );
 };
