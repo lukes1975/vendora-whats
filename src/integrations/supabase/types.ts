@@ -211,6 +211,54 @@ export type Database = {
         }
         Relationships: []
       }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          name: string
+          order_id: string
+          product_id: string | null
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          order_id: string
+          product_id?: string | null
+          quantity?: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          order_id?: string
+          product_id?: string | null
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_v2"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           created_at: string | null
@@ -276,6 +324,140 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders_v2: {
+        Row: {
+          created_at: string
+          currency: string
+          customer_address: Json
+          customer_name: string
+          customer_phone: string
+          delivery_fee: number
+          distance_km: number | null
+          eta_minutes: number | null
+          id: string
+          notes: string | null
+          payment_method: string | null
+          service_fee: number
+          status: string
+          store_id: string
+          subtotal: number
+          surge_multiplier: number
+          total: number
+          updated_at: string
+          vendor_id: string
+          whatsapp_message: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          customer_address?: Json
+          customer_name: string
+          customer_phone: string
+          delivery_fee?: number
+          distance_km?: number | null
+          eta_minutes?: number | null
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          service_fee?: number
+          status?: string
+          store_id: string
+          subtotal?: number
+          surge_multiplier?: number
+          total?: number
+          updated_at?: string
+          vendor_id: string
+          whatsapp_message?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          customer_address?: Json
+          customer_name?: string
+          customer_phone?: string
+          delivery_fee?: number
+          distance_km?: number | null
+          eta_minutes?: number | null
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          service_fee?: number
+          status?: string
+          store_id?: string
+          subtotal?: number
+          surge_multiplier?: number
+          total?: number
+          updated_at?: string
+          vendor_id?: string
+          whatsapp_message?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_v2_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_v2_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          meta: Json
+          order_id: string
+          provider: string
+          received_at: string | null
+          reference: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          meta?: Json
+          order_id: string
+          provider: string
+          received_at?: string | null
+          reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          meta?: Json
+          order_id?: string
+          provider?: string
+          received_at?: string | null
+          reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_v2"
             referencedColumns: ["id"]
           },
         ]
@@ -439,6 +621,120 @@ export type Database = {
         }
         Relationships: []
       }
+      rider_assignments: {
+        Row: {
+          accepted_at: string | null
+          assigned_at: string
+          created_at: string
+          eta_minutes: number | null
+          id: string
+          live_location_url: string | null
+          order_id: string
+          rider_id: string | null
+          status: string
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          assigned_at?: string
+          created_at?: string
+          eta_minutes?: number | null
+          id?: string
+          live_location_url?: string | null
+          order_id: string
+          rider_id?: string | null
+          status?: string
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          assigned_at?: string
+          created_at?: string
+          eta_minutes?: number | null
+          id?: string
+          live_location_url?: string | null
+          order_id?: string
+          rider_id?: string | null
+          status?: string
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rider_assignments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_v2"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rider_assignments_rider_id_fkey"
+            columns: ["rider_id"]
+            isOneToOne: false
+            referencedRelation: "riders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rider_assignments_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      riders: {
+        Row: {
+          created_at: string
+          current_lat: number | null
+          current_lng: number | null
+          full_name: string
+          id: string
+          phone: string
+          rating: number | null
+          status: string
+          updated_at: string
+          vehicle_type: string
+          vendor_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
+          full_name: string
+          id?: string
+          phone: string
+          rating?: number | null
+          status?: string
+          updated_at?: string
+          vehicle_type?: string
+          vendor_id: string
+        }
+        Update: {
+          created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
+          full_name?: string
+          id?: string
+          phone?: string
+          rating?: number | null
+          status?: string
+          updated_at?: string
+          vehicle_type?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "riders_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       security_audit_log: {
         Row: {
           created_at: string | null
@@ -492,6 +788,57 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      store_settings: {
+        Row: {
+          base_location_lat: number | null
+          base_location_lng: number | null
+          created_at: string
+          delivery_pricing: Json
+          google_maps_enabled: boolean
+          id: string
+          store_id: string
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          base_location_lat?: number | null
+          base_location_lng?: number | null
+          created_at?: string
+          delivery_pricing?: Json
+          google_maps_enabled?: boolean
+          id?: string
+          store_id: string
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          base_location_lat?: number | null
+          base_location_lng?: number | null
+          created_at?: string
+          delivery_pricing?: Json
+          google_maps_enabled?: boolean
+          id?: string
+          store_id?: string
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_settings_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stores: {
         Row: {
@@ -675,6 +1022,66 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      whatsapp_messages: {
+        Row: {
+          created_at: string
+          direction: string
+          from_number: string
+          id: string
+          media_url: string | null
+          message: string | null
+          order_id: string | null
+          session_id: string | null
+          status: string | null
+          timestamp: string
+          to_number: string
+          vendor_id: string
+        }
+        Insert: {
+          created_at?: string
+          direction: string
+          from_number: string
+          id?: string
+          media_url?: string | null
+          message?: string | null
+          order_id?: string | null
+          session_id?: string | null
+          status?: string | null
+          timestamp?: string
+          to_number: string
+          vendor_id: string
+        }
+        Update: {
+          created_at?: string
+          direction?: string
+          from_number?: string
+          id?: string
+          media_url?: string | null
+          message?: string | null
+          order_id?: string | null
+          session_id?: string | null
+          status?: string | null
+          timestamp?: string
+          to_number?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_messages_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_v2"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_messages_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
