@@ -1,4 +1,3 @@
-
 project_id = "ncetgnojwfrnsxpytcia"
 
 [functions.send-confirmation-email]
@@ -17,4 +16,7 @@ verify_jwt = false
 verify_jwt = true
 
 [functions.paystack-subscription-webhook]
+verify_jwt = false
+
+[functions.maps-distance]
 verify_jwt = false

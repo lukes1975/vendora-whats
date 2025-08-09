@@ -24,23 +24,53 @@ function pseudoDistanceFromAddress(address: string): number {
 }
 
 export function useDeliveryQuote(params: { address: string; vendorLocation?: Coordinates | null }) {
-  const { address } = params;
+  const { address, vendorLocation } = params;
   const [quote, setQuote] = useState<DeliveryQuote | null>(null);
 
   useEffect(() => {
-    if (!address || address.trim().length < 5) {
-      setQuote(null);
-      return;
+    let cancelled = false;
+    async function compute() {
+      if (!address || address.trim().length < 5) {
+        if (!cancelled) setQuote(null);
+        return;
+      }
+
+      try {
+        let distanceKm: number;
+        let etaMinutes: number | null = null;
+
+        if (vendorLocation) {
+          const { getDistanceAndEtaByText } = await import("@/services/mapsService");
+          const res = await getDistanceAndEtaByText(address, vendorLocation);
+          distanceKm = clamp(Math.max(1, res.distanceKm), 1, 50);
+          etaMinutes = res.etaMinutes;
+        } else {
+          distanceKm = pseudoDistanceFromAddress(address);
+        }
+
+        const surgeMultiplier = 1; // can be dynamic later
+        const basePer3Km = 1000_00; // ₦1,000 per 3km, in kobo
+        const baseCost = Math.ceil(distanceKm / 3) * basePer3Km;
+        const serviceFee = 150_00; // ₦150
+        const eta = clamp(Math.round((etaMinutes ?? distanceKm * 6 + 8)), 10, 90);
+        const total = Math.round((baseCost + serviceFee) * surgeMultiplier);
+        if (!cancelled) setQuote({ distanceKm, etaMinutes: eta, baseCost, serviceFee, surgeMultiplier, total });
+      } catch (e) {
+        // Fallback to pseudo if API fails
+        const distanceKm = pseudoDistanceFromAddress(address);
+        const surgeMultiplier = 1;
+        const basePer3Km = 1000_00;
+        const baseCost = Math.ceil(distanceKm / 3) * basePer3Km;
+        const serviceFee = 150_00;
+        const etaMinutes = clamp(Math.round(distanceKm * 6 + 8), 10, 90);
+        const total = Math.round((baseCost + serviceFee) * surgeMultiplier);
+        if (!cancelled) setQuote({ distanceKm, etaMinutes, baseCost, serviceFee, surgeMultiplier, total });
+      }
     }
-    const distanceKm = pseudoDistanceFromAddress(address);
-    const surgeMultiplier = 1; // can be dynamic later
-    const basePer3Km = 1000_00; // ₦1,000 per 3km, in kobo
-    const baseCost = Math.ceil(distanceKm / 3) * basePer3Km;
-    const serviceFee = 150_00; // ₦150
-    const etaMinutes = clamp(Math.round(distanceKm * 6 + 8), 10, 90);
-    const total = Math.round((baseCost + serviceFee) * surgeMultiplier);
-    setQuote({ distanceKm, etaMinutes, baseCost, serviceFee, surgeMultiplier, total });
-  }, [address]);
+
+    compute();
+    return () => { cancelled = true; };
+  }, [address, vendorLocation?.lat, vendorLocation?.lng]);
 
   const breakdown = useMemo(() => quote, [quote]);
 
