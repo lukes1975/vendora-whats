@@ -41,6 +41,12 @@ interface StorefrontProps {
   storeSlug?: string;
 }
 
+interface StoreSettings {
+  base_location_lat: number | null;
+  base_location_lng: number | null;
+  google_maps_enabled: boolean;
+}
+
 // Platform reserved routes that should not be used as store slugs
 const RESERVED_ROUTES = [
   'login', 'signup', 'dashboard', 'pricing', 'admin', 'api', 'auth', 
@@ -153,6 +159,22 @@ const Storefront = ({ storeSlug }: StorefrontProps = {}) => {
     enabled: !!store?.id,
   });
 
+  // Fetch store settings for base location
+  const { data: settings } = useQuery({
+    queryKey: ['store-settings', store?.id],
+    queryFn: async () => {
+      if (!store?.id) return null;
+      const { data, error } = await supabase
+        .from('store_settings')
+        .select('base_location_lat, base_location_lng, google_maps_enabled')
+        .eq('store_id', store.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data as StoreSettings | null;
+    },
+    enabled: !!store?.id,
+  });
+
   // Seed dummy products with actual images if none exist
   useEffect(() => {
     const seedDummyProducts = async () => {
@@ -208,13 +230,17 @@ const Storefront = ({ storeSlug }: StorefrontProps = {}) => {
   const { user } = useAuth();
   const isOwner = user && store && user.id === store.vendor_id;
 
+  const vendorLocation = settings?.base_location_lat != null && settings?.base_location_lng != null
+    ? { lat: settings.base_location_lat, lng: settings.base_location_lng }
+    : undefined;
+
   return (
     <div className="min-h-screen bg-background">
       <StorefrontHeader onShare={shareStore} store={store} />
       <StoreProfile store={store} />
 
       {/* Delivery Estimator */}
-      <DeliveryEstimatorBanner />
+      <DeliveryEstimatorBanner vendorLocation={vendorLocation} />
 
       {/* Products Section */}
       <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8 pb-8 sm:pb-12">

@@ -25,13 +25,15 @@ function saveDetails(values: AddressFormValues) {
   } catch {}
 }
 
-export default function DeliveryEstimatorBanner() {
+export default function DeliveryEstimatorBanner({
+  vendorLocation,
+}: { vendorLocation?: { lat: number; lng: number } | null }) {
   const geo = useGeoIP();
   const [details, setDetails] = useState<AddressFormValues | null>(() => loadDetails());
   const [open, setOpen] = useState(false);
 
   const address = details?.address ?? "";
-  const { quote } = useDeliveryQuote({ address, vendorLocation: undefined });
+  const { quote } = useDeliveryQuote({ address, vendorLocation });
 
   useEffect(() => {
     if (details) saveDetails(details);
