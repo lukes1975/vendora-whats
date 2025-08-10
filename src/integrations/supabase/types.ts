@@ -791,6 +791,7 @@ export type Database = {
       }
       store_settings: {
         Row: {
+          base_location_address: string | null
           base_location_lat: number | null
           base_location_lng: number | null
           created_at: string
@@ -802,6 +803,7 @@ export type Database = {
           vendor_id: string
         }
         Insert: {
+          base_location_address?: string | null
           base_location_lat?: number | null
           base_location_lng?: number | null
           created_at?: string
@@ -813,6 +815,7 @@ export type Database = {
           vendor_id: string
         }
         Update: {
+          base_location_address?: string | null
           base_location_lat?: number | null
           base_location_lng?: number | null
           created_at?: string
