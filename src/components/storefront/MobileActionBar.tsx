@@ -18,6 +18,7 @@ function loadDetails() {
 interface Store {
   name: string;
   whatsapp_number: string;
+  slug?: string | null;
 }
 
 export default function MobileActionBar({ store }: { store: Store }) {
@@ -47,7 +48,7 @@ export default function MobileActionBar({ store }: { store: Store }) {
           <div className="text-sm text-muted-foreground truncate">{totalItems} item{totalItems>1?"s":""} in cart</div>
           <div className="font-semibold text-foreground truncate">{new Intl.NumberFormat(undefined,{style:"currency",currency:"NGN"}).format(subtotal/100)}</div>
         </div>
-        <Button variant="outline" className="rounded-full" onClick={() => (window.location.href = "/checkout")}> 
+        <Button variant="outline" className="rounded-full" onClick={() => (window.location.href = store?.slug ? `/checkout?store=${encodeURIComponent(String(store.slug))}` : "/checkout")}> 
           <ShoppingCart className="h-4 w-4 mr-1" /> Checkout
         </Button>
         <Button className="rounded-full" onClick={onWhatsAppCheckout}>

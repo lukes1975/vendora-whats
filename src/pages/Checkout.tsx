@@ -9,13 +9,22 @@ import { useDeliveryQuote } from "@/modules/order-flow/hooks/useDeliveryQuote";
 import { buildOrderSummary, getWhatsAppCheckoutLink } from "@/modules/order-flow/hooks/useWhatsAppCheckout";
 import { useGeoIP } from "@/modules/order-flow/hooks/useGeoIP";
 import { useToast } from "@/hooks/use-toast";
-
+import { supabase } from "@/integrations/supabase/client";
 const Checkout: React.FC = () => {
   const { items, subtotal, addItem } = useCart();
   const geo = useGeoIP();
   const [form, setForm] = React.useState<AddressFormValues>({ name: "", phone: "", address: "" });
   const [valid, setValid] = React.useState(false);
-  const { quote } = useDeliveryQuote({ address: form.address, vendorLocation: null });
+
+  const [store, setStore] = React.useState<null | { id: string; vendor_id: string; slug: string | null; whatsapp_number: string | null; name: string }>(null);
+  const [settings, setSettings] = React.useState<null | { base_location_lat: number | null; base_location_lng: number | null; google_maps_enabled: boolean }>(null);
+  const [loadingStore, setLoadingStore] = React.useState(false);
+
+  const vendorLocation = settings?.base_location_lat != null && settings?.base_location_lng != null
+    ? { lat: settings.base_location_lat, lng: settings.base_location_lng }
+    : null;
+
+  const { quote } = useDeliveryQuote({ address: form.address, vendorLocation });
   const { toast } = useToast();
 
   React.useEffect(() => {
@@ -58,6 +67,42 @@ const Checkout: React.FC = () => {
     document.head.appendChild(script);
     return () => {
       document.head.removeChild(script);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get("store");
+    if (!slug) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoadingStore(true);
+        const { data: storeData, error: storeErr } = await supabase
+          .from("stores")
+          .select("id,vendor_id,slug,whatsapp_number,name")
+          .eq("slug", slug)
+          .maybeSingle();
+        if (storeErr) throw storeErr;
+        if (!storeData) return;
+        if (cancelled) return;
+        setStore(storeData);
+        const { data: settingsData, error: settingsErr } = await supabase
+          .from("store_settings")
+          .select("base_location_lat,base_location_lng,google_maps_enabled")
+          .eq("store_id", storeData.id)
+          .maybeSingle();
+        if (settingsErr) throw settingsErr;
+        if (cancelled) return;
+        setSettings(settingsData);
+      } catch (e) {
+        console.warn("Checkout: failed to load store/settings", e);
+      } finally {
+        if (!cancelled) setLoadingStore(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
     };
   }, []);
 
@@ -117,7 +162,7 @@ const Checkout: React.FC = () => {
         </div>
         <div className="space-y-4">
           <CartSummary items={items} subtotal={subtotal} onAddDemoItem={onAddDemoItem} />
-          <CheckoutOptions onWhatsAppCheckout={handleWhatsAppCheckout} />
+          <CheckoutOptions onWhatsAppCheckout={handleWhatsAppCheckout} loading={loadingStore} defaultPhone={store?.whatsapp_number || ""} />
         </div>
       </motion.section>
     </div>

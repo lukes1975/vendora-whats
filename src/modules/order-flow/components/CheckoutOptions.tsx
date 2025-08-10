@@ -1,17 +1,22 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function CheckoutOptions({
   onWhatsAppCheckout,
   loading,
+  defaultPhone,
 }: {
   onWhatsAppCheckout: (vendorPhone: string) => void;
   loading?: boolean;
+  defaultPhone?: string;
 }) {
-  const [vendorPhone, setVendorPhone] = useState("");
+  const [vendorPhone, setVendorPhone] = useState(defaultPhone || "");
 
+  useEffect(() => {
+    if (defaultPhone && !vendorPhone) setVendorPhone(defaultPhone);
+  }, [defaultPhone, vendorPhone]);
   return (
     <Card>
       <CardHeader>
