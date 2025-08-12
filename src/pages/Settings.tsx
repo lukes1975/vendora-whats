@@ -38,6 +38,11 @@ const Settings = () => {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [storeId, setStoreId] = useState<string | null>(null);
+  const [baseLat, setBaseLat] = useState<string>('');
+  const [baseLng, setBaseLng] = useState<string>('');
+  const [baseAddress, setBaseAddress] = useState<string>('');
+  const [savingLocation, setSavingLocation] = useState(false);
 
   const themeColors = [
     { name: 'Deep Blue', color: '#012C6D' },
@@ -86,7 +91,7 @@ const Settings = () => {
       setIsLoadingData(true);
       const { data, error } = await supabase
         .from('stores')
-        .select('name, whatsapp_number, logo_url')
+        .select('id, name, whatsapp_number, logo_url')
         .eq('vendor_id', user.id)
         .maybeSingle();
 

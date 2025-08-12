@@ -5,10 +5,14 @@ import { useEffect, useState } from "react";
 
 export function CheckoutOptions({
   onWhatsAppCheckout,
+  onCardPayment,
+  onBankTransfer,
   loading,
   defaultPhone,
 }: {
   onWhatsAppCheckout: (vendorPhone: string) => void;
+  onCardPayment?: () => void;
+  onBankTransfer?: () => void;
   loading?: boolean;
   defaultPhone?: string;
 }) {
@@ -35,9 +39,24 @@ export function CheckoutOptions({
         <Button className="w-full" disabled={!vendorPhone || loading} onClick={() => onWhatsAppCheckout(vendorPhone)}>
           Continue in WhatsApp
         </Button>
-        <Button className="w-full" variant="outline" disabled>
-          Pay with card (coming soon)
+        <Button
+          className="w-full"
+          variant="outline"
+          disabled={loading || !onCardPayment}
+          onClick={() => onCardPayment?.()}
+        >
+          Pay with card
         </Button>
+        {onBankTransfer && (
+          <Button
+            className="w-full"
+            variant="secondary"
+            disabled={loading}
+            onClick={() => onBankTransfer?.()}
+          >
+            Bank transfer
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

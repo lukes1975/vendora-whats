@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 const schema = z.object({
   name: z.string().min(2, "Enter your name"),
@@ -82,7 +83,35 @@ export function AddressForm({
                 <FormItem>
                   <FormLabel>Delivery address</FormLabel>
                   <FormControl>
-                    <Textarea rows={3} placeholder="Street, city, landmark" {...field} />
+                    <div className="space-y-2">
+                      <Textarea rows={3} placeholder="Street, city, landmark" {...field} />
+                      <div className="flex justify-between">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (!navigator.geolocation) return;
+                            navigator.geolocation.getCurrentPosition(
+                              (pos) => {
+                                const lat = pos.coords.latitude.toFixed(6);
+                                const lng = pos.coords.longitude.toFixed(6);
+                                const value = `${lat},${lng}`;
+                                form.setValue("address", value, { shouldDirty: true, shouldValidate: true });
+                                const vals = form.getValues();
+                                onChange?.(vals, form.formState.isValid);
+                              },
+                              () => {
+                                // ignore errors silently
+                              },
+                              { enableHighAccuracy: true, timeout: 8000 }
+                            );
+                          }}
+                        >
+                          Use my location
+                        </Button>
+                      </div>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

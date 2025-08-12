@@ -10,6 +10,7 @@ import { buildOrderSummary, getWhatsAppCheckoutLink } from "@/modules/order-flow
 import { useGeoIP } from "@/modules/order-flow/hooks/useGeoIP";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { usePaystack } from "@/hooks/usePaystack";
 const Checkout: React.FC = () => {
   const { items, subtotal, addItem } = useCart();
   const geo = useGeoIP();
@@ -138,6 +139,35 @@ const Checkout: React.FC = () => {
     toast({ title: "Opening WhatsApp", description: "Your order summary is prefilled." });
   };
 
+  const { processPayment } = usePaystack();
+  const handleCardPayment = async () => {
+    if (!valid || !quote) {
+      toast({ title: "Add details", description: "Please complete your details and delivery address first." });
+      return;
+    }
+    const amountNaira = (subtotal + quote.total) / 100; // subtotal and quote are in kobo
+    await processPayment({
+      amount: amountNaira,
+      email: "guest@vendora.app",
+      currency: geo?.currency || "NGN",
+      productName: store?.name ? `${store.name} Order` : "Vendora Order",
+      storeId: store?.id,
+      customerName: form.name,
+      customerPhone: form.phone,
+    });
+  };
+
+  const handleBankTransfer = () => {
+    if (!valid || !quote) {
+      toast({ title: "Add details", description: "Please complete your details and delivery address first." });
+      return;
+    }
+    const totalKobo = subtotal + quote.total;
+    const message = `I chose bank transfer for my order. Total: ₦${(totalKobo / 100).toFixed(2)}. Name: ${form.name}. Phone: ${form.phone}. Address: ${form.address}.`;
+    const link = getWhatsAppCheckoutLink({ vendorPhone: store?.whatsapp_number || "", message });
+    window.open(link, "_blank");
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <header className="space-y-1">
@@ -162,7 +192,13 @@ const Checkout: React.FC = () => {
         </div>
         <div className="space-y-4">
           <CartSummary items={items} subtotal={subtotal} onAddDemoItem={onAddDemoItem} />
-          <CheckoutOptions onWhatsAppCheckout={handleWhatsAppCheckout} loading={loadingStore} defaultPhone={store?.whatsapp_number || ""} />
+          <CheckoutOptions
+            onWhatsAppCheckout={handleWhatsAppCheckout}
+            onCardPayment={handleCardPayment}
+            onBankTransfer={handleBankTransfer}
+            loading={loadingStore}
+            defaultPhone={store?.whatsapp_number || ""}
+          />
         </div>
       </motion.section>
     </div>

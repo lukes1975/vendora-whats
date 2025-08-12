@@ -23,6 +23,15 @@ function pseudoDistanceFromAddress(address: string): number {
   return clamp(Math.round(km * 10) / 10, 1, 15);
 }
 
+function parseLatLng(text: string): { lat: number; lng: number } | null {
+  const m = text.trim().match(/^(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)$/);
+  if (!m) return null;
+  const lat = parseFloat(m[1]);
+  const lng = parseFloat(m[2]);
+  if (isNaN(lat) || isNaN(lng)) return null;
+  return { lat, lng };
+}
+
 export function useDeliveryQuote(params: { address: string; vendorLocation?: Coordinates | null }) {
   const { address, vendorLocation } = params;
   const [quote, setQuote] = useState<DeliveryQuote | null>(null);
@@ -40,10 +49,18 @@ export function useDeliveryQuote(params: { address: string; vendorLocation?: Coo
         let etaMinutes: number | null = null;
 
         if (vendorLocation) {
-          const { getDistanceAndEtaByText } = await import("@/services/mapsService");
-          const res = await getDistanceAndEtaByText(address, vendorLocation);
-          distanceKm = clamp(Math.max(1, res.distanceKm), 1, 50);
-          etaMinutes = res.etaMinutes;
+          const destLatLng = parseLatLng(address);
+          if (destLatLng) {
+            const { getDistanceAndEta } = await import("@/services/mapsService");
+            const res = await getDistanceAndEta({ origin: vendorLocation, destination: destLatLng });
+            distanceKm = clamp(Math.max(1, res.distanceKm), 1, 50);
+            etaMinutes = res.etaMinutes;
+          } else {
+            const { getDistanceAndEtaByText } = await import("@/services/mapsService");
+            const res = await getDistanceAndEtaByText(address, vendorLocation);
+            distanceKm = clamp(Math.max(1, res.distanceKm), 1, 50);
+            etaMinutes = res.etaMinutes;
+          }
         } else {
           distanceKm = pseudoDistanceFromAddress(address);
         }
