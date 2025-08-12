@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -21,7 +22,8 @@ import {
   Loader2,
   Image as ImageIcon,
   CheckCircle,
-  X
+  X,
+  MapPin
 } from 'lucide-react';
 
 interface StoreSettings {
@@ -43,6 +45,7 @@ const Settings = () => {
   const [baseLng, setBaseLng] = useState<string>('');
   const [baseAddress, setBaseAddress] = useState<string>('');
   const [savingLocation, setSavingLocation] = useState(false);
+  const [googleMapsEnabled, setGoogleMapsEnabled] = useState(false);
 
   const themeColors = [
     { name: 'Deep Blue', color: '#012C6D' },
@@ -106,6 +109,7 @@ const Settings = () => {
       }
 
       if (data) {
+        setStoreId(data.id);
         setValue('store_name', sanitizeTextInput(data.name || ''));
         // Extract phone number without +234 prefix for display
         const whatsappNumber = data.whatsapp_number || '';
@@ -114,6 +118,19 @@ const Settings = () => {
         setValue('whatsapp_number', whatsappNumber); // Keep full number in form
         setValue('logo_url', data.logo_url);
         setLogoPreview(data.logo_url);
+
+        // Load store settings
+        const { data: settingsData } = await supabase
+          .from('store_settings')
+          .select('base_location_lat, base_location_lng, base_location_address, google_maps_enabled')
+          .eq('store_id', data.id)
+          .maybeSingle();
+        if (settingsData) {
+          setBaseLat(settingsData.base_location_lat != null ? String(settingsData.base_location_lat) : '');
+          setBaseLng(settingsData.base_location_lng != null ? String(settingsData.base_location_lng) : '');
+          setBaseAddress(settingsData.base_location_address || '');
+          setGoogleMapsEnabled(!!settingsData.google_maps_enabled);
+        }
       }
     } catch (error) {
       logSecurityEvent('Settings load exception', { userId: user.id, error });
@@ -191,6 +208,59 @@ const Settings = () => {
         setLogoPreview(e.target?.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveLocation = async () => {
+    if (!user || !storeId) {
+      toast({ title: 'Missing info', description: 'Store not loaded yet.' });
+      return;
+    }
+    try {
+      setSavingLocation(true);
+      const latNum = baseLat ? parseFloat(baseLat) : null;
+      const lngNum = baseLng ? parseFloat(baseLng) : null;
+
+      const { data: existing } = await supabase
+        .from('store_settings')
+        .select('id')
+        .eq('store_id', storeId)
+        .maybeSingle();
+
+      if (existing) {
+        const { error } = await supabase
+          .from('store_settings')
+          .update({
+            base_location_lat: latNum,
+            base_location_lng: lngNum,
+            base_location_address: baseAddress || null,
+            google_maps_enabled: googleMapsEnabled,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('store_id', storeId)
+          .eq('vendor_id', user.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('store_settings')
+          .insert({
+            store_id: storeId,
+            vendor_id: user.id,
+            base_location_lat: latNum,
+            base_location_lng: lngNum,
+            base_location_address: baseAddress || null,
+            google_maps_enabled: googleMapsEnabled,
+            delivery_pricing: {},
+          });
+        if (error) throw error;
+      }
+
+      toast({ title: 'Location saved', description: 'Pickup location updated successfully.' });
+    } catch (error) {
+      console.error('Save location error:', error);
+      toast({ title: 'Error', description: 'Failed to save pickup location.', variant: 'destructive' });
+    } finally {
+      setSavingLocation(false);
     }
   };
 
@@ -414,6 +484,81 @@ const Settings = () => {
                     {logoPreview ? 'Change Brand Logo' : 'Upload Brand Logo'}
                   </Button>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pickup Location & Delivery */}
+          <Card className="lg:col-span-2 border-0 shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <MapPin className="h-5 w-5 text-primary" />
+                </div>
+                Pickup Location & Delivery
+              </CardTitle>
+              <p className="text-muted-foreground">Set your pickup location for accurate delivery quotes</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="baseLat">Latitude</Label>
+                  <Input
+                    id="baseLat"
+                    value={baseLat}
+                    onChange={(e) => setBaseLat(e.target.value)}
+                    placeholder="e.g., 6.5244"
+                    inputMode="decimal"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="baseLng">Longitude</Label>
+                  <Input
+                    id="baseLng"
+                    value={baseLng}
+                    onChange={(e) => setBaseLng(e.target.value)}
+                    placeholder="e.g., 3.3792"
+                    inputMode="decimal"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="baseAddress">Pickup address (optional)</Label>
+                <Input
+                  id="baseAddress"
+                  value={baseAddress}
+                  onChange={(e) => setBaseAddress(e.target.value)}
+                  placeholder="Street, city, landmark"
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch checked={googleMapsEnabled} onCheckedChange={setGoogleMapsEnabled} id="gmapsEnabled" />
+                <Label htmlFor="gmapsEnabled" className="text-sm">Enable Google Maps distance (recommended)</Label>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    if (!navigator.geolocation) return;
+                    navigator.geolocation.getCurrentPosition(
+                      (pos) => {
+                        setBaseLat(pos.coords.latitude.toFixed(6));
+                        setBaseLng(pos.coords.longitude.toFixed(6));
+                        if (!baseAddress) {
+                          setBaseAddress(`${pos.coords.latitude.toFixed(6)},${pos.coords.longitude.toFixed(6)}`);
+                        }
+                      },
+                      () => {},
+                      { enableHighAccuracy: true, timeout: 8000 }
+                    );
+                  }}
+                >
+                  Use my location
+                </Button>
+                <Button onClick={handleSaveLocation} disabled={savingLocation}>
+                  {savingLocation ? 'Saving...' : 'Save Location'}
+                </Button>
               </div>
             </CardContent>
           </Card>
