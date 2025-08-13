@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.maps-distance]
 verify_jwt = false
+
+[functions.whoami]
+verify_jwt = false

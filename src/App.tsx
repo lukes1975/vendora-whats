@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { getSubdomainInfo } from "@/utils/subdomain";
 import MainAppRoutes from "@/components/MainAppRoutes";
 import StorefrontApp from "@/components/StorefrontApp";
+import GuestSessionInitializer from "@/components/GuestSessionInitializer";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,6 +44,7 @@ const App = () => {
         <Sonner />
         <AuthProvider>
           <BrowserRouter>
+            <GuestSessionInitializer />
             {subdomainInfo.isSubdomain ? (
               // Subdomain routing: show storefront for the subdomain
               <StorefrontApp storeSlug={subdomainInfo.subdomain!} />
