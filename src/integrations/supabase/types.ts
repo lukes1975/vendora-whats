@@ -100,6 +100,48 @@ export type Database = {
           },
         ]
       }
+      customer_sessions: {
+        Row: {
+          address: string | null
+          created_at: string
+          id: string
+          ip_hash: string
+          last_seen_at: string
+          lat: number | null
+          lng: number | null
+          name: string | null
+          phone: string | null
+          updated_at: string
+          user_agent_hash: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          ip_hash: string
+          last_seen_at?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_agent_hash: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          ip_hash?: string
+          last_seen_at?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_agent_hash?: string
+        }
+        Relationships: []
+      }
       delivery_options: {
         Row: {
           created_at: string
