@@ -23,3 +23,12 @@ verify_jwt = false
 
 [functions.whoami]
 verify_jwt = false
+
+[functions.rider-session]
+verify_jwt = false
+
+[functions.rider-nearest-assignment]
+verify_jwt = false
+
+[functions.rider-update-status]
+verify_jwt = false

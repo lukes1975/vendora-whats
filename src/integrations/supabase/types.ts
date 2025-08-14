@@ -142,6 +142,75 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_assignments: {
+        Row: {
+          accepted_at: string | null
+          completed_at: string | null
+          created_at: string
+          delivery_lat: number
+          delivery_lng: number
+          distance_km: number | null
+          estimated_duration_minutes: number | null
+          id: string
+          offered_at: string
+          order_id: string | null
+          pickup_lat: number
+          pickup_lng: number
+          rider_session_id: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          delivery_lat: number
+          delivery_lng: number
+          distance_km?: number | null
+          estimated_duration_minutes?: number | null
+          id?: string
+          offered_at?: string
+          order_id?: string | null
+          pickup_lat: number
+          pickup_lng: number
+          rider_session_id?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          delivery_lat?: number
+          delivery_lng?: number
+          distance_km?: number | null
+          estimated_duration_minutes?: number | null
+          id?: string
+          offered_at?: string
+          order_id?: string | null
+          pickup_lat?: number
+          pickup_lng?: number
+          rider_session_id?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_assignments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_v2"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_assignments_rider_session_id_fkey"
+            columns: ["rider_session_id"]
+            isOneToOne: false
+            referencedRelation: "rider_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       delivery_options: {
         Row: {
           created_at: string
@@ -375,6 +444,8 @@ export type Database = {
           created_at: string
           currency: string
           customer_address: Json
+          customer_lat: number | null
+          customer_lng: number | null
           customer_name: string
           customer_phone: string
           delivery_fee: number
@@ -397,6 +468,8 @@ export type Database = {
           created_at?: string
           currency?: string
           customer_address?: Json
+          customer_lat?: number | null
+          customer_lng?: number | null
           customer_name: string
           customer_phone: string
           delivery_fee?: number
@@ -419,6 +492,8 @@ export type Database = {
           created_at?: string
           currency?: string
           customer_address?: Json
+          customer_lat?: number | null
+          customer_lng?: number | null
           customer_name?: string
           customer_phone?: string
           delivery_fee?: number
@@ -726,6 +801,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rider_sessions: {
+        Row: {
+          created_at: string
+          current_lat: number | null
+          current_lng: number | null
+          device_fingerprint: string
+          id: string
+          is_available: boolean
+          last_seen_at: string
+          phone: string
+          rider_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
+          device_fingerprint: string
+          id?: string
+          is_available?: boolean
+          last_seen_at?: string
+          phone: string
+          rider_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
+          device_fingerprint?: string
+          id?: string
+          is_available?: boolean
+          last_seen_at?: string
+          phone?: string
+          rider_name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       riders: {
         Row: {

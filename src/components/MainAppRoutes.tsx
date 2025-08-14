@@ -10,6 +10,7 @@ import Settings from "@/pages/Settings";
 import Analytics from "@/pages/Analytics";
 import DashboardStorefront from "@/pages/DashboardStorefront";
 import WhatsApp from "@/pages/WhatsApp";
+import BikeDelivery from "@/pages/BikeDelivery";
 import Pricing from "@/pages/Pricing";
 import NotFound from "@/pages/NotFound";
 import Storefront from "@/pages/Storefront";
@@ -29,6 +30,7 @@ const MainAppRoutes = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/bikemendelivery" element={<BikeDelivery />} />
         <Route 
           path="/dashboard" 
           element={
