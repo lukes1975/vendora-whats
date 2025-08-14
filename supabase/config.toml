@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.rider-update-status]
 verify_jwt = false
+
+[functions.bootstrap-admin]
+verify_jwt = false

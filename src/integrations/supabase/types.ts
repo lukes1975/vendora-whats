@@ -1247,6 +1247,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bootstrap_admin_user: {
+        Args: { user_email: string }
+        Returns: boolean
+      }
       check_rate_limit: {
         Args: {
           client_ip: unknown
