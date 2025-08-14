@@ -1247,6 +1247,44 @@ export type Database = {
           },
         ]
       }
+      wa_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_seen: string | null
+          session_json: Json | null
+          status: string | null
+          store_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_seen?: string | null
+          session_json?: Json | null
+          status?: string | null
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_seen?: string | null
+          session_json?: Json | null
+          status?: string | null
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wa_sessions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_messages: {
         Row: {
           created_at: string
