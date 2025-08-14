@@ -88,6 +88,10 @@ serve(async (req) => {
         await handleInvoicePaymentFailed(supabaseService, data);
         break;
 
+      case "charge.success":
+        await handleChargeSuccess(supabaseService, data);
+        break;
+
       default:
         logStep("Unhandled event type", event);
     }
@@ -240,5 +244,46 @@ async function handleInvoicePaymentFailed(supabase: any, data: any) {
     logStep("Failed to update subscription after failed payment", error);
   } else {
     logStep("Subscription marked inactive due to failed payment");
+  }
+}
+
+async function handleChargeSuccess(supabase: any, data: any) {
+  logStep("Handling charge.success", data);
+
+  const { reference, amount, customer } = data;
+  
+  // Check if this is a WhatsApp order payment
+  if (reference && reference.startsWith('order_')) {
+    logStep("Processing WhatsApp order payment", reference);
+    
+    // Update order status to paid
+    const { data: order, error: orderError } = await supabase
+      .from('orders_v2')
+      .update({ 
+        status: 'paid',
+        meta: { 
+          ...data, 
+          payment_confirmed_at: new Date().toISOString(),
+          amount_paid: amount
+        },
+        updated_at: new Date().toISOString()
+      })
+      .eq('payment_reference', reference)
+      .select('id, customer_phone, customer_name, total, chat_id')
+      .single();
+
+    if (orderError) {
+      logStep("Error updating order", orderError);
+    } else if (order) {
+      logStep("Order updated to paid", order.id);
+      
+      // TODO: Send WhatsApp confirmation message
+      // This would integrate with your WhatsApp provider
+      logStep("Would send WhatsApp confirmation", {
+        phone: order.customer_phone,
+        orderId: order.id,
+        amount: order.total
+      });
+    }
   }
 }

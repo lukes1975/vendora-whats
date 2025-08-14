@@ -13,6 +13,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import UpgradePlanButton from '@/components/dashboard/UpgradePlanButton';
 import { useSecureForm, commonValidationRules } from '@/hooks/useSecureForm';
 import { sanitizeTextInput, logSecurityEvent } from '@/utils/security';
+import { WhatsAppSettings } from '@/components/settings/WhatsAppSettings';
 import { 
   Store, 
   Phone, 
@@ -46,6 +47,7 @@ const Settings = () => {
   const [baseAddress, setBaseAddress] = useState<string>('');
   const [savingLocation, setSavingLocation] = useState(false);
   const [googleMapsEnabled, setGoogleMapsEnabled] = useState(false);
+  const [storeData, setStoreData] = useState<any>(null);
 
   const themeColors = [
     { name: 'Deep Blue', color: '#012C6D' },
@@ -94,7 +96,7 @@ const Settings = () => {
       setIsLoadingData(true);
       const { data, error } = await supabase
         .from('stores')
-        .select('id, name, whatsapp_number, logo_url')
+        .select('id, name, whatsapp_number, logo_url, use_ai_chat')
         .eq('vendor_id', user.id)
         .maybeSingle();
 
@@ -110,6 +112,7 @@ const Settings = () => {
 
       if (data) {
         setStoreId(data.id);
+        setStoreData(data);
         setValue('store_name', sanitizeTextInput(data.name || ''));
         // Extract phone number without +234 prefix for display
         const whatsappNumber = data.whatsapp_number || '';
@@ -599,6 +602,18 @@ const Settings = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* WhatsApp Settings */}
+          <div className="lg:col-span-2">
+            <WhatsAppSettings 
+              store={storeData ? {
+                id: storeData.id,
+                name: storeData.name,
+                use_ai_chat: storeData.use_ai_chat
+              } : null}
+              onStoreUpdate={loadSettings}
+            />
+          </div>
         </div>
 
         {/* Save Button */}

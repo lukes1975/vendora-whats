@@ -18,6 +18,7 @@ import SimplifiedStatsGrid from "@/components/dashboard/SimplifiedStatsGrid";
 import EssentialQuickActions from "@/components/dashboard/EssentialQuickActions";
 import LightRecentOrders from "@/components/dashboard/LightRecentOrders";
 import SetupWizard from "@/components/dashboard/SetupWizard";
+import { WhatsAppOrdersList } from "@/components/dashboard/WhatsAppOrdersList";
 
 import { Button } from "@/components/ui/button";
 
@@ -152,6 +153,9 @@ const Dashboard = () => {
 
         {/* Recent Orders */}
         <LightRecentOrders orders={stats?.recentOrders || []} />
+
+        {/* WhatsApp Orders */}
+        <WhatsAppOrdersList />
 
         {/* Setup Guide Access */}
         <div className="text-center">

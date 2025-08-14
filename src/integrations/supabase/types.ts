@@ -441,6 +441,7 @@ export type Database = {
       }
       orders_v2: {
         Row: {
+          chat_id: string | null
           created_at: string
           currency: string
           customer_address: Json
@@ -452,8 +453,13 @@ export type Database = {
           distance_km: number | null
           eta_minutes: number | null
           id: string
+          items: Json
+          meta: Json | null
           notes: string | null
+          payment_link: string | null
           payment_method: string | null
+          payment_provider: string | null
+          payment_reference: string | null
           service_fee: number
           status: string
           store_id: string
@@ -465,6 +471,7 @@ export type Database = {
           whatsapp_message: string | null
         }
         Insert: {
+          chat_id?: string | null
           created_at?: string
           currency?: string
           customer_address?: Json
@@ -476,8 +483,13 @@ export type Database = {
           distance_km?: number | null
           eta_minutes?: number | null
           id?: string
+          items?: Json
+          meta?: Json | null
           notes?: string | null
+          payment_link?: string | null
           payment_method?: string | null
+          payment_provider?: string | null
+          payment_reference?: string | null
           service_fee?: number
           status?: string
           store_id: string
@@ -489,6 +501,7 @@ export type Database = {
           whatsapp_message?: string | null
         }
         Update: {
+          chat_id?: string | null
           created_at?: string
           currency?: string
           customer_address?: Json
@@ -500,8 +513,13 @@ export type Database = {
           distance_km?: number | null
           eta_minutes?: number | null
           id?: string
+          items?: Json
+          meta?: Json | null
           notes?: string | null
+          payment_link?: string | null
           payment_method?: string | null
+          payment_provider?: string | null
+          payment_reference?: string | null
           service_fee?: number
           status?: string
           store_id?: string
@@ -1010,6 +1028,7 @@ export type Database = {
           name: string
           slug: string | null
           updated_at: string | null
+          use_ai_chat: boolean | null
           vendor_id: string
           whatsapp_number: string | null
         }
@@ -1023,6 +1042,7 @@ export type Database = {
           name: string
           slug?: string | null
           updated_at?: string | null
+          use_ai_chat?: boolean | null
           vendor_id: string
           whatsapp_number?: string | null
         }
@@ -1036,6 +1056,7 @@ export type Database = {
           name?: string
           slug?: string | null
           updated_at?: string | null
+          use_ai_chat?: boolean | null
           vendor_id?: string
           whatsapp_number?: string | null
         }
@@ -1181,6 +1202,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      wa_chats: {
+        Row: {
+          chat_id: string
+          context: Json | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          last_message_at: string | null
+          state: string
+          store_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          chat_id: string
+          context?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          state?: string
+          store_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          chat_id?: string
+          context?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          state?: string
+          store_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wa_chats_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       whatsapp_messages: {
         Row: {
