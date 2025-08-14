@@ -7,9 +7,9 @@ export const useWhatsAppSocket = () => {
   const [connectionStatus, setConnectionStatus] = useState<WhatsAppConnectionStatus>({
     isConnected: false,
     isConnecting: false,
-    qrCode: null,
-    error: null,
-    lastConnected: null,
+    qrCode: undefined,
+    error: undefined,
+    lastConnected: undefined,
   });
   const [messages, setMessages] = useState<WhatsAppMessage[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -59,7 +59,7 @@ export const useWhatsAppSocket = () => {
     }
 
     console.log('🚀 Starting WhatsApp connection...');
-    setConnectionStatus(prev => ({ ...prev, isConnecting: true, error: null }));
+    setConnectionStatus(prev => ({ ...prev, isConnecting: true, error: undefined }));
 
     try {
       await whatsappSocketService.connect();
@@ -87,9 +87,9 @@ export const useWhatsAppSocket = () => {
     setConnectionStatus({
       isConnected: false,
       isConnecting: false,
-      qrCode: null,
-      error: null,
-      lastConnected: null,
+      qrCode: undefined,
+      error: undefined,
+      lastConnected: undefined,
     });
   }, []);
 
@@ -106,8 +106,8 @@ export const useWhatsAppSocket = () => {
         ...prev,
         isConnected: true,
         isConnecting: false,
-        error: null,
-        lastConnected: Date.now(),
+        error: undefined,
+        lastConnected: new Date(),
       }));
       
       toast({
@@ -116,17 +116,17 @@ export const useWhatsAppSocket = () => {
       });
     };
 
-    const handleDisconnected = (reason: string) => {
+    const handleDisconnected = () => {
       setConnectionStatus(prev => ({
         ...prev,
         isConnected: false,
         isConnecting: false,
-        error: reason,
+        error: 'Disconnected',
       }));
       
       toast({
         title: 'WhatsApp Disconnected',
-        description: reason,
+        description: 'Connection lost',
         variant: 'destructive',
       });
     };
@@ -136,7 +136,7 @@ export const useWhatsAppSocket = () => {
         ...prev,
         qrCode,
         isConnecting: true,
-        error: null,
+        error: undefined,
       }));
     };
 
@@ -148,11 +148,11 @@ export const useWhatsAppSocket = () => {
       }));
     };
 
-    const handleReconnecting = (attempt: number) => {
+    const handleReconnecting = () => {
       setConnectionStatus(prev => ({
         ...prev,
         isConnecting: true,
-        error: `Reconnecting... (attempt ${attempt})`,
+        error: 'Reconnecting...',
       }));
     };
 

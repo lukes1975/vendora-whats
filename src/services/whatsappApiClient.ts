@@ -29,9 +29,13 @@ class WhatsAppApiClient {
     
     this.apiKey = import.meta.env.VITE_WHATSAPP_API_KEY || null;
     
-    // Fail fast in non-development if API key is missing
-    if (!this.apiKey && import.meta.env.NODE_ENV !== 'development') {
-      throw new Error('VITE_WHATSAPP_API_KEY is required for WhatsApp integration');
+    // In development, warn about missing API key but don't fail
+    if (!this.apiKey) {
+      if (import.meta.env.NODE_ENV === 'development') {
+        console.warn('VITE_WHATSAPP_API_KEY not set - WhatsApp features will be limited');
+      } else {
+        console.error('VITE_WHATSAPP_API_KEY is required for WhatsApp integration in production');
+      }
     }
   }
 
@@ -50,6 +54,19 @@ class WhatsAppApiClient {
 
   async sendMessage(request: SendMessageRequest): Promise<SendMessageResponse> {
     const correlationId = generateUUID();
+    
+    // Check if API key is available
+    if (!this.apiKey) {
+      safeLog('WhatsApp message send failed - no API key configured', { 
+        to: request.to 
+      }, correlationId);
+      
+      return {
+        status: 'failed',
+        error: 'WhatsApp API key not configured',
+        correlationId,
+      };
+    }
     
     // Validate phone number format before making network call
     if (!validatePhoneNumber(request.to)) {
@@ -77,12 +94,10 @@ class WhatsAppApiClient {
         'Idempotency-Key': idempotencyKey,
       };
 
-      // Add authorization header if API key is available
-      if (this.apiKey) {
-        headers['Authorization'] = `Bearer ${this.apiKey}`;
-      }
+      // Add authorization header
+      headers['Authorization'] = `Bearer ${this.apiKey}`;
 
-      safeLog('WhatsApp message send attempt', { 
+      safeLog('WhatsApp message send attempt', {
         to: request.to,
         hasApiKey: !!this.apiKey,
         idempotencyKey 
