@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { logSecurityEvent } from '@/utils/security';
+import { safeLog, generateUUID } from '@/utils/security';
 
 export interface WhatsAppMessage {
   id: string;
@@ -14,178 +14,165 @@ export interface WhatsAppMessage {
 export interface WhatsAppConnectionStatus {
   isConnected: boolean;
   isConnecting: boolean;
-  qrCode: string | null;
-  error: string | null;
-  lastConnected: number | null;
+  qrCode?: string;
+  error?: string;
+  lastConnected?: Date;
 }
 
 export interface WhatsAppSocketEvents {
-  qr: (qrCode: string) => void;
   connected: () => void;
-  'msg-received': (data: { from: string; message: string; timestamp?: number }) => void;
-  disconnected: (reason: string) => void;
+  disconnected: () => void;
+  qr: (qrCode: string) => void;
   error: (error: string) => void;
-  reconnecting: (attempt: number) => void;
+  reconnecting: () => void;
+  'msg-received': (message: Omit<WhatsAppMessage, 'id'>) => void;
 }
 
 class WhatsAppSocketService {
   private socket: Socket | null = null;
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = 3; // Reduced from 5 to fail faster
   private baseUrl: string;
-  private listeners: Map<string, Set<Function>> = new Map();
-  private connectionTimeout: NodeJS.Timeout | null = null;
-  private isManualDisconnect = false;
+  private apiKey: string | null;
+  private listeners: Map<keyof WhatsAppSocketEvents, Set<(...args: any[]) => void>> = new Map();
+  private correlationId: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_WHATSAPP_API_BASE || 'https://baileys-whatsapp-bot-zip.onrender.com';
+    // Normalize base URL (strip trailing slash)
+    const rawBaseUrl = import.meta.env.VITE_WHATSAPP_API_BASE || 'https://baileys-whatsapp-bot-zip.onrender.com';
+    this.baseUrl = rawBaseUrl.replace(/\/$/, '');
+    this.apiKey = import.meta.env.VITE_WHATSAPP_API_KEY || null;
+    this.correlationId = generateUUID();
   }
 
-  connect(): Promise<void> {
-    return new Promise((resolve, reject) => {
+  async connect(): Promise<void> {
+    // If already connected, resolve immediately (idempotent)
+    if (this.socket?.connected) {
+      safeLog('WhatsApp socket already connected', {}, this.correlationId);
+      return Promise.resolve();
+    }
+
+    // If socket exists but not connected, reuse it
+    if (this.socket && !this.socket.connected) {
+      safeLog('WhatsApp socket reconnecting existing instance', {}, this.correlationId);
+      this.socket.connect();
+      return this.waitForConnection();
+    }
+
+    return new Promise<void>((resolve, reject) => {
       try {
-        if (this.socket?.connected) {
-          resolve();
-          return;
+        safeLog('WhatsApp socket connecting', { 
+          baseUrl: this.baseUrl,
+          hasApiKey: !!this.apiKey 
+        }, this.correlationId);
+
+        const socketOptions: any = {
+          transports: ['websocket'], // Prefer websocket
+          reconnection: true,
+          reconnectionAttempts: 10,
+          reconnectionDelay: 1000,
+          forceNew: true, // Ensure clean connection
+        };
+
+        // Add authentication if API key is available
+        if (this.apiKey) {
+          socketOptions.auth = { token: this.apiKey };
         }
 
-        this.isManualDisconnect = false;
-        
-        // Clear any existing timeout
-        if (this.connectionTimeout) {
-          clearTimeout(this.connectionTimeout);
-        }
+        this.socket = io(this.baseUrl, socketOptions);
 
-        // Set connection timeout
-        this.connectionTimeout = setTimeout(() => {
-          if (this.socket && !this.socket.connected) {
-            this.socket.disconnect();
-            this.emit('error', 'Connection timeout - WhatsApp server may be unavailable');
-            reject(new Error('Connection timeout'));
-          }
-        }, 15000); // 15 second timeout
-
-        this.socket = io(this.baseUrl, {
-          transports: ['websocket', 'polling'],
-          timeout: 10000,
-          forceNew: true,
-          autoConnect: true,
-        });
-
+        // Set up Socket.IO event handlers
         this.socket.on('connect', () => {
-          console.log('WhatsApp socket connected to:', this.baseUrl);
-          if (this.connectionTimeout) {
-            clearTimeout(this.connectionTimeout);
-            this.connectionTimeout = null;
-          }
-          this.reconnectAttempts = 0;
+          safeLog('WhatsApp socket connected', {}, this.correlationId);
           this.emit('connected');
           resolve();
         });
 
         this.socket.on('disconnect', (reason) => {
-          console.log('WhatsApp socket disconnected:', reason);
-          if (this.connectionTimeout) {
-            clearTimeout(this.connectionTimeout);
-            this.connectionTimeout = null;
-          }
-          
-          if (!this.isManualDisconnect) {
-            this.emit('disconnected', reason);
-          }
+          safeLog('WhatsApp socket disconnected', { reason }, this.correlationId);
+          this.emit('disconnected');
         });
 
         this.socket.on('connect_error', (error) => {
-          console.error('WhatsApp socket connection error:', error);
-          
-          if (this.connectionTimeout) {
-            clearTimeout(this.connectionTimeout);
-            this.connectionTimeout = null;
-          }
-          
-          const errorMsg = error?.message || 'Connection failed';
-          this.emit('error', errorMsg);
-          
-          if (this.reconnectAttempts < this.maxReconnectAttempts && !this.isManualDisconnect) {
-            this.reconnectAttempts++;
-            this.emit('reconnecting', this.reconnectAttempts);
-            
-            // Exponential backoff with jitter
-            const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts) + Math.random() * 1000, 10000);
-            setTimeout(() => {
-              if (!this.isManualDisconnect) {
-                this.connect().catch(() => {
-                  // Ignore errors in retry attempts
-                });
-              }
-            }, delay);
-          } else {
-            reject(new Error(`Connection failed after ${this.maxReconnectAttempts} attempts: ${errorMsg}`));
-          }
+          const errorMessage = error.message || 'Connection failed';
+          safeLog('WhatsApp socket connection error', { error: errorMessage }, this.correlationId);
+          this.emit('error', errorMessage);
+          reject(new Error(errorMessage));
         });
 
+        this.socket.on('reconnect_attempt', () => {
+          safeLog('WhatsApp socket reconnect attempt', {}, this.correlationId);
+          this.emit('reconnecting');
+        });
+
+        this.socket.on('reconnect_failed', () => {
+          const error = 'Failed to reconnect after maximum attempts';
+          safeLog('WhatsApp socket reconnect failed', { error }, this.correlationId);
+          this.emit('error', error);
+        });
+
+        // WhatsApp-specific events
         this.socket.on('qr', (qrCode: string) => {
-          console.log('QR code received');
+          safeLog('WhatsApp QR code received', {}, this.correlationId);
           this.emit('qr', qrCode);
         });
 
-        this.socket.on('msg-received', (data: { from: string; message: string; timestamp?: number }) => {
-          console.log('Message received:', data);
-          this.emit('msg-received', data);
+        this.socket.on('message', (message: Omit<WhatsAppMessage, 'id'>) => {
+          safeLog('WhatsApp message received', { 
+            from: message.from,
+            type: message.type 
+          }, this.correlationId);
+          this.emit('msg-received', message);
         });
 
-        logSecurityEvent('WhatsApp socket connection initiated', { 
-          baseUrl: this.baseUrl,
-          attempt: this.reconnectAttempts + 1 
-        });
-        
       } catch (error) {
-        console.error('Failed to initialize WhatsApp socket:', error);
-        if (this.connectionTimeout) {
-          clearTimeout(this.connectionTimeout);
-          this.connectionTimeout = null;
-        }
-        reject(error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown connection error';
+        safeLog('WhatsApp socket connection setup failed', { error: errorMessage }, this.correlationId);
+        reject(new Error(errorMessage));
       }
+    });
+  }
+
+  private waitForConnection(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.socket?.connected) {
+        resolve();
+        return;
+      }
+
+      const timeout = setTimeout(() => {
+        reject(new Error('Connection timeout'));
+      }, 10000);
+
+      const onConnect = () => {
+        clearTimeout(timeout);
+        this.socket?.off('connect', onConnect);
+        this.socket?.off('connect_error', onError);
+        resolve();
+      };
+
+      const onError = (error: Error) => {
+        clearTimeout(timeout);
+        this.socket?.off('connect', onConnect);
+        this.socket?.off('connect_error', onError);
+        reject(error);
+      };
+
+      this.socket?.on('connect', onConnect);
+      this.socket?.on('connect_error', onError);
     });
   }
 
   disconnect(): void {
-    this.isManualDisconnect = true;
-    
-    if (this.connectionTimeout) {
-      clearTimeout(this.connectionTimeout);
-      this.connectionTimeout = null;
-    }
-    
     if (this.socket) {
+      safeLog('WhatsApp socket disconnecting', {}, this.correlationId);
+      
+      // Remove all listeners to prevent memory leaks
+      this.socket.removeAllListeners();
       this.socket.disconnect();
       this.socket = null;
+      
+      // Clear local listeners
+      this.listeners.clear();
     }
-    
-    this.reconnectAttempts = 0;
-    this.listeners.clear();
-  }
-
-  on<K extends keyof WhatsAppSocketEvents>(event: K, callback: WhatsAppSocketEvents[K]): void {
-    if (!this.listeners.has(event)) {
-      this.listeners.set(event, new Set());
-    }
-    this.listeners.get(event)!.add(callback);
-  }
-
-  off<K extends keyof WhatsAppSocketEvents>(event: K, callback: WhatsAppSocketEvents[K]): void {
-    this.listeners.get(event)?.delete(callback);
-  }
-
-  private emit<K extends keyof WhatsAppSocketEvents>(event: K, ...args: Parameters<WhatsAppSocketEvents[K]>): void {
-    this.listeners.get(event)?.forEach(callback => {
-      try {
-        (callback as any)(...args);
-      } catch (error) {
-        console.error(`Error in WhatsApp socket event handler for ${event}:`, error);
-      }
-    });
   }
 
   isConnected(): boolean {
@@ -194,7 +181,50 @@ class WhatsAppSocketService {
 
   refreshQR(): void {
     if (this.socket?.connected) {
+      safeLog('WhatsApp QR refresh requested', {}, this.correlationId);
       this.socket.emit('refresh-qr');
+    } else {
+      safeLog('WhatsApp QR refresh failed - not connected', {}, this.correlationId);
+    }
+  }
+
+  // Event management methods
+  on<K extends keyof WhatsAppSocketEvents>(
+    event: K,
+    callback: WhatsAppSocketEvents[K]
+  ): void {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    this.listeners.get(event)!.add(callback);
+  }
+
+  off<K extends keyof WhatsAppSocketEvents>(
+    event: K,
+    callback: WhatsAppSocketEvents[K]
+  ): void {
+    const eventListeners = this.listeners.get(event);
+    if (eventListeners) {
+      eventListeners.delete(callback);
+    }
+  }
+
+  private emit<K extends keyof WhatsAppSocketEvents>(
+    event: K,
+    ...args: Parameters<WhatsAppSocketEvents[K]>
+  ): void {
+    const eventListeners = this.listeners.get(event);
+    if (eventListeners) {
+      eventListeners.forEach((callback) => {
+        try {
+          callback(...args);
+        } catch (error) {
+          safeLog('WhatsApp socket event handler error', { 
+            event,
+            error: error instanceof Error ? error.message : 'Unknown error' 
+          }, this.correlationId);
+        }
+      });
     }
   }
 }

@@ -60,6 +60,58 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## WhatsApp Integration
+
+This project includes a comprehensive WhatsApp integration for business communications. To enable WhatsApp features, you'll need to configure the following environment variables:
+
+### Required Environment Variables
+
+Copy `.env.example` to `.env.local` and configure:
+
+```bash
+# WhatsApp Bot API (required for sending/receiving messages)
+VITE_WHATSAPP_API_BASE=https://your-whatsapp-bot-server.com
+VITE_WHATSAPP_API_KEY=your_bot_api_key
+
+# WhatsApp Importer (required for catalog import)
+VITE_WHATSAPP_IMPORTER_BASE=https://your-importer-service.com
+VITE_WHATSAPP_IMPORTER_KEY=your_importer_api_key
+```
+
+### Setting Up WhatsApp Bot Server
+
+1. **Deploy a WhatsApp Bot**: Use [Baileys](https://github.com/WhiskeySockets/Baileys) or similar library to create your WhatsApp bot server
+2. **API Endpoints**: Your bot server should provide:
+   - `POST /send` - Send messages
+   - `GET /status` - Check connection status
+   - WebSocket support for real-time events
+3. **Authentication**: Secure your bot API with an API key
+4. **QR Code Flow**: Support QR code generation for WhatsApp Web authentication
+
+### Security Features
+
+- **E.164 Phone Validation**: All phone numbers are validated before API calls
+- **PII Redaction**: Automatic redaction of sensitive data in logs
+- **Request Timeouts**: 15s timeout for message sending, 30s for imports
+- **Correlation IDs**: Request tracing for debugging
+- **Idempotency**: Prevent duplicate message sends
+
+### Testing
+
+Run the WhatsApp integration tests:
+
+```bash
+npm run test src/test/whatsapp*
+```
+
+### Manual Testing
+
+1. Set environment variables in `.env.local`
+2. Start the development server: `npm run dev`
+3. Navigate to WhatsApp settings in the dashboard
+4. Verify API authentication and connection status
+5. Test message sending and catalog import functionality
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/095f283b-0986-4f5b-b287-0fbcd183e18c) and click on Share -> Publish.
