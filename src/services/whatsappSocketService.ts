@@ -73,12 +73,12 @@ class WhatsAppSocketService {
 
         this.socket = io(this.baseUrl, socketOptions);
 
-        // Re-emit socket events through our emitter
+        // CRITICAL: Only resolve when socket actually connects
         this.socket.on('connect', () => {
-          safeLog('WhatsApp socket connected', {}, this.correlationId);
+          safeLog('WhatsApp socket connected - resolving promise', {}, this.correlationId);
           this.emit('connect');
           this.emit('connected');
-          resolve();
+          resolve(); // Only resolve here when socket is actually connected
         });
 
         this.socket.on('connect_error', (err) => {
@@ -86,7 +86,7 @@ class WhatsAppSocketService {
           safeLog('WhatsApp socket connection error', { error: errorMessage }, this.correlationId);
           this.emit('connect_error', err);
           this.emit('error', errorMessage);
-          reject(err);
+          reject(err); // Reject immediately on connection error
         });
 
         this.socket.on('disconnect', (reason) => {
@@ -119,10 +119,11 @@ class WhatsAppSocketService {
           this.emit('msg-received', message);
         });
 
-        // Safe timeout fallback
+        // Safe timeout fallback - reject if no connection within 10 seconds
         setTimeout(() => {
           if (!this.socket?.connected) {
-            const err = new Error('Socket connect timeout');
+            const err = new Error('Socket connect timeout - failed to establish connection within 10 seconds');
+            safeLog('WhatsApp socket connection timeout', { error: err.message }, this.correlationId);
             this.emit('connect_error', err);
             reject(err);
           }
