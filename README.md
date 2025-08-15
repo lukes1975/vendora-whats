@@ -1,3 +1,4 @@
+
 # Welcome to your Lovable project
 
 ## Project info
@@ -72,10 +73,6 @@ Copy `.env.example` to `.env.local` and configure:
 # WhatsApp Bot API (required for sending/receiving messages)
 VITE_WHATSAPP_API_BASE=https://your-whatsapp-bot-server.com
 VITE_WHATSAPP_API_KEY=your_bot_api_key
-
-# WhatsApp Importer (required for catalog import)
-VITE_WHATSAPP_IMPORTER_BASE=https://your-importer-service.com
-VITE_WHATSAPP_IMPORTER_KEY=your_importer_api_key
 ```
 
 ### Setting Up WhatsApp Bot Server
@@ -92,7 +89,7 @@ VITE_WHATSAPP_IMPORTER_KEY=your_importer_api_key
 
 - **E.164 Phone Validation**: All phone numbers are validated before API calls
 - **PII Redaction**: Automatic redaction of sensitive data in logs
-- **Request Timeouts**: 15s timeout for message sending, 30s for imports
+- **Request Timeouts**: 15s timeout for message sending
 - **Correlation IDs**: Request tracing for debugging
 - **Idempotency**: Prevent duplicate message sends
 
@@ -110,7 +107,7 @@ npm run test src/test/whatsapp*
 2. Start the development server: `npm run dev`
 3. Navigate to WhatsApp settings in the dashboard
 4. Verify API authentication and connection status
-5. Test message sending and catalog import functionality
+5. Test message sending functionality
 
 ## How can I deploy this project?
 
