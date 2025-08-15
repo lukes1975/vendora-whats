@@ -2,8 +2,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Store, MessageSquare } from "lucide-react";
-import WhatsAppImportButton from "./WhatsAppImportButton";
+import { Plus, Store, MessageSquare, Settings } from "lucide-react";
 import { useDashboardData } from "@/hooks/useDashboardData";
 
 const QuickActions = () => {
@@ -35,10 +34,12 @@ const QuickActions = () => {
               <span>Customize Your Brand</span>
             </Button>
           </Link>
-          <WhatsAppImportButton 
-            phone={storeData?.whatsapp_number || ""} 
-            className="w-full justify-start h-auto py-3"
-          />
+          <Link to="/dashboard/settings">
+            <Button variant="outline" className="w-full justify-start h-auto py-3">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>WhatsApp Settings</span>
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>
