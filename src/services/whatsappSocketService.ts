@@ -50,85 +50,91 @@ class WhatsAppSocketService {
       return Promise.resolve();
     }
 
-    // If socket exists but not connected, reuse it
+    // If socket exists but not connected, reuse it (singleton pattern)
     if (this.socket && !this.socket.connected) {
       safeLog('WhatsApp socket reconnecting existing instance', {}, this.correlationId);
       this.socket.connect();
       return this.waitForConnection();
     }
 
-    return new Promise<void>((resolve, reject) => {
-      try {
-        safeLog('WhatsApp socket connecting', { 
-          baseUrl: this.baseUrl,
-          hasApiKey: !!this.apiKey 
-        }, this.correlationId);
-
-        const socketOptions: any = {
-          transports: ['websocket'], // Prefer websocket
-          reconnection: true,
-          reconnectionAttempts: 10,
-          reconnectionDelay: 1000,
-          forceNew: true, // Ensure clean connection
-        };
-
-        // Add authentication if API key is available
-        if (this.apiKey) {
-          socketOptions.auth = { token: this.apiKey };
-        }
-
-        this.socket = io(this.baseUrl, socketOptions);
-
-        // Set up Socket.IO event handlers
-        this.socket.on('connect', () => {
-          safeLog('WhatsApp socket connected', {}, this.correlationId);
-          this.emit('connected');
-          resolve();
-        });
-
-        this.socket.on('disconnect', (reason) => {
-          safeLog('WhatsApp socket disconnected', { reason }, this.correlationId);
-          this.emit('disconnected');
-        });
-
-        this.socket.on('connect_error', (error) => {
-          const errorMessage = error.message || 'Connection failed';
-          safeLog('WhatsApp socket connection error', { error: errorMessage }, this.correlationId);
-          this.emit('error', errorMessage);
-          reject(new Error(errorMessage));
-        });
-
-        this.socket.on('reconnect_attempt', () => {
-          safeLog('WhatsApp socket reconnect attempt', {}, this.correlationId);
-          this.emit('reconnecting');
-        });
-
-        this.socket.on('reconnect_failed', () => {
-          const error = 'Failed to reconnect after maximum attempts';
-          safeLog('WhatsApp socket reconnect failed', { error }, this.correlationId);
-          this.emit('error', error);
-        });
-
-        // WhatsApp-specific events
-        this.socket.on('qr', (qrCode: string) => {
-          safeLog('WhatsApp QR code received', {}, this.correlationId);
-          this.emit('qr', qrCode);
-        });
-
-        this.socket.on('message', (message: Omit<WhatsAppMessage, 'id'>) => {
-          safeLog('WhatsApp message received', { 
-            from: message.from,
-            type: message.type 
+    // Create new socket only if none exists
+    if (!this.socket) {
+      return new Promise<void>((resolve, reject) => {
+        try {
+          safeLog('WhatsApp socket creating new instance', { 
+            baseUrl: this.baseUrl,
+            hasApiKey: !!this.apiKey 
           }, this.correlationId);
-          this.emit('msg-received', message);
-        });
 
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown connection error';
-        safeLog('WhatsApp socket connection setup failed', { error: errorMessage }, this.correlationId);
-        reject(new Error(errorMessage));
-      }
-    });
+          const socketOptions: any = {
+            transports: ['websocket', 'polling'], // Allow fallback to polling
+            reconnection: true,
+            reconnectionAttempts: 10,
+            reconnectionDelay: 1000,
+            // Removed forceNew: true - this was causing socket recreation and lost listeners
+          };
+
+          // Add authentication if API key is available
+          if (this.apiKey) {
+            socketOptions.auth = { token: this.apiKey };
+          }
+
+          this.socket = io(this.baseUrl, socketOptions);
+
+          // Set up Socket.IO event handlers
+          this.socket.on('connect', () => {
+            safeLog('WhatsApp socket connected', {}, this.correlationId);
+            // Emit both Socket.IO connect and custom connected events
+            this.emit('connected');
+            resolve();
+          });
+
+          this.socket.on('disconnect', (reason) => {
+            safeLog('WhatsApp socket disconnected', { reason }, this.correlationId);
+            this.emit('disconnected');
+          });
+
+          this.socket.on('connect_error', (error) => {
+            const errorMessage = error.message || 'Connection failed';
+            safeLog('WhatsApp socket connection error', { error: errorMessage }, this.correlationId);
+            this.emit('error', errorMessage);
+            reject(new Error(errorMessage));
+          });
+
+          this.socket.on('reconnect_attempt', () => {
+            safeLog('WhatsApp socket reconnect attempt', {}, this.correlationId);
+            this.emit('reconnecting');
+          });
+
+          this.socket.on('reconnect_failed', () => {
+            const error = 'Failed to reconnect after maximum attempts';
+            safeLog('WhatsApp socket reconnect failed', { error }, this.correlationId);
+            this.emit('error', error);
+          });
+
+          // WhatsApp-specific events
+          this.socket.on('qr', (qrCode: string) => {
+            safeLog('WhatsApp QR code received', {}, this.correlationId);
+            this.emit('qr', qrCode);
+          });
+
+          this.socket.on('message', (message: Omit<WhatsAppMessage, 'id'>) => {
+            safeLog('WhatsApp message received', { 
+              from: message.from,
+              type: message.type 
+            }, this.correlationId);
+            this.emit('msg-received', message);
+          });
+
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown connection error';
+          safeLog('WhatsApp socket connection setup failed', { error: errorMessage }, this.correlationId);
+          reject(new Error(errorMessage));
+        }
+      });
+    }
+
+    return Promise.resolve();
   }
 
   private waitForConnection(): Promise<void> {

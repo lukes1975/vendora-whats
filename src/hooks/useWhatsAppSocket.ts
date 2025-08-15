@@ -97,11 +97,14 @@ export const useWhatsAppSocket = () => {
     whatsappSocketService.refreshQR();
   }, []);
 
-  // Initialize socket event listeners
+  // Initialize socket event listeners (run once)
   useEffect(() => {
     if (isInitialized) return;
 
+    console.log('🎧 Setting up WhatsApp socket listeners...');
+
     const handleConnected = () => {
+      console.log('🟢 Socket connected event - updating UI state');
       setConnectionStatus(prev => ({
         ...prev,
         isConnected: true,
@@ -117,6 +120,7 @@ export const useWhatsAppSocket = () => {
     };
 
     const handleDisconnected = () => {
+      console.log('🔴 Socket disconnected event');
       setConnectionStatus(prev => ({
         ...prev,
         isConnected: false,
@@ -132,6 +136,7 @@ export const useWhatsAppSocket = () => {
     };
 
     const handleQR = (qrCode: string) => {
+      console.log('📱 QR code received, updating UI');
       setConnectionStatus(prev => ({
         ...prev,
         qrCode,
@@ -141,6 +146,7 @@ export const useWhatsAppSocket = () => {
     };
 
     const handleError = (error: string) => {
+      console.log('❌ Socket error:', error);
       setConnectionStatus(prev => ({
         ...prev,
         error,
@@ -149,6 +155,7 @@ export const useWhatsAppSocket = () => {
     };
 
     const handleReconnecting = () => {
+      console.log('🔄 Socket reconnecting');
       setConnectionStatus(prev => ({
         ...prev,
         isConnecting: true,
@@ -157,6 +164,7 @@ export const useWhatsAppSocket = () => {
     };
 
     const handleMessageReceived = (data: { from: string; message: string; timestamp?: number }) => {
+      console.log('📨 Message received:', data.from);
       addMessage({
         from: data.from,
         to: 'me', // Current user
@@ -167,6 +175,7 @@ export const useWhatsAppSocket = () => {
       });
     };
 
+    // Register all event listeners
     whatsappSocketService.on('connected', handleConnected);
     whatsappSocketService.on('disconnected', handleDisconnected);
     whatsappSocketService.on('qr', handleQR);
@@ -177,6 +186,7 @@ export const useWhatsAppSocket = () => {
     setIsInitialized(true);
 
     return () => {
+      console.log('🧹 Cleaning up WhatsApp socket listeners');
       whatsappSocketService.off('connected', handleConnected);
       whatsappSocketService.off('disconnected', handleDisconnected);
       whatsappSocketService.off('qr', handleQR);
@@ -186,18 +196,8 @@ export const useWhatsAppSocket = () => {
     };
   }, [isInitialized, toast, addMessage]);
 
-  // Auto-connect on mount if not connected
-  useEffect(() => {
-    if (!connectionStatus.isConnected && !connectionStatus.isConnecting) {
-      const timer = setTimeout(() => {
-        connect().catch((error) => {
-          console.error('Auto-connect failed:', error);
-        });
-      }, 1000); // Delay auto-connect to avoid immediate connection pressure
-      
-      return () => clearTimeout(timer);
-    }
-  }, [connectionStatus.isConnected, connectionStatus.isConnecting, connect]);
+  // Removed auto-connect timer to prevent connection loops and race conditions
+  // Users now manually control connection via the Connect button
 
   return {
     connectionStatus,
