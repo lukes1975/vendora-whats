@@ -175,7 +175,27 @@ export const useWhatsAppSocket = () => {
       });
     };
 
+    // Socket-level connect event handlers
+    const handleSocketConnect = () => {
+      setConnectionStatus(prev => ({
+        ...prev,
+        isConnected: true,
+        isConnecting: false,
+        error: undefined,
+        lastConnected: new Date(),
+      }));
+      toast({ title: 'Socket Connected', description: 'Realtime channel established' });
+    };
+
+    const handleSocketConnectError = (err: any) => {
+      const msg = err?.message || String(err);
+      setConnectionStatus(prev => ({ ...prev, error: msg, isConnecting: false }));
+      toast({ title: 'Socket Error', description: msg, variant: 'destructive' });
+    };
+
     // Register all event listeners
+    whatsappSocketService.on('connect', handleSocketConnect);
+    whatsappSocketService.on('connect_error', handleSocketConnectError);
     whatsappSocketService.on('connected', handleConnected);
     whatsappSocketService.on('disconnected', handleDisconnected);
     whatsappSocketService.on('qr', handleQR);
@@ -187,6 +207,8 @@ export const useWhatsAppSocket = () => {
 
     return () => {
       console.log('🧹 Cleaning up WhatsApp socket listeners');
+      whatsappSocketService.off('connect', handleSocketConnect);
+      whatsappSocketService.off('connect_error', handleSocketConnectError);
       whatsappSocketService.off('connected', handleConnected);
       whatsappSocketService.off('disconnected', handleDisconnected);
       whatsappSocketService.off('qr', handleQR);
