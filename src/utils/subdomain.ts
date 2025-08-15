@@ -15,7 +15,7 @@ export const getSubdomainInfo = (): SubdomainInfo => {
   const hostname = window.location.hostname;
   
   // For development
-  if (hostname === 'localhost' || hostname.includes('127.0.0.1') || hostname.includes('lovableproject.com')) {
+  if (hostname === 'localhost' || hostname.includes('127.0.0.1') || hostname.includes('lovableproject.com') || hostname.includes('lovable.app')) {
     return {
       isSubdomain: false,
       subdomain: null,
@@ -59,7 +59,7 @@ export const getStoreUrl = (storeSlug: string): string => {
   const { hostname, protocol } = window.location;
   
   // For development, use path-based routing
-  if (hostname === 'localhost' || hostname.includes('127.0.0.1') || hostname.includes('lovableproject.com')) {
+  if (hostname === 'localhost' || hostname.includes('127.0.0.1') || hostname.includes('lovableproject.com') || hostname.includes('lovable.app')) {
     return `${protocol}//${hostname}/${storeSlug}`;
   }
   
