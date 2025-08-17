@@ -121,7 +121,7 @@ describe('WhatsAppApiClient', () => {
       (global.fetch as any).mockResolvedValueOnce(mockResponse);
 
       const result = await whatsappApiClient.getConnectionStatus();
-      expect(result.connected).toBe(true);
+      expect(result.status).toBe('connected');
     });
 
     it('should return connected false for failed response', async () => {
@@ -131,14 +131,14 @@ describe('WhatsAppApiClient', () => {
       (global.fetch as any).mockResolvedValueOnce(mockResponse);
 
       const result = await whatsappApiClient.getConnectionStatus();
-      expect(result.connected).toBe(false);
+      expect(result.status).toBe('unknown');
     });
 
     it('should handle network errors gracefully', async () => {
       (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
 
       const result = await whatsappApiClient.getConnectionStatus();
-      expect(result.connected).toBe(false);
+      expect(result.status).toBe('unknown');
     });
   });
 });

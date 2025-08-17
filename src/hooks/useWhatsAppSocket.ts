@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 export const useWhatsAppSocket = () => {
   const { toast } = useToast();
   const [connectionStatus, setConnectionStatus] = useState<WhatsAppConnectionStatus>({
+    status: 'unknown',
     isConnected: false,
     isConnecting: false,
     qrCode: undefined,
@@ -85,6 +86,7 @@ export const useWhatsAppSocket = () => {
   const disconnect = useCallback(() => {
     whatsappSocketService.disconnect();
     setConnectionStatus({
+      status: 'logged_out',
       isConnected: false,
       isConnecting: false,
       qrCode: undefined,
@@ -104,84 +106,120 @@ export const useWhatsAppSocket = () => {
     console.log('🎧 Setting up WhatsApp socket listeners...');
 
     const handleConnected = () => {
-      console.log('🟢 Socket connected event - updating UI state');
+      console.log('🟢 WhatsApp connected event received');
       setConnectionStatus(prev => ({
         ...prev,
+        status: 'connected',
         isConnected: true,
         isConnecting: false,
+        qrCode: undefined,
         error: undefined,
-        lastConnected: new Date(),
+        lastConnected: new Date().toISOString(),
       }));
-      
-      toast({
-        title: 'WhatsApp Connected',
-        description: 'Successfully connected to WhatsApp',
-      });
+      toast({ title: 'WhatsApp Connected', description: 'Ready to send and receive messages' });
     };
 
     const handleDisconnected = () => {
-      console.log('🔴 Socket disconnected event');
+      console.log('🔴 WhatsApp disconnected event received');
       setConnectionStatus(prev => ({
         ...prev,
+        status: 'logged_out',
         isConnected: false,
-        isConnecting: false,
-        error: 'Disconnected',
+        qrCode: undefined,
       }));
-      
-      toast({
-        title: 'WhatsApp Disconnected',
-        description: 'Connection lost',
-        variant: 'destructive',
-      });
+      toast({ title: 'WhatsApp Disconnected', description: 'Connection lost' });
     };
 
     const handleQR = (qrCode: string) => {
-      console.log('📱 QR code received, updating UI');
+      console.log('📱 WhatsApp QR code received');
       setConnectionStatus(prev => ({
         ...prev,
         qrCode,
+        status: 'connecting',
         isConnecting: true,
+        isConnected: false,
         error: undefined,
+      }));
+    };
+
+    const handleConnectionState = (state: WhatsAppConnectionStatus) => {
+      console.log('🔄 WhatsApp connection state update:', state);
+      setConnectionStatus(prev => ({
+        ...prev,
+        ...state,
+        lastConnected: state.lastConnected || prev.lastConnected,
       }));
     };
 
     const handleError = (error: string) => {
-      console.log('❌ Socket error:', error);
+      console.log('❌ WhatsApp error received:', error);
       setConnectionStatus(prev => ({
         ...prev,
         error,
+        status: 'unknown',
         isConnecting: false,
       }));
+      toast({ title: 'WhatsApp Error', description: error, variant: 'destructive' });
     };
 
     const handleReconnecting = () => {
-      console.log('🔄 Socket reconnecting');
+      console.log('🔄 WhatsApp reconnecting...');
       setConnectionStatus(prev => ({
         ...prev,
+        status: 'reconnecting',
         isConnecting: true,
-        error: 'Reconnecting...',
+        error: undefined,
       }));
     };
 
-    const handleMessageReceived = (data: { from: string; message: string; timestamp?: number }) => {
-      console.log('📨 Message received:', data.from);
-      addMessage({
+    const handleSessionLoggedOut = () => {
+      console.log('🔒 WhatsApp session logged out');
+      setConnectionStatus(prev => ({
+        ...prev,
+        status: 'logged_out',
+        isConnected: false,
+        isConnecting: false,
+        qrCode: undefined,
+        error: 'Session logged out - please reconnect',
+      }));
+      toast({ title: 'WhatsApp Session Expired', description: 'Please reconnect to WhatsApp', variant: 'destructive' });
+    };
+
+    const handleMessage = (data: { from: string; message: string }) => {
+      console.log('💬 WhatsApp message received:', data);
+      const messageWithId = {
+        id: generateMessageId(),
         from: data.from,
-        to: 'me', // Current user
+        to: 'me',
         message: data.message,
-        timestamp: data.timestamp || Date.now(),
-        type: 'incoming',
-        status: 'delivered',
+        timestamp: Date.now(),
+        type: 'incoming' as const,
+        status: 'delivered' as const,
+      };
+      
+      setMessages(prev => {
+        const exists = prev.some(m => 
+          m.from === messageWithId.from && 
+          m.message === messageWithId.message && 
+          Math.abs(m.timestamp - messageWithId.timestamp) < 5000
+        );
+        
+        if (exists) return prev;
+        
+        const updated = [...prev, messageWithId].sort((a, b) => a.timestamp - b.timestamp);
+        return updated;
       });
     };
 
-    // Register all event listeners - removed duplicate 'connect' handler
+    // Register all event listeners
     whatsappSocketService.on('connected', handleConnected);
     whatsappSocketService.on('disconnected', handleDisconnected);
     whatsappSocketService.on('qr', handleQR);
+    whatsappSocketService.on('connection_state', handleConnectionState);
     whatsappSocketService.on('error', handleError);
     whatsappSocketService.on('reconnecting', handleReconnecting);
-    whatsappSocketService.on('msg-received', handleMessageReceived);
+    whatsappSocketService.on('session_logged_out', handleSessionLoggedOut);
+    whatsappSocketService.on('msg-received', handleMessage);
 
     setIsInitialized(true);
 
@@ -190,14 +228,13 @@ export const useWhatsAppSocket = () => {
       whatsappSocketService.off('connected', handleConnected);
       whatsappSocketService.off('disconnected', handleDisconnected);
       whatsappSocketService.off('qr', handleQR);
+      whatsappSocketService.off('connection_state', handleConnectionState);
       whatsappSocketService.off('error', handleError);
       whatsappSocketService.off('reconnecting', handleReconnecting);
-      whatsappSocketService.off('msg-received', handleMessageReceived);
+      whatsappSocketService.off('session_logged_out', handleSessionLoggedOut);
+      whatsappSocketService.off('msg-received', handleMessage);
     };
-  }, [isInitialized, toast, addMessage]);
-
-  // Removed auto-connect timer to prevent connection loops and race conditions
-  // Users now manually control connection via the Connect button
+  }, [isInitialized, toast, addMessage, generateMessageId]);
 
   return {
     connectionStatus,

@@ -10,10 +10,13 @@ export const useSendWhatsAppMessage = () => {
 
   return useMutation({
     mutationFn: async (request: SendMessageRequest) => {
+      // Normalize phone number (remove non-digits except +)
+      const normalizedTo = request.to.replace(/[^\d+]/g, '');
+      
       // Add optimistic message
       const messageId = addMessage({
         from: 'me',
-        to: request.to,
+        to: normalizedTo,
         message: request.message,
         timestamp: Date.now(),
         type: 'outgoing',
@@ -21,7 +24,10 @@ export const useSendWhatsAppMessage = () => {
       });
 
       try {
-        const response = await whatsappApiClient.sendMessage(request);
+        const response = await whatsappApiClient.sendMessage({
+          ...request,
+          to: normalizedTo,
+        });
         
         if (response.status === 'sent') {
           updateMessageStatus(messageId, 'sent');

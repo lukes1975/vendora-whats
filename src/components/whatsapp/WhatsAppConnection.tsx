@@ -39,39 +39,51 @@ export const WhatsAppConnection: React.FC = () => {
   }, [connectionStatus.qrCode]);
 
   const getStatusInfo = () => {
-    if (isConnected) {
-      return {
-        icon: <Wifi className="h-4 w-4" />,
-        label: 'Connected',
-        variant: 'default' as const,
-        description: 'WhatsApp is ready to send and receive messages',
-      };
+    switch (connectionStatus.status) {
+      case 'connected':
+        return {
+          icon: <Wifi className="h-4 w-4" />,
+          label: 'Connected',
+          variant: 'default' as const,
+          description: 'WhatsApp is ready to send and receive messages',
+        };
+      case 'connecting':
+        return {
+          icon: <RefreshCw className="h-4 w-4 animate-spin" />,
+          label: 'Connecting',
+          variant: 'secondary' as const,
+          description: connectionStatus.qrCode ? 'Scan the QR code with your phone' : 'Establishing connection...',
+        };
+      case 'reconnecting':
+        return {
+          icon: <RefreshCw className="h-4 w-4 animate-spin" />,
+          label: 'Reconnecting',
+          variant: 'secondary' as const,
+          description: 'Attempting to reconnect to WhatsApp...',
+        };
+      case 'logged_out':
+        return {
+          icon: <WifiOff className="h-4 w-4" />,
+          label: 'Logged Out',
+          variant: 'outline' as const,
+          description: 'Session expired - click connect to start again',
+        };
+      default:
+        if (connectionStatus.error) {
+          return {
+            icon: <AlertCircle className="h-4 w-4" />,
+            label: 'Error',
+            variant: 'destructive' as const,
+            description: connectionStatus.error,
+          };
+        }
+        return {
+          icon: <WifiOff className="h-4 w-4" />,
+          label: 'Disconnected',
+          variant: 'outline' as const,
+          description: 'Click connect to start WhatsApp integration',
+        };
     }
-    
-    if (isConnecting) {
-      return {
-        icon: <RefreshCw className="h-4 w-4 animate-spin" />,
-        label: connectionStatus.error?.includes('Reconnecting') ? 'Reconnecting' : 'Connecting',
-        variant: 'secondary' as const,
-        description: connectionStatus.qrCode ? 'Scan the QR code with your phone' : 'Establishing connection...',
-      };
-    }
-    
-    if (connectionStatus.error) {
-      return {
-        icon: <AlertCircle className="h-4 w-4" />,
-        label: 'Error',
-        variant: 'destructive' as const,
-        description: connectionStatus.error,
-      };
-    }
-    
-    return {
-      icon: <WifiOff className="h-4 w-4" />,
-      label: 'Disconnected',
-      variant: 'outline' as const,
-      description: 'Click connect to start WhatsApp integration',
-    };
   };
 
   const statusInfo = getStatusInfo();

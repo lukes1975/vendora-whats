@@ -14,12 +14,22 @@ export interface SendMessageResponse {
 }
 
 export interface ConnectionStatus {
-  connected: boolean;
+  status: 'unknown' | 'connecting' | 'connected' | 'reconnecting' | 'logged_out';
+  isConnected?: boolean;
+  isConnecting?: boolean;
+  lastConnected?: string;
+  qrCode?: string;
+  error?: string;
+}
+
+export interface QRCodeResponse {
+  qr: string;
 }
 
 class WhatsAppApiClient {
   private baseUrl: string;
   private apiKey: string | null;
+  private sessionId: string;
   private readonly timeout = 15000; // 15 seconds
 
   constructor() {
@@ -28,6 +38,7 @@ class WhatsAppApiClient {
     this.baseUrl = rawBaseUrl.replace(/\/$/, '');
     
     this.apiKey = import.meta.env.VITE_WHATSAPP_API_KEY || null;
+    this.sessionId = import.meta.env.VITE_WHATSAPP_SESSION_ID || 'dev_tenant';
     
     // In development, warn about missing API key but don't fail
     if (!this.apiKey) {
@@ -94,8 +105,8 @@ class WhatsAppApiClient {
         'Idempotency-Key': idempotencyKey,
       };
 
-      // Add authorization header
-      headers['Authorization'] = `Bearer ${this.apiKey}`;
+      // Add API key header (x-api-key instead of Authorization)
+      headers['x-api-key'] = this.apiKey;
 
       safeLog('WhatsApp message send attempt', {
         to: request.to,
@@ -164,28 +175,70 @@ class WhatsAppApiClient {
       const headers: Record<string, string> = {};
       
       if (this.apiKey) {
-        headers['Authorization'] = `Bearer ${this.apiKey}`;
+        headers['x-api-key'] = this.apiKey;
       }
 
-      const response = await fetch(this.normalizeUrl('/status'), {
+      const response = await fetch(this.normalizeUrl(`/session/${this.sessionId}/status`), {
         signal: controller.signal,
         headers,
         mode: 'cors',
       });
       
       if (!response.ok) {
-        return { connected: false };
+        return { status: 'unknown' };
       }
 
       const result = await response.json();
-      return { connected: result.connected || false };
+      return {
+        status: result.status || 'unknown',
+        isConnected: result.isConnected,
+        isConnecting: result.isConnecting,
+        lastConnected: result.lastConnected,
+        qrCode: result.qrCode,
+        error: result.error,
+      };
 
     } catch (error) {
       safeLog('WhatsApp connection status check failed', { 
         error: error instanceof Error ? error.message : 'Unknown error' 
       });
       
-      return { connected: false };
+      return { status: 'unknown' };
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  async getQRCode(): Promise<QRCodeResponse | null> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    try {
+      const headers: Record<string, string> = {};
+      
+      if (this.apiKey) {
+        headers['x-api-key'] = this.apiKey;
+      }
+
+      const response = await fetch(this.normalizeUrl(`/session/${this.sessionId}/qr`), {
+        signal: controller.signal,
+        headers,
+        mode: 'cors',
+      });
+      
+      if (!response.ok) {
+        return null;
+      }
+
+      const result = await response.json();
+      return { qr: result.qr };
+
+    } catch (error) {
+      safeLog('WhatsApp QR code fetch failed', { 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      
+      return null;
     } finally {
       clearTimeout(timeoutId);
     }

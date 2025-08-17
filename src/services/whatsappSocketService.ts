@@ -12,11 +12,12 @@ export interface WhatsAppMessage {
 }
 
 export interface WhatsAppConnectionStatus {
+  status: 'unknown' | 'connecting' | 'connected' | 'reconnecting' | 'logged_out';
   isConnected: boolean;
   isConnecting: boolean;
   qrCode?: string;
   error?: string;
-  lastConnected?: Date;
+  lastConnected?: string;
 }
 
 export interface WhatsAppSocketEvents {
@@ -27,13 +28,16 @@ export interface WhatsAppSocketEvents {
   qr: (qrCode: string) => void;
   error: (error: string) => void;
   reconnecting: () => void;
-  'msg-received': (message: Omit<WhatsAppMessage, 'id'>) => void;
+  'connection_state': (state: WhatsAppConnectionStatus) => void;
+  'msg-received': (data: { from: string; message: string }) => void;
+  'session_logged_out': () => void;
 }
 
 class WhatsAppSocketService {
   private socket: Socket | null = null;
   private baseUrl: string;
   private apiKey: string | null;
+  private sessionId: string;
   private listeners: Map<keyof WhatsAppSocketEvents, Set<(...args: any[]) => void>> = new Map();
   private correlationId: string;
 
@@ -42,6 +46,7 @@ class WhatsAppSocketService {
     const rawBaseUrl = import.meta.env.VITE_WHATSAPP_API_BASE || 'https://baileys-whatsapp-bot-zip.onrender.com';
     this.baseUrl = rawBaseUrl.replace(/\/$/, '');
     this.apiKey = import.meta.env.VITE_WHATSAPP_API_KEY || null;
+    this.sessionId = import.meta.env.VITE_WHATSAPP_SESSION_ID || 'dev_tenant';
     this.correlationId = generateUUID();
   }
 
@@ -111,12 +116,22 @@ class WhatsAppSocketService {
           this.emit('qr', qrCode);
         });
 
-        this.socket.on('message', (message: Omit<WhatsAppMessage, 'id'>) => {
+        this.socket.on('connection_state', (state: WhatsAppConnectionStatus) => {
+          safeLog('WhatsApp connection state received', { status: state.status }, this.correlationId);
+          this.emit('connection_state', state);
+        });
+
+        this.socket.on('msg-received', (data: { from: string; message: string }) => {
           safeLog('WhatsApp message received', { 
-            from: message.from,
-            type: message.type 
+            from: data.from,
+            message: data.message?.substring(0, 50) + '...'
           }, this.correlationId);
-          this.emit('msg-received', message);
+          this.emit('msg-received', data);
+        });
+
+        this.socket.on('session_logged_out', () => {
+          safeLog('WhatsApp session logged out', {}, this.correlationId);
+          this.emit('session_logged_out');
         });
 
         // Safe timeout fallback - reject if no connection within 10 seconds
