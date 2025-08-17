@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWhatsAppSocket } from '@/hooks/useWhatsAppSocket';
-import { RefreshCw, Smartphone, Wifi, WifiOff, AlertCircle } from 'lucide-react';
+import { useBackendHealth } from '@/hooks/useBackendHealth';
+import { RefreshCw, Smartphone, Wifi, WifiOff, AlertCircle, Activity } from 'lucide-react';
 import QRCode from 'qrcode';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const WhatsAppConnection: React.FC = () => {
   const { connectionStatus, connect, disconnect, refreshQR, isConnected, isConnecting } = useWhatsAppSocket();
+  const { checkHealth, isChecking, lastCheck } = useBackendHealth();
   const [qrCodeDataUrl, setQrCodeDataUrl] = React.useState<string | null>(null);
   
   // Debug info
@@ -188,29 +190,64 @@ export const WhatsAppConnection: React.FC = () => {
           ) : null}
         </AnimatePresence>
 
-        <div className="flex gap-2 justify-center">
-          {!isConnected ? (
-            <Button 
-              onClick={connect} 
-              disabled={isConnecting}
-              className="flex items-center gap-2"
+        <div className="space-y-3">
+          <div className="flex gap-2 justify-center">
+            {!isConnected ? (
+              <Button 
+                onClick={connect} 
+                disabled={isConnecting}
+                className="flex items-center gap-2"
+              >
+                {isConnecting ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Wifi className="h-4 w-4" />
+                )}
+                {isConnecting ? 'Connecting...' : 'Connect WhatsApp'}
+              </Button>
+            ) : (
+              <Button 
+                variant="outline"
+                onClick={disconnect}
+                className="flex items-center gap-2"
+              >
+                <WifiOff className="h-4 w-4" />
+                Disconnect
+              </Button>
+            )}
+          </div>
+
+          {/* Backend Health Check */}
+          <div className="flex justify-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={checkHealth}
+              disabled={isChecking}
+              className="flex items-center gap-2 text-xs"
             >
-              {isConnecting ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
+              {isChecking ? (
+                <RefreshCw className="h-3 w-3 animate-spin" />
               ) : (
-                <Wifi className="h-4 w-4" />
+                <Activity className="h-3 w-3" />
               )}
-              {isConnecting ? 'Connecting...' : 'Connect WhatsApp'}
+              {isChecking ? 'Checking...' : 'Test Backend'}
             </Button>
-          ) : (
-            <Button 
-              variant="outline"
-              onClick={disconnect}
-              className="flex items-center gap-2"
-            >
-              <WifiOff className="h-4 w-4" />
-              Disconnect
-            </Button>
+          </div>
+
+          {/* Backend Health Status */}
+          {lastCheck && (
+            <div className={`text-center p-2 rounded-md text-xs ${
+              lastCheck.success 
+                ? 'bg-green-50 text-green-700 border border-green-200' 
+                : 'bg-red-50 text-red-700 border border-red-200'
+            }`}>
+              {lastCheck.success ? (
+                <span>✅ Backend reachable ({lastCheck.latency}ms)</span>
+              ) : (
+                <span>❌ Backend: {lastCheck.error}</span>
+              )}
+            </div>
           )}
         </div>
 

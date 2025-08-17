@@ -58,6 +58,49 @@ class WhatsAppApiClient {
     }
   }
 
+  /**
+   * Health check to test backend connectivity
+   */
+  async testConnection(): Promise<{ success: boolean; error?: string; latency?: number }> {
+    const startTime = Date.now();
+    
+    try {
+      const headers: Record<string, string> = {};
+      if (this.apiKey) {
+        headers['x-api-key'] = this.apiKey;
+      }
+
+      const response = await fetch(`${this.normalizeUrl('/health')}`, {
+        method: 'GET',
+        headers,
+        signal: AbortSignal.timeout(5000), // 5 second timeout
+      });
+
+      const latency = Date.now() - startTime;
+
+      if (!response.ok) {
+        return { 
+          success: false, 
+          error: `Backend responded with ${response.status}: ${response.statusText}`,
+          latency 
+        };
+      }
+
+      return { success: true, latency };
+    } catch (error) {
+      const latency = Date.now() - startTime;
+      
+      if (error instanceof Error) {
+        if (error.name === 'TimeoutError') {
+          return { success: false, error: 'Backend connection timeout (5s)', latency };
+        }
+        return { success: false, error: error.message, latency };
+      }
+      
+      return { success: false, error: 'Unknown connection error', latency };
+    }
+  }
+
   private normalizeUrl(path: string): string {
     return `${this.baseUrl}${path.startsWith('/') ? path : '/' + path}`;
   }

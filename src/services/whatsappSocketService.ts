@@ -59,11 +59,24 @@ class WhatsAppSocketService {
   }
 
   async connect(): Promise<void> {
+    console.log('🔗 WhatsApp Connect called:', {
+      isConnecting: !!this.socket && !this.socket.connected && !this.socket.disconnected,
+      isConnected: this.socket?.connected
+    });
+
     // If already connected, resolve immediately (idempotent)
     if (this.socket?.connected) {
       safeLog('WhatsApp socket already connected', {}, this.correlationId);
       return Promise.resolve();
     }
+
+    // If already connecting (socket exists but not connected), wait for that connection
+    if (this.socket && !this.socket.connected && !this.socket.disconnected) {
+      safeLog('WhatsApp socket already connecting - waiting', {}, this.correlationId);
+      return this.waitForConnection();
+    }
+
+    console.log('🚀 Starting WhatsApp connection...');
 
     return new Promise<void>((resolve, reject) => {
       try {
@@ -142,15 +155,30 @@ class WhatsAppSocketService {
           this.emit('session_logged_out');
         });
 
-        // Safe timeout fallback - reject if no connection within 10 seconds
-        setTimeout(() => {
+        // Connection timeout - shorter for faster feedback
+        const timeoutId = setTimeout(() => {
           if (!this.socket?.connected) {
-            const err = new Error('Socket connect timeout - failed to establish connection within 10 seconds');
+            this.socket?.disconnect();
+            const err = new Error('Connection timeout - failed to connect within 15 seconds. Check your API key and backend availability.');
             safeLog('WhatsApp socket connection timeout', { error: err.message }, this.correlationId);
             this.emit('connect_error', err);
+            this.emit('error', err.message);
             reject(err);
           }
-        }, 10000);
+        }, 15000);
+
+        // Clear timeout on successful connection
+        const originalResolve = resolve;
+        resolve = () => {
+          clearTimeout(timeoutId);
+          originalResolve();
+        };
+
+        const originalReject = reject;
+        reject = (error: any) => {
+          clearTimeout(timeoutId);
+          originalReject(error);
+        };
 
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown connection error';
