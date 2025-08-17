@@ -5,12 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWhatsAppSocket } from '@/hooks/useWhatsAppSocket';
 import { useBackendHealth } from '@/hooks/useBackendHealth';
-import { RefreshCw, Smartphone, Wifi, WifiOff, AlertCircle, Activity } from 'lucide-react';
+import { RefreshCw, Smartphone, Wifi, WifiOff, AlertCircle, Activity, RotateCcw } from 'lucide-react';
 import QRCode from 'qrcode';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const WhatsAppConnection: React.FC = () => {
-  const { connectionStatus, connect, disconnect, refreshQR, isConnected, isConnecting } = useWhatsAppSocket();
+  const { connectionStatus, connect, disconnect, refreshQR, resetSession, isConnected, isConnecting } = useWhatsAppSocket();
   const { checkHealth, isChecking, lastCheck } = useBackendHealth();
   const [qrCodeDataUrl, setQrCodeDataUrl] = React.useState<string | null>(null);
   
@@ -137,15 +137,28 @@ export const WhatsAppConnection: React.FC = () => {
                   3. Tap "Link a Device" and scan this code
                 </p>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={refreshQR}
-                className="flex items-center gap-2"
-              >
-                <RefreshCw className="h-4 w-4" />
-                Refresh QR Code
-              </Button>
+              <div className="flex gap-2 justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={refreshQR}
+                  disabled={isConnecting}
+                  className="flex items-center gap-2"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Refresh QR
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={resetSession}
+                  disabled={isConnecting}
+                  className="flex items-center gap-2"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Reset Session
+                </Button>
+              </div>
             </motion.div>
           ) : isConnecting && !connectionStatus.qrCode ? (
             <motion.div

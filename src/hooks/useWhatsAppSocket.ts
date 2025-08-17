@@ -66,23 +66,35 @@ export const useWhatsAppSocket = () => {
       await whatsappSocketService.connect();
       console.log('✅ WhatsApp connection successful');
       
-      // Force update connection status if service indicates connected
-      if (whatsappSocketService.isConnected()) {
-        console.log('🔄 Force updating connection status to connected');
-        setConnectionStatus(prev => ({
-          ...prev,
-          status: 'connected',
-          isConnected: true,
-          isConnecting: false,
-          error: undefined,
-          lastConnected: new Date().toISOString(),
-        }));
-        
-        toast({
-          title: 'WhatsApp Connected',
-          description: 'Ready to send and receive messages',
-        });
-      }
+      // Check if we need a QR code after connection
+      setTimeout(async () => {
+        if (whatsappSocketService.isConnected() && !connectionStatus.qrCode) {
+          console.log('🔍 No QR code received, requesting one...');
+          whatsappSocketService.refreshQR();
+          
+          // Fallback: Try to fetch QR via HTTP if socket doesn't provide one
+          setTimeout(async () => {
+            if (!connectionStatus.qrCode) {
+              console.log('🔄 Attempting fallback QR fetch via HTTP...');
+              try {
+                const { whatsappApiClient } = await import('@/services/whatsappApiClient');
+                const qrResponse = await whatsappApiClient.getQRCode();
+                if (qrResponse?.qr) {
+                  console.log('✅ QR code fetched via HTTP');
+                  setConnectionStatus(prev => ({
+                    ...prev,
+                    qrCode: qrResponse.qr,
+                    status: 'connecting',
+                  }));
+                }
+              } catch (error) {
+                console.error('❌ Failed to fetch QR code via HTTP:', error);
+              }
+            }
+          }, 2000);
+        }
+      }, 1000);
+      
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to connect';
       console.error('❌ WhatsApp connection failed:', errorMessage);
@@ -99,7 +111,7 @@ export const useWhatsAppSocket = () => {
         variant: 'destructive',
       });
     }
-  }, [connectionStatus.isConnecting, connectionStatus.isConnected, toast]);
+  }, [connectionStatus.isConnecting, connectionStatus.isConnected, connectionStatus.qrCode, toast]);
 
   const disconnect = useCallback(() => {
     whatsappSocketService.disconnect();
@@ -116,6 +128,57 @@ export const useWhatsAppSocket = () => {
   const refreshQR = useCallback(() => {
     whatsappSocketService.refreshQR();
   }, []);
+
+  const resetSession = useCallback(async () => {
+    console.log('🔄 Resetting WhatsApp session...');
+    setConnectionStatus(prev => ({ ...prev, isConnecting: true, error: undefined }));
+    
+    try {
+      const { whatsappApiClient } = await import('@/services/whatsappApiClient');
+      const result = await whatsappApiClient.resetSession();
+      
+      if (result.success) {
+        // Reset socket connection
+        whatsappSocketService.resetSession();
+        
+        // Clear current state
+        setConnectionStatus(prev => ({
+          ...prev,
+          status: 'unknown',
+          isConnected: false,
+          isConnecting: false,
+          qrCode: undefined,
+          error: undefined,
+        }));
+        
+        // Reconnect to get fresh QR
+        setTimeout(() => {
+          connect();
+        }, 1000);
+        
+        toast({
+          title: 'Session Reset',
+          description: result.message,
+        });
+      } else {
+        throw new Error(result.message || 'Failed to reset session');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to reset session';
+      console.error('❌ Session reset failed:', errorMessage);
+      setConnectionStatus(prev => ({
+        ...prev,
+        isConnecting: false,
+        error: errorMessage,
+      }));
+      
+      toast({
+        title: 'Reset Failed',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    }
+  }, [connect, toast]);
 
   // Initialize socket event listeners (run once)
   useEffect(() => {
@@ -260,6 +323,7 @@ export const useWhatsAppSocket = () => {
     connect,
     disconnect,
     refreshQR,
+    resetSession,
     addMessage,
     updateMessageStatus,
     isConnected: connectionStatus.isConnected,

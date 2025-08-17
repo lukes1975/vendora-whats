@@ -256,6 +256,15 @@ class WhatsAppSocketService {
     }
   }
 
+  resetSession(): void {
+    if (this.socket?.connected) {
+      safeLog('WhatsApp session reset requested', {}, this.correlationId);
+      this.socket.emit('reset-session');
+    } else {
+      safeLog('WhatsApp session reset failed - not connected', {}, this.correlationId);
+    }
+  }
+
   // Event management methods
   on<K extends keyof WhatsAppSocketEvents>(
     event: K,

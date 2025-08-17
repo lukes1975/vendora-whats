@@ -294,6 +294,41 @@ class WhatsAppApiClient {
       clearTimeout(timeoutId);
     }
   }
+
+  async resetSession(): Promise<{ success: boolean; message?: string }> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    try {
+      const headers: Record<string, string> = {};
+      
+      if (this.apiKey) {
+        headers['x-api-key'] = this.apiKey;
+      }
+
+      const response = await fetch(this.normalizeUrl(`/session/${this.sessionId}/reset`), {
+        method: 'POST',
+        signal: controller.signal,
+        headers,
+        mode: 'cors',
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        return { success: false, message: this.sanitizeErrorMessage(errorText) };
+      }
+
+      const result = await response.json();
+      return { success: true, message: result.message || 'Session reset successfully' };
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to reset session';
+      safeLog('WhatsApp session reset failed', { error: errorMessage });
+      return { success: false, message: this.sanitizeErrorMessage(errorMessage) };
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
 }
 
 export const whatsappApiClient = new WhatsAppApiClient();
