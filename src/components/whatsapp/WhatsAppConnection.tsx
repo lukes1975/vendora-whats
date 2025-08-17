@@ -29,8 +29,8 @@ export const WhatsAppConnection: React.FC = () => {
         width: 256,
         margin: 2,
         color: {
-          dark: 'hsl(var(--foreground))',
-          light: 'hsl(var(--background))',
+          dark: '#000000',
+          light: '#ffffff',
         },
       })
         .then(setQrCodeDataUrl)
