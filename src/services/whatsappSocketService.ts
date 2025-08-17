@@ -48,6 +48,14 @@ class WhatsAppSocketService {
     this.apiKey = import.meta.env.VITE_WHATSAPP_API_KEY || null;
     this.sessionId = import.meta.env.VITE_WHATSAPP_SESSION_ID || 'dev_tenant';
     this.correlationId = generateUUID();
+    
+    // Debug logging for socket service config
+    console.log('🔌 WhatsApp Socket Service Config:', {
+      baseUrl: this.baseUrl,
+      hasApiKey: !!this.apiKey,
+      sessionId: this.sessionId,
+      apiKeyPreview: this.apiKey ? `${this.apiKey.substring(0, 8)}...` : 'NOT_SET'
+    });
   }
 
   async connect(): Promise<void> {

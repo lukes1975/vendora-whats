@@ -40,13 +40,21 @@ class WhatsAppApiClient {
     this.apiKey = import.meta.env.VITE_WHATSAPP_API_KEY || null;
     this.sessionId = import.meta.env.VITE_WHATSAPP_SESSION_ID || 'dev_tenant';
     
+    // Debug logging for environment variables
+    console.log('🔧 WhatsApp API Client Config:', {
+      baseUrl: this.baseUrl,
+      hasApiKey: !!this.apiKey,
+      sessionId: this.sessionId,
+      apiKeyPreview: this.apiKey ? `${this.apiKey.substring(0, 8)}...` : 'NOT_SET'
+    });
+    
     // In development, warn about missing API key but don't fail
     if (!this.apiKey) {
-      if (import.meta.env.NODE_ENV === 'development') {
-        console.warn('VITE_WHATSAPP_API_KEY not set - WhatsApp features will be limited');
-      } else {
-        console.error('VITE_WHATSAPP_API_KEY is required for WhatsApp integration in production');
-      }
+      console.error('❌ VITE_WHATSAPP_API_KEY is not set in environment variables');
+      console.log('💡 To fix this issue:');
+      console.log('1. Create a .env.local file in your project root');
+      console.log('2. Add: VITE_WHATSAPP_API_KEY=your_baileys_backend_api_key');
+      console.log('3. Make sure it matches the key in your Baileys backend .env file');
     }
   }
 
