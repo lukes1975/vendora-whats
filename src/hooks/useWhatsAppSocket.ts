@@ -65,6 +65,24 @@ export const useWhatsAppSocket = () => {
     try {
       await whatsappSocketService.connect();
       console.log('✅ WhatsApp connection successful');
+      
+      // Force update connection status if service indicates connected
+      if (whatsappSocketService.isConnected()) {
+        console.log('🔄 Force updating connection status to connected');
+        setConnectionStatus(prev => ({
+          ...prev,
+          status: 'connected',
+          isConnected: true,
+          isConnecting: false,
+          error: undefined,
+          lastConnected: new Date().toISOString(),
+        }));
+        
+        toast({
+          title: 'WhatsApp Connected',
+          description: 'Ready to send and receive messages',
+        });
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to connect';
       console.error('❌ WhatsApp connection failed:', errorMessage);

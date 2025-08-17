@@ -102,8 +102,19 @@ class WhatsAppSocketService {
         // CRITICAL: Only resolve when socket actually connects
         this.socket.on('connect', () => {
           safeLog('WhatsApp socket connected - resolving promise', {}, this.correlationId);
+          
+          // Emit events to notify listeners
           this.emit('connect');
           this.emit('connected');
+          this.emit('connection_state', {
+            status: 'connected',
+            isConnected: true,
+            isConnecting: false,
+            qrCode: undefined,
+            error: undefined,
+            lastConnected: new Date().toISOString(),
+          });
+          
           resolve(); // Only resolve here when socket is actually connected
         });
 
