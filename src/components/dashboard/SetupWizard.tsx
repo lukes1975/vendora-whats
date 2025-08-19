@@ -476,6 +476,51 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           </CardHeader>
         </Card>
 
+        {/* Setup Form Modals */}
+        <BankAccountForm 
+          open={showBankAccountForm} 
+          onOpenChange={setShowBankAccountForm}
+          onComplete={() => {
+            setShowBankAccountForm(false);
+            markTaskCompleted('connect_payout_account', 'store_settings');
+            toast.success('Bank account connected successfully!');
+            onTaskComplete?.();
+          }}
+        />
+        
+        <DeliveryOptionsForm 
+          open={showDeliveryOptionsForm} 
+          onOpenChange={setShowDeliveryOptionsForm}
+          onComplete={() => {
+            setShowDeliveryOptionsForm(false);
+            markTaskCompleted('set_delivery_options', 'store_settings');
+            toast.success('Delivery options updated successfully!');
+            onTaskComplete?.();
+          }}
+        />
+        
+        <NotificationPreferencesForm 
+          open={showNotificationPreferencesForm} 
+          onOpenChange={setShowNotificationPreferencesForm}
+          onComplete={() => {
+            setShowNotificationPreferencesForm(false);
+            markTaskCompleted('set_notification_preference', 'order_messaging');
+            toast.success('Notification preferences saved!');
+            onTaskComplete?.();
+          }}
+        />
+        
+        <SellingMethodForm 
+          open={showSellingMethodForm} 
+          onOpenChange={setShowSellingMethodForm}
+          onComplete={() => {
+            setShowSellingMethodForm(false);
+            markTaskCompleted('choose_selling_method', 'preferences');
+            toast.success('Selling method selected!');
+            onTaskComplete?.();
+          }}
+        />
+
         {/* Setup Sections */}
         <div className="space-y-4">
           {sections.map((section) => {
@@ -598,43 +643,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
             <Bot className="h-6 w-6" />
           </Button>
         )}
-
-        {/* Setup Forms */}
-        <BankAccountForm
-          open={showBankAccountForm}
-          onOpenChange={setShowBankAccountForm}
-          onComplete={() => {
-            validateAndUpdateTask?.('connect_payout_account', 'store_settings');
-            onTaskComplete?.();
-          }}
-        />
-
-        <DeliveryOptionsForm
-          open={showDeliveryOptionsForm}
-          onOpenChange={setShowDeliveryOptionsForm}
-          onComplete={() => {
-            validateAndUpdateTask?.('set_delivery_options', 'store_settings');
-            onTaskComplete?.();
-          }}
-        />
-
-        <NotificationPreferencesForm
-          open={showNotificationPreferencesForm}
-          onOpenChange={setShowNotificationPreferencesForm}
-          onComplete={() => {
-            validateAndUpdateTask?.('set_notification_preference', 'order_messaging');
-            onTaskComplete?.();
-          }}
-        />
-
-        <SellingMethodForm
-          open={showSellingMethodForm}
-          onOpenChange={setShowSellingMethodForm}
-          onComplete={() => {
-            validateAndUpdateTask?.('choose_selling_method', 'preferences');
-            onTaskComplete?.();
-          }}
-        />
       </div>
     </TooltipProvider>
   );

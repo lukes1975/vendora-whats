@@ -14,6 +14,9 @@ import UpgradePlanButton from '@/components/dashboard/UpgradePlanButton';
 import { useSecureForm, commonValidationRules } from '@/hooks/useSecureForm';
 import { sanitizeTextInput, logSecurityEvent } from '@/utils/security';
 import { WhatsAppSettings } from '@/components/settings/WhatsAppSettings';
+import { CreditManagement } from '@/components/credit/CreditManagement';
+import { SubscriptionManagement } from '@/components/subscription/SubscriptionManagement';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Store, 
   Phone, 
@@ -24,7 +27,10 @@ import {
   Image as ImageIcon,
   CheckCircle,
   X,
-  MapPin
+  MapPin,
+  CreditCard,
+  Zap,
+  Settings as SettingsIcon
 } from 'lucide-react';
 
 interface StoreSettings {
@@ -346,12 +352,12 @@ const Settings = () => {
           <div>
             <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-xl">
-                <Palette className="h-7 w-7 text-primary" />
+                <SettingsIcon className="h-7 w-7 text-primary" />
               </div>
-              Customize Your Brand
+              Store Settings
             </h1>
             <p className="text-muted-foreground mt-2 text-lg">
-              Professional branding that builds trust with your customers
+              Manage your store, billing, and integrations
             </p>
           </div>
           <div className="sm:hidden">
@@ -359,252 +365,297 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Settings Form */}
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* Store Information */}
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-3 text-xl">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Store className="h-5 w-5 text-primary" />
-                </div>
-                Business Information
-              </CardTitle>
-              <p className="text-muted-foreground">Essential details for your storefront</p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="storeName">Business Name</Label>
-                <div className="relative">
-                  <Store className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="storeName"
-                    value={values.store_name}
-                    onChange={(e) => setValue('store_name', e.target.value)}
-                    placeholder="Enter your business name"
-                    className="pl-10"
-                    required
-                  />
-                  {errors.store_name && (
-                    <p className="text-sm text-red-600 mt-1">{errors.store_name}</p>
-                  )}
-                </div>
-              </div>
+        {/* Settings Tabs */}
+        <Tabs defaultValue="branding" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="branding" className="flex items-center gap-2">
+              <Palette className="h-4 w-4" />
+              Branding
+            </TabsTrigger>
+            <TabsTrigger value="whatsapp" className="flex items-center gap-2">
+              <Phone className="h-4 w-4" />
+              WhatsApp
+            </TabsTrigger>
+            <TabsTrigger value="billing" className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              Billing
+            </TabsTrigger>
+            <TabsTrigger value="credits" className="flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              Credits
+            </TabsTrigger>
+          </TabsList>
 
-                <div className="space-y-2">
-                <Label htmlFor="whatsappNumber">WhatsApp Number (Optional)</Label>
-                <div className="relative flex">
-                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md border-input">
-                    <Phone className="h-4 w-4 text-muted-foreground mr-2" />
-                    <span className="text-sm font-medium text-foreground">+234</span>
+          <TabsContent value="branding" className="space-y-6">
+            {/* Settings Form */}
+            <div className="grid gap-8 lg:grid-cols-2">
+              {/* Store Information */}
+              <Card className="border-0 shadow-lg">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-xl">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Store className="h-5 w-5 text-primary" />
+                    </div>
+                    Business Information
+                  </CardTitle>
+                  <p className="text-muted-foreground">Essential details for your storefront</p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="storeName">Business Name</Label>
+                    <div className="relative">
+                      <Store className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="storeName"
+                        value={values.store_name}
+                        onChange={(e) => setValue('store_name', e.target.value)}
+                        placeholder="Enter your business name"
+                        className="pl-10"
+                        required
+                      />
+                      {errors.store_name && (
+                        <p className="text-sm text-red-600 mt-1">{errors.store_name}</p>
+                      )}
+                    </div>
                   </div>
-                  <Input
-                    id="whatsappNumber"
-                    value={phoneNumber}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 10);
-                      setPhoneNumber(value);
-                      setValue('whatsapp_number', value ? `+234${value}` : '');
-                    }}
-                    placeholder="8012345678"
-                    className="rounded-l-none"
-                    maxLength={10}
-                  />
-                </div>
-                {phoneNumber && phoneNumber.length > 0 && phoneNumber.length < 10 && (
-                  <p className="text-sm text-red-600 mt-1">
-                    Please enter a valid 10-digit number
-                  </p>
-                )}
-                {errors.whatsapp_number && (
-                  <p className="text-sm text-red-600 mt-1">
-                    {errors.whatsapp_number}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Store Logo */}
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-3 text-xl">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <ImageIcon className="h-5 w-5 text-primary" />
-                </div>
-                Brand Logo
-              </CardTitle>
-              <p className="text-muted-foreground">Upload your professional logo</p>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {logoPreview ? (
-                  <div className="relative">
-                    <div className="aspect-square w-32 mx-auto rounded-lg overflow-hidden border-2 border-gray-200">
-                      <img
-                        src={logoPreview}
-                        alt="Brand logo preview"
-                        className="w-full h-full object-cover"
+                  <div className="space-y-2">
+                    <Label htmlFor="whatsappNumber">WhatsApp Number (Optional)</Label>
+                    <div className="relative flex">
+                      <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md border-input">
+                        <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+                        <span className="text-sm font-medium text-foreground">+234</span>
+                      </div>
+                      <Input
+                        id="whatsappNumber"
+                        value={phoneNumber}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                          setPhoneNumber(value);
+                          setValue('whatsapp_number', value ? `+234${value}` : '');
+                        }}
+                        placeholder="8012345678"
+                        className="rounded-l-none"
+                        maxLength={10}
                       />
                     </div>
+                    {phoneNumber && phoneNumber.length > 0 && phoneNumber.length < 10 && (
+                      <p className="text-sm text-red-600 mt-1">
+                        Please enter a valid 10-digit number
+                      </p>
+                    )}
+                    {errors.whatsapp_number && (
+                      <p className="text-sm text-red-600 mt-1">
+                        {errors.whatsapp_number}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Store Logo */}
+              <Card className="border-0 shadow-lg">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-xl">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <ImageIcon className="h-5 w-5 text-primary" />
+                    </div>
+                    Brand Logo
+                  </CardTitle>
+                  <p className="text-muted-foreground">Upload your professional logo</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {logoPreview ? (
+                      <div className="relative">
+                        <div className="aspect-square w-32 mx-auto rounded-lg overflow-hidden border-2 border-gray-200">
+                          <img
+                            src={logoPreview}
+                            alt="Brand logo preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="absolute top-2 right-2"
+                          onClick={() => {
+                            setLogoPreview(null);
+                            setLogoFile(null);
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                        <p className="text-sm text-gray-600 mb-4">
+                          Upload your brand logo (JPG, PNG - Max 2MB)
+                        </p>
+                      </div>
+                    )}
+                    
+                    <div className="flex gap-2">
+                      <Input
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        onChange={handleLogoUpload}
+                        className="hidden"
+                        id="logoUpload"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById('logoUpload')?.click()}
+                        className="flex-1"
+                      >
+                        <Upload className="mr-2 h-4 w-4" />
+                        {logoPreview ? 'Change Brand Logo' : 'Upload Brand Logo'}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Pickup Location & Delivery */}
+              <Card className="lg:col-span-2 border-0 shadow-lg">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-xl">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <MapPin className="h-5 w-5 text-primary" />
+                    </div>
+                    Pickup Location & Delivery
+                  </CardTitle>
+                  <p className="text-muted-foreground">Set your pickup location for accurate delivery quotes</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="baseLat">Latitude</Label>
+                      <Input
+                        id="baseLat"
+                        value={baseLat}
+                        onChange={(e) => setBaseLat(e.target.value)}
+                        placeholder="e.g., 6.5244"
+                        inputMode="decimal"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="baseLng">Longitude</Label>
+                      <Input
+                        id="baseLng"
+                        value={baseLng}
+                        onChange={(e) => setBaseLng(e.target.value)}
+                        placeholder="e.g., 3.3792"
+                        inputMode="decimal"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="baseAddress">Pickup address (optional)</Label>
+                    <Input
+                      id="baseAddress"
+                      value={baseAddress}
+                      onChange={(e) => setBaseAddress(e.target.value)}
+                      placeholder="Street, city, landmark"
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Switch checked={googleMapsEnabled} onCheckedChange={setGoogleMapsEnabled} id="gmapsEnabled" />
+                    <Label htmlFor="gmapsEnabled" className="text-sm">Enable Google Maps distance (recommended)</Label>
+                  </div>
+                  <div className="flex gap-2">
                     <Button
                       type="button"
                       variant="outline"
-                      size="sm"
-                      className="absolute top-2 right-2"
                       onClick={() => {
-                        setLogoPreview(null);
-                        setLogoFile(null);
+                        if (!navigator.geolocation) return;
+                        navigator.geolocation.getCurrentPosition(
+                          (pos) => {
+                            setBaseLat(pos.coords.latitude.toFixed(6));
+                            setBaseLng(pos.coords.longitude.toFixed(6));
+                            if (!baseAddress) {
+                              setBaseAddress(`${pos.coords.latitude.toFixed(6)},${pos.coords.longitude.toFixed(6)}`);
+                            }
+                          },
+                          () => {},
+                          { enableHighAccuracy: true, timeout: 8000 }
+                        );
                       }}
                     >
-                      <X className="h-4 w-4" />
+                      Use my location
+                    </Button>
+                    <Button onClick={handleSaveLocation} disabled={savingLocation}>
+                      {savingLocation ? 'Saving...' : 'Save Location'}
                     </Button>
                   </div>
-                ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <p className="text-sm text-gray-600 mb-4">
-                      Upload your brand logo (JPG, PNG - Max 2MB)
-                    </p>
+                </CardContent>
+              </Card>
+
+              {/* Theme Colors */}
+              <Card className="lg:col-span-2 border-0 shadow-lg">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-xl">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Palette className="h-5 w-5 text-primary" />
+                    </div>
+                    Brand Colors
+                  </CardTitle>
+                  <p className="text-muted-foreground">Choose colors that represent your brand</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                    {themeColors.map((theme) => (
+                      <button
+                        key={theme.name}
+                        onClick={() => setValue('primary_color', theme.color)}
+                        className={`relative p-4 rounded-lg border-2 transition-all ${
+                          values.primary_color === theme.color
+                            ? 'border-blue-500 ring-2 ring-blue-200'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div
+                          className="w-full h-8 rounded-md mb-2"
+                          style={{ backgroundColor: theme.color }}
+                        />
+                        <p className="text-xs text-gray-600">{theme.name}</p>
+                        {values.primary_color === theme.color && (
+                          <CheckCircle className="absolute top-1 right-1 h-4 w-4 text-blue-600" />
+                        )}
+                      </button>
+                    ))}
                   </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Save Button */}
+            <div className="mt-8">
+              <Button
+                onClick={handleSaveSettings}
+                disabled={isSubmitting}
+                className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white"
+                size="lg"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving Settings...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Brand Settings
+                  </>
                 )}
-                
-                <div className="flex gap-2">
-                  <Input
-                    type="file"
-                    accept="image/jpeg,image/jpg,image/png,image/webp"
-                    onChange={handleLogoUpload}
-                    className="hidden"
-                    id="logoUpload"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => document.getElementById('logoUpload')?.click()}
-                    className="flex-1"
-                  >
-                    <Upload className="mr-2 h-4 w-4" />
-                    {logoPreview ? 'Change Brand Logo' : 'Upload Brand Logo'}
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </Button>
+            </div>
+          </TabsContent>
 
-          {/* Pickup Location & Delivery */}
-          <Card className="lg:col-span-2 border-0 shadow-lg">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-3 text-xl">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <MapPin className="h-5 w-5 text-primary" />
-                </div>
-                Pickup Location & Delivery
-              </CardTitle>
-              <p className="text-muted-foreground">Set your pickup location for accurate delivery quotes</p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="baseLat">Latitude</Label>
-                  <Input
-                    id="baseLat"
-                    value={baseLat}
-                    onChange={(e) => setBaseLat(e.target.value)}
-                    placeholder="e.g., 6.5244"
-                    inputMode="decimal"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="baseLng">Longitude</Label>
-                  <Input
-                    id="baseLng"
-                    value={baseLng}
-                    onChange={(e) => setBaseLng(e.target.value)}
-                    placeholder="e.g., 3.3792"
-                    inputMode="decimal"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="baseAddress">Pickup address (optional)</Label>
-                <Input
-                  id="baseAddress"
-                  value={baseAddress}
-                  onChange={(e) => setBaseAddress(e.target.value)}
-                  placeholder="Street, city, landmark"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <Switch checked={googleMapsEnabled} onCheckedChange={setGoogleMapsEnabled} id="gmapsEnabled" />
-                <Label htmlFor="gmapsEnabled" className="text-sm">Enable Google Maps distance (recommended)</Label>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    if (!navigator.geolocation) return;
-                    navigator.geolocation.getCurrentPosition(
-                      (pos) => {
-                        setBaseLat(pos.coords.latitude.toFixed(6));
-                        setBaseLng(pos.coords.longitude.toFixed(6));
-                        if (!baseAddress) {
-                          setBaseAddress(`${pos.coords.latitude.toFixed(6)},${pos.coords.longitude.toFixed(6)}`);
-                        }
-                      },
-                      () => {},
-                      { enableHighAccuracy: true, timeout: 8000 }
-                    );
-                  }}
-                >
-                  Use my location
-                </Button>
-                <Button onClick={handleSaveLocation} disabled={savingLocation}>
-                  {savingLocation ? 'Saving...' : 'Save Location'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Theme Colors */}
-          <Card className="lg:col-span-2 border-0 shadow-lg">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-3 text-xl">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Palette className="h-5 w-5 text-primary" />
-                </div>
-                Brand Colors
-              </CardTitle>
-              <p className="text-muted-foreground">Choose colors that represent your brand</p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                {themeColors.map((theme) => (
-                  <button
-                    key={theme.name}
-                    onClick={() => setValue('primary_color', theme.color)}
-                    className={`relative p-4 rounded-lg border-2 transition-all ${
-                      values.primary_color === theme.color
-                        ? 'border-blue-500 ring-2 ring-blue-200'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div
-                      className="w-full h-8 rounded-md mb-2"
-                      style={{ backgroundColor: theme.color }}
-                    />
-                    <p className="text-xs text-gray-600">{theme.name}</p>
-                    {values.primary_color === theme.color && (
-                      <CheckCircle className="absolute top-1 right-1 h-4 w-4 text-blue-600" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* WhatsApp Settings */}
-          <div className="lg:col-span-2">
+          <TabsContent value="whatsapp" className="space-y-6">
             <WhatsAppSettings 
               store={storeData ? {
                 id: storeData.id,
@@ -613,32 +664,17 @@ const Settings = () => {
               } : null}
               onStoreUpdate={loadSettings}
             />
-          </div>
-        </div>
+          </TabsContent>
 
-        {/* Save Button */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t p-4 lg:relative lg:bg-transparent lg:border-t-0 lg:p-0 lg:mt-8">
-          <div className="max-w-4xl mx-auto">
-            <Button
-              onClick={handleSaveSettings}
-              disabled={isSubmitting}
-              className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white"
-              size="lg"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving Settings...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Brand Settings
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
+          <TabsContent value="billing" className="space-y-6">
+            <SubscriptionManagement />
+          </TabsContent>
+
+          <TabsContent value="credits" className="space-y-6">
+            <CreditManagement />
+          </TabsContent>
+
+        </Tabs>
 
         {/* Add bottom padding on mobile to account for sticky button */}
         <div className="h-20 lg:h-0" />
