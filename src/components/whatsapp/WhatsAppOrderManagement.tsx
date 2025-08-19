@@ -21,8 +21,8 @@ import {
 } from 'lucide-react';
 
 interface WhatsAppOrderManagementProps {
-  store: any;
-  onStoreUpdate: () => void;
+  store?: any;
+  onStoreUpdate?: () => void;
 }
 
 export const WhatsAppOrderManagement: React.FC<WhatsAppOrderManagementProps> = ({ 

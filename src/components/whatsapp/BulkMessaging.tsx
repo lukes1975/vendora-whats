@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 
 interface BulkMessagingProps {
-  store: any;
+  store?: any;
 }
 
 export const BulkMessaging: React.FC<BulkMessagingProps> = ({ store }) => {

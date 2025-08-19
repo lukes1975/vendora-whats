@@ -56,6 +56,63 @@ export type Database = {
         }
         Relationships: []
       }
+      bulk_messaging_campaigns: {
+        Row: {
+          campaign_name: string
+          completed_at: string | null
+          created_at: string
+          credits_used: number
+          id: string
+          message_template: string
+          messages_delivered: number
+          messages_failed: number
+          messages_sent: number
+          scheduled_at: string | null
+          started_at: string | null
+          status: string
+          target_audience: Json
+          total_recipients: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_name: string
+          completed_at?: string | null
+          created_at?: string
+          credits_used?: number
+          id?: string
+          message_template: string
+          messages_delivered?: number
+          messages_failed?: number
+          messages_sent?: number
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string
+          target_audience?: Json
+          total_recipients?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign_name?: string
+          completed_at?: string | null
+          created_at?: string
+          credits_used?: number
+          id?: string
+          message_template?: string
+          messages_delivered?: number
+          messages_failed?: number
+          messages_sent?: number
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string
+          target_audience?: Json
+          total_recipients?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -99,6 +156,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          meta: Json | null
+          reference_id: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          meta?: Json | null
+          reference_id?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          meta?: Json | null
+          reference_id?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       customer_sessions: {
         Row: {
@@ -1089,6 +1179,30 @@ export type Database = {
           is_active?: boolean | null
           paystack_plan_code?: string
           plan_name?: string
+        }
+        Relationships: []
+      }
+      user_credit_balances: {
+        Row: {
+          current_balance: number
+          last_updated_at: string
+          total_purchased: number
+          total_used: number
+          user_id: string
+        }
+        Insert: {
+          current_balance?: number
+          last_updated_at?: string
+          total_purchased?: number
+          total_used?: number
+          user_id: string
+        }
+        Update: {
+          current_balance?: number
+          last_updated_at?: string
+          total_purchased?: number
+          total_used?: number
+          user_id?: string
         }
         Relationships: []
       }
