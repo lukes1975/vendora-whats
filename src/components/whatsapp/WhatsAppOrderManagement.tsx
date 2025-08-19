@@ -95,14 +95,12 @@ export const WhatsAppOrderManagement: React.FC<WhatsAppOrderManagementProps> = (
       // Since ai_instructions field doesn't exist in stores table yet
       localStorage.setItem(`ai_instructions_${store.id}`, aiInstructions);
 
-      if (error) throw error;
-
       toast({
         title: 'AI Instructions Saved',
         description: 'Your AI assistant instructions have been updated',
       });
-    } catch (error) {
-      console.error('Error saving AI instructions:', error);
+    } catch (err) {
+      console.error('Error saving AI instructions:', err);
       toast({
         title: 'Error',
         description: 'Failed to save AI instructions',

@@ -79,7 +79,7 @@ export default function BankAccountForm({ open, onOpenChange, onComplete }: Bank
     if (value.length === 10 && formData.bank_code) {
       try {
         const result = await resolveAccount(value, formData.bank_code);
-        if (result.success && result.account_name) {
+        if (result && result.account_name) {
           setResolvedAccount(result);
           setFormData(prev => ({ ...prev, account_holder_name: result.account_name }));
         }
