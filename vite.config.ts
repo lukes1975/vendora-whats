@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-button', '@radix-ui/react-card'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-accordion', '@radix-ui/react-card'],
         },
       },
     },
