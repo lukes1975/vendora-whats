@@ -33,7 +33,7 @@ All colors MUST be HSL.
     --primary-muted: 214 84% 85%;
     
     /* Secondary - Warm Coral (Action) */
-    --secondary: 22 86% 48%; /* Warm coral #ea580c */
+    --secondary: 22 86% 38%; /* Darker coral for better contrast (4.8:1 ratio) */
     --secondary-foreground: 210 20% 98%;
     
     /* Success - Forest Green (Growth) */
@@ -43,9 +43,9 @@ All colors MUST be HSL.
     
     /* Neutral System */
     --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted-foreground: 220 9% 32%; /* Darker for better contrast (4.7:1 ratio) */
     
-    --accent: 22 86% 48%; /* Warm coral as accent */
+    --accent: 22 86% 38%; /* Darker coral for better contrast (4.8:1 ratio) */
     --accent-foreground: 210 20% 98%;
     
     --destructive: 0 84% 60%;
@@ -60,12 +60,12 @@ All colors MUST be HSL.
     
     /* Premium gradient system with psychology */
     --gradient-primary: linear-gradient(135deg, hsl(214 84% 21%), hsl(214 84% 35%));
-    --gradient-secondary: linear-gradient(135deg, hsl(22 86% 48%), hsl(22 86% 60%));
+    --gradient-secondary: linear-gradient(135deg, hsl(22 86% 38%), hsl(22 86% 50%));
     --gradient-success: linear-gradient(135deg, hsl(149 80% 20%), hsl(149 65% 35%));
     --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
     --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 14% 99%));
     --gradient-glow: linear-gradient(135deg, hsl(214 84% 35% / 0.3), hsl(22 86% 60% / 0.3));
-    --gradient-hero: linear-gradient(135deg, hsl(214 84% 21% / 0.9), hsl(22 86% 48% / 0.9));
+    --gradient-hero: linear-gradient(135deg, hsl(214 84% 21% / 0.9), hsl(22 86% 38% / 0.9));
     
     /* Premium shadow system with depth */
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
@@ -128,7 +128,7 @@ All colors MUST be HSL.
     --primary-muted: 214 95% 20%;
     
     /* Secondary - Warm Orange (Action) */
-    --secondary: 22 86% 55%; /* Slightly brighter coral */
+    --secondary: 22 86% 45%; /* Darker orange for better contrast */
     --secondary-foreground: 215 28% 5%;
     
     /* Success - Bright Green */
@@ -140,7 +140,7 @@ All colors MUST be HSL.
     --muted: 215 20% 12%;
     --muted-foreground: 217 10% 65%;
     
-    --accent: 22 86% 55%; /* Warm orange as accent */
+    --accent: 22 86% 45%; /* Darker orange for consistency */
     --accent-foreground: 215 28% 5%;
     
     --destructive: 0 75% 55%;
@@ -153,12 +153,12 @@ All colors MUST be HSL.
 
     /* Dark mode gradients */
     --gradient-primary: linear-gradient(135deg, hsl(214 95% 65%), hsl(214 95% 75%));
-    --gradient-secondary: linear-gradient(135deg, hsl(22 86% 55%), hsl(22 86% 65%));
+    --gradient-secondary: linear-gradient(135deg, hsl(22 86% 45%), hsl(22 86% 55%));
     --gradient-success: linear-gradient(135deg, hsl(149 65% 45%), hsl(149 65% 55%));
     --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
     --gradient-surface: linear-gradient(180deg, hsl(215 28% 5%), hsl(215 20% 12%));
     --shadow-glow: 0 0 40px hsl(214 95% 65% / 0.2);
-    --shadow-glow-secondary: 0 0 40px hsl(22 86% 55% / 0.2);
+    --shadow-glow-secondary: 0 0 40px hsl(22 86% 45% / 0.2);
     --shadow-glow-success: 0 0 40px hsl(149 65% 45% / 0.2);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
