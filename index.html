@@ -16,6 +16,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    
+    <!-- Preload critical resources -->
+    <link rel="modulepreload" href="/src/main.tsx" />
+    
+    <!-- Critical CSS will be inlined by Vite during build -->
+    <style>
+      /* Critical above-the-fold styles */
+      html { font-family: system-ui, -apple-system, sans-serif; }
+      body { margin: 0; background: #fafafa; }
+      #root { min-height: 100vh; }
+      .loading-spinner { 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        min-height: 100vh;
+        font-size: 14px;
+        color: #666;
+      }
+    </style>
 
     <meta property="og:title" content="Vendora - Transform Your Business Empire" />
     <meta property="og:description" content="Build your commanding business empire with Vendora's powerful storefront platform" />
