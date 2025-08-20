@@ -21,7 +21,12 @@ export const MessageThread: React.FC<MessageThreadProps> = ({ messages, classNam
     if (scrollAreaRef.current) {
       const scrollArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollArea) {
-        scrollArea.scrollTop = scrollArea.scrollHeight;
+        // Use requestAnimationFrame to prevent forced reflow
+        const animationFrame = requestAnimationFrame(() => {
+          scrollArea.scrollTop = scrollArea.scrollHeight;
+        });
+        
+        return () => cancelAnimationFrame(animationFrame);
       }
     }
   }, [messages]);
