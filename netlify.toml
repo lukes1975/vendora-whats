@@ -26,16 +26,6 @@
     cache-control = "max-age=31536000"
 
 [[headers]]
-  for = "/assets/*"
-  [headers.values]
-    cache-control = "max-age=31536000"
-
-[[headers]]
-  for = "/lovable-uploads/*"
-  [headers.values]
-    cache-control = "max-age=31536000"
-
-[[headers]]
   for = "*.js"
   [headers.values]
     cache-control = "max-age=31536000"

@@ -1,25 +1,21 @@
 import { Routes, Route } from "react-router-dom";
-import { lazy, Suspense } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { LoadingPage } from "@/components/ui/loading-spinner";
 import Index from "@/pages/Index";
-
-// Lazy load non-critical pages to reduce initial bundle size
-const Login = lazy(() => import("@/pages/Login"));
-const Signup = lazy(() => import("@/pages/Signup"));
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
-const Products = lazy(() => import("@/pages/Products"));
-const Settings = lazy(() => import("@/pages/Settings"));
-const Analytics = lazy(() => import("@/pages/Analytics"));
-const DashboardStorefront = lazy(() => import("@/pages/DashboardStorefront"));
-const WhatsApp = lazy(() => import("@/pages/WhatsApp"));
-const BikeDelivery = lazy(() => import("@/pages/BikeDelivery"));
-const Pricing = lazy(() => import("@/pages/Pricing"));
-const NotFound = lazy(() => import("@/pages/NotFound"));
-const Storefront = lazy(() => import("@/pages/Storefront"));
-const PaymentSuccess = lazy(() => import("@/pages/PaymentSuccess"));
-const Checkout = lazy(() => import("@/pages/Checkout"));
+import Login from "@/pages/Login";
+import Signup from "@/pages/Signup";
+import Dashboard from "@/pages/Dashboard";
+import Products from "@/pages/Products";
+import Settings from "@/pages/Settings";
+import Analytics from "@/pages/Analytics";
+import DashboardStorefront from "@/pages/DashboardStorefront";
+import WhatsApp from "@/pages/WhatsApp";
+import BikeDelivery from "@/pages/BikeDelivery";
+import Pricing from "@/pages/Pricing";
+import NotFound from "@/pages/NotFound";
+import Storefront from "@/pages/Storefront";
+import PaymentSuccess from "@/pages/PaymentSuccess";
+import Checkout from "@/pages/Checkout";
 
 /**
  * Main application routes for www.vendora.business
@@ -29,44 +25,18 @@ const MainAppRoutes = () => {
     <ErrorBoundary>
       <Routes>
         <Route path="/" element={<Index />} />
-        <Route path="/login" element={
-          <Suspense fallback={<LoadingPage />}>
-            <Login />
-          </Suspense>
-        } />
-        <Route path="/payment-success" element={
-          <Suspense fallback={<LoadingPage />}>
-            <PaymentSuccess />
-          </Suspense>
-        } />
-        <Route path="/signup" element={
-          <Suspense fallback={<LoadingPage />}>
-            <Signup />
-          </Suspense>
-        } />
-        <Route path="/pricing" element={
-          <Suspense fallback={<LoadingPage />}>
-            <Pricing />
-          </Suspense>
-        } />
-        <Route path="/checkout" element={
-          <Suspense fallback={<LoadingPage />}>
-            <Checkout />
-          </Suspense>
-        } />
-        <Route path="/bikemendelivery" element={
-          <Suspense fallback={<LoadingPage />}>
-            <BikeDelivery />
-          </Suspense>
-        } />
+        <Route path="/login" element={<Login />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/bikemendelivery" element={<BikeDelivery />} />
         <Route 
           path="/dashboard" 
           element={
             <ProtectedRoute>
               <ErrorBoundary>
-                <Suspense fallback={<LoadingPage />}>
-                  <Dashboard />
-                </Suspense>
+                <Dashboard />
               </ErrorBoundary>
             </ProtectedRoute>
           } 
@@ -76,9 +46,7 @@ const MainAppRoutes = () => {
           element={
             <ProtectedRoute>
               <ErrorBoundary>
-                <Suspense fallback={<LoadingPage />}>
-                  <Products />
-                </Suspense>
+                <Products />
               </ErrorBoundary>
             </ProtectedRoute>
           } 
@@ -88,9 +56,7 @@ const MainAppRoutes = () => {
           element={
             <ProtectedRoute>
               <ErrorBoundary>
-                <Suspense fallback={<LoadingPage />}>
-                  <Products />
-                </Suspense>
+                <Products />
               </ErrorBoundary>
             </ProtectedRoute>
           } 
@@ -100,9 +66,7 @@ const MainAppRoutes = () => {
           element={
             <ProtectedRoute>
               <ErrorBoundary>
-                <Suspense fallback={<LoadingPage />}>
-                  <Analytics />
-                </Suspense>
+                <Analytics />
               </ErrorBoundary>
             </ProtectedRoute>
           } 
@@ -112,9 +76,7 @@ const MainAppRoutes = () => {
           element={
             <ProtectedRoute>
               <ErrorBoundary>
-                <Suspense fallback={<LoadingPage />}>
-                  <DashboardStorefront />
-                </Suspense>
+                <DashboardStorefront />
               </ErrorBoundary>
             </ProtectedRoute>
           } 
@@ -124,9 +86,7 @@ const MainAppRoutes = () => {
           element={
             <ProtectedRoute>
               <ErrorBoundary>
-                <Suspense fallback={<LoadingPage />}>
-                  <WhatsApp />
-                </Suspense>
+                <WhatsApp />
               </ErrorBoundary>
             </ProtectedRoute>
           } 
@@ -136,35 +96,17 @@ const MainAppRoutes = () => {
           element={
             <ProtectedRoute>
               <ErrorBoundary>
-                <Suspense fallback={<LoadingPage />}>
-                  <Settings />
-                </Suspense>
+                <Settings />
               </ErrorBoundary>
             </ProtectedRoute>
           } 
         />
         {/* Legacy path-based store routing for development */}
-        <Route path="/store/:storeId" element={
-          <Suspense fallback={<LoadingPage />}>
-            <Storefront />
-          </Suspense>
-        } />
-        <Route path="/demo-store" element={
-          <Suspense fallback={<LoadingPage />}>
-            <Storefront />
-          </Suspense>
-        } />
+        <Route path="/store/:storeId" element={<Storefront />} />
+        <Route path="/demo-store" element={<Storefront />} />
         {/* Dynamic store routing - must be last to avoid conflicts with platform routes */}
-        <Route path="/:storeSlug" element={
-          <Suspense fallback={<LoadingPage />}>
-            <Storefront />
-          </Suspense>
-        } />
-        <Route path="*" element={
-          <Suspense fallback={<LoadingPage />}>
-            <NotFound />
-          </Suspense>
-        } />
+        <Route path="/:storeSlug" element={<Storefront />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </ErrorBoundary>
   );
