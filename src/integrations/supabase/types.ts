@@ -190,6 +190,45 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_authorizations: {
+        Row: {
+          authorization_code: string
+          bank: string
+          card_type: string
+          created_at: string
+          customer_email: string
+          exp_month: string
+          exp_year: string
+          id: string
+          last_4: string
+          updated_at: string
+        }
+        Insert: {
+          authorization_code: string
+          bank: string
+          card_type: string
+          created_at?: string
+          customer_email: string
+          exp_month: string
+          exp_year: string
+          id?: string
+          last_4: string
+          updated_at?: string
+        }
+        Update: {
+          authorization_code?: string
+          bank?: string
+          card_type?: string
+          created_at?: string
+          customer_email?: string
+          exp_month?: string
+          exp_year?: string
+          id?: string
+          last_4?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       customer_sessions: {
         Row: {
           address: string | null
