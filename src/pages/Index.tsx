@@ -290,7 +290,7 @@ const Index = () => {
           {/* Main headline with dynamic typing effect */}
           <div className="text-center px-4">
             <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-light text-foreground mb-4 sm:mb-6 tracking-tight animate-fade-in leading-tight">
-              <span className="block">Turn Your</span>{" "}
+              <span className="block">Transform Your</span>{" "}
               <span className="relative">
                 <span className="text-primary font-medium transition-all duration-500">
                   {dynamicWords[currentWord]}
