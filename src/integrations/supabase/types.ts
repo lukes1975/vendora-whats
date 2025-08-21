@@ -1524,6 +1524,18 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      get_customer_authorization: {
+        Args: { email: string }
+        Returns: {
+          authorization_code: string
+          bank: string
+          card_type: string
+          customer_email: string
+          exp_month: string
+          exp_year: string
+          last_4: string
+        }[]
+      }
       log_security_event: {
         Args: {
           event_details?: Json
