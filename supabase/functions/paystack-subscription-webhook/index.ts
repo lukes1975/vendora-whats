@@ -250,40 +250,81 @@ async function handleInvoicePaymentFailed(supabase: any, data: any) {
 async function handleChargeSuccess(supabase: any, data: any) {
   logStep("Handling charge.success", data);
 
-  const { reference, amount, customer } = data;
+  const { reference, amount, customer, authorization } = data;
   
-  // Check if this is a WhatsApp order payment
-  if (reference && reference.startsWith('order_')) {
-    logStep("Processing WhatsApp order payment", reference);
-    
-    // Update order status to paid
-    const { data: order, error: orderError } = await supabase
-      .from('orders_v2')
-      .update({ 
-        status: 'paid',
-        meta: { 
-          ...data, 
-          payment_confirmed_at: new Date().toISOString(),
-          amount_paid: amount
-        },
-        updated_at: new Date().toISOString()
-      })
-      .eq('payment_reference', reference)
-      .select('id, customer_phone, customer_name, total, chat_id')
-      .single();
-
-    if (orderError) {
-      logStep("Error updating order", orderError);
-    } else if (order) {
-      logStep("Order updated to paid", order.id);
+  // Handle both regular storefront orders and WhatsApp orders
+  if (reference) {
+    // Check if this is a WhatsApp order payment
+    if (reference.startsWith('order_')) {
+      logStep("Processing WhatsApp order payment", reference);
       
-      // TODO: Send WhatsApp confirmation message
-      // This would integrate with your WhatsApp provider
-      logStep("Would send WhatsApp confirmation", {
-        phone: order.customer_phone,
-        orderId: order.id,
-        amount: order.total
-      });
+      // Update order status to paid
+      const { data: order, error: orderError } = await supabase
+        .from('orders_v2')
+        .update({ 
+          status: 'paid',
+          meta: { 
+            ...data, 
+            payment_confirmed_at: new Date().toISOString(),
+            amount_paid: amount
+          },
+          updated_at: new Date().toISOString()
+        })
+        .eq('payment_reference', reference)
+        .select('id, customer_phone, customer_name, total, chat_id')
+        .single();
+
+      if (orderError) {
+        logStep("Error updating order", orderError);
+      } else if (order) {
+        logStep("Order updated to paid", order.id);
+      }
+    } 
+    // Handle regular storefront orders (vendora_ prefix)
+    else if (reference.startsWith('vendora_')) {
+      logStep("Processing storefront order payment", reference);
+      
+      // Update regular orders table
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .update({ 
+          status: 'paid',
+          order_notes: `Payment confirmed: ${reference}. Amount: ${amount / 100} NGN`
+        })
+        .eq('order_notes', `Payment reference: ${reference}`)
+        .select('id, customer_name, customer_email, vendor_id')
+        .single();
+
+      if (orderError) {
+        logStep("Error updating storefront order", orderError);
+      } else if (order) {
+        logStep("Storefront order updated to paid", order.id);
+      }
+    }
+
+    // Store customer authorization for future payments
+    if (authorization && customer) {
+      const { error: authError } = await supabase
+        .from('customer_authorizations')
+        .upsert({
+          customer_email: customer.email,
+          authorization_code: authorization.authorization_code,
+          card_type: authorization.card_type,
+          last_4: authorization.last4,
+          exp_month: authorization.exp_month,
+          exp_year: authorization.exp_year,
+          bank: authorization.bank,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'customer_email'
+        });
+
+      if (authError) {
+        logStep("Error storing customer authorization", authError);
+      } else {
+        logStep("Customer authorization stored for future payments");
+      }
     }
   }
 }

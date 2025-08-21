@@ -102,14 +102,18 @@ serve(async (req) => {
       }
     }
 
-    // Prepare Paystack payload
+    // Prepare Paystack payload with enhanced subaccount integration
     const paystackPayload = {
       amount: paymentData.amount,
       email: paymentData.email,
       currency: paymentData.currency || "NGN",
       reference: reference,
       callback_url: paymentData.callback_url || `${req.headers.get("origin")}/payment-success`,
-      ...(subaccountCode && { subaccount: subaccountCode }), // Add subaccount if available
+      ...(subaccountCode && { 
+        subaccount: subaccountCode,
+        bearer: "subaccount", // Subaccount bears the transaction fee
+        transaction_charge: 0 // Platform takes no additional commission
+      }),
       metadata: {
         vendora_user_id: user.id,
         vendora_store_id: paymentData.metadata?.store_id,
@@ -118,7 +122,8 @@ serve(async (req) => {
         customer_name: paymentData.metadata?.customer_name,
         customer_phone: paymentData.metadata?.customer_phone,
         source: "vendora_storefront",
-        uses_subaccount: subaccountCode ? "yes" : "no"
+        uses_subaccount: subaccountCode ? "yes" : "no",
+        split_type: subaccountCode ? "direct_settlement" : "platform_settlement"
       }
     };
 
