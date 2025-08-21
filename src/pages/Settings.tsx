@@ -16,6 +16,7 @@ import { sanitizeTextInput, logSecurityEvent } from '@/utils/security';
 import { WhatsAppSettings } from '@/components/settings/WhatsAppSettings';
 import { CreditManagement } from '@/components/credit/CreditManagement';
 import { SubscriptionManagement } from '@/components/subscription/SubscriptionManagement';
+import BankAccountForm from '@/components/dashboard/setup-forms/BankAccountForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Store, 
@@ -30,7 +31,9 @@ import {
   MapPin,
   CreditCard,
   Zap,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  Banknote,
+  Edit
 } from 'lucide-react';
 
 interface StoreSettings {
@@ -54,6 +57,9 @@ const Settings = () => {
   const [savingLocation, setSavingLocation] = useState(false);
   const [googleMapsEnabled, setGoogleMapsEnabled] = useState(false);
   const [storeData, setStoreData] = useState<any>(null);
+  const [bankAccountModalOpen, setBankAccountModalOpen] = useState(false);
+  const [bankAccountData, setBankAccountData] = useState<any>(null);
+  const [loadingBankAccount, setLoadingBankAccount] = useState(true);
 
   const themeColors = [
     { name: 'Deep Blue', color: '#012C6D' },
@@ -141,6 +147,9 @@ const Settings = () => {
           setGoogleMapsEnabled(!!settingsData.google_maps_enabled);
         }
       }
+
+      // Load bank account information
+      await loadBankAccountInfo();
     } catch (error) {
       logSecurityEvent('Settings load exception', { userId: user.id, error });
       toast({
@@ -217,6 +226,30 @@ const Settings = () => {
         setLogoPreview(e.target?.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const loadBankAccountInfo = async () => {
+    if (!user) return;
+    
+    try {
+      setLoadingBankAccount(true);
+      const { data, error } = await supabase
+        .from('bank_accounts')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error loading bank account:', error);
+        return;
+      }
+      
+      setBankAccountData(data);
+    } catch (error) {
+      console.error('Bank account loading error:', error);
+    } finally {
+      setLoadingBankAccount(false);
     }
   };
 
@@ -667,6 +700,65 @@ const Settings = () => {
           </TabsContent>
 
           <TabsContent value="billing" className="space-y-6">
+            {/* Bank Account Management */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3 text-xl">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Banknote className="h-5 w-5 text-primary" />
+                  </div>
+                  Bank Account
+                </CardTitle>
+                <p className="text-muted-foreground">Connect your bank account to receive payments</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {loadingBankAccount ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm text-muted-foreground">Loading bank account info...</span>
+                  </div>
+                ) : bankAccountData ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <div className="flex-1">
+                        <p className="font-medium text-green-800">Bank Account Connected</p>
+                        <p className="text-sm text-green-600">
+                          {bankAccountData.bank_name} - {bankAccountData.account_number}
+                        </p>
+                        <p className="text-sm text-green-600">
+                          Account Holder: {bankAccountData.account_holder_name}
+                        </p>
+                        <p className="text-sm text-green-600">
+                          Status: {bankAccountData.subaccount_status}
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setBankAccountModalOpen(true)}
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Update
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center p-6">
+                    <Banknote className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium mb-2">No Bank Account Connected</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Connect your bank account to start receiving payments from customers
+                    </p>
+                    <Button onClick={() => setBankAccountModalOpen(true)}>
+                      <Banknote className="h-4 w-4 mr-2" />
+                      Connect Bank Account
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             <SubscriptionManagement />
           </TabsContent>
 
@@ -679,6 +771,19 @@ const Settings = () => {
         {/* Add bottom padding on mobile to account for sticky button */}
         <div className="h-20 lg:h-0" />
         </div>
+
+        {/* Bank Account Modal */}
+        <BankAccountForm
+          open={bankAccountModalOpen}
+          onOpenChange={setBankAccountModalOpen}
+          onComplete={() => {
+            loadBankAccountInfo();
+            toast({
+              title: 'Success',
+              description: 'Bank account updated successfully!',
+            });
+          }}
+        />
       </ScrollArea>
     </DashboardLayout>
   );
