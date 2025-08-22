@@ -136,10 +136,23 @@ serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in create-paystack-subaccount", { message: errorMessage });
     
+    // Provide more user-friendly error messages
+    let userMessage = errorMessage;
+    if (errorMessage.includes("PAYSTACK_SECRET_KEY")) {
+      userMessage = "Payment system configuration error. Please contact support.";
+    } else if (errorMessage.includes("Authentication error")) {
+      userMessage = "Authentication failed. Please try again.";
+    } else if (errorMessage.includes("Missing required fields")) {
+      userMessage = errorMessage; // Keep the original message for validation errors
+    } else if (errorMessage.includes("Failed to create subaccount")) {
+      userMessage = "Failed to create payment account. Please check your bank details and try again.";
+    }
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: errorMessage 
+        error: userMessage,
+        details: errorMessage // Include original error for debugging
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

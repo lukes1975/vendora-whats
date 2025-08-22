@@ -197,10 +197,24 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in paystack-payment", { message: errorMessage });
+    
+    // Provide more user-friendly error messages
+    let userMessage = errorMessage;
+    if (errorMessage.includes("PAYSTACK_SECRET_KEY")) {
+      userMessage = "Payment system configuration error. Please contact support.";
+    } else if (errorMessage.includes("Authentication error")) {
+      userMessage = "Authentication failed. Please try again.";
+    } else if (errorMessage.includes("Invalid amount")) {
+      userMessage = errorMessage; // Keep the original message for amount errors
+    } else if (errorMessage.includes("Failed to initialize payment")) {
+      userMessage = "Payment initialization failed. Please try again.";
+    }
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: errorMessage 
+        error: userMessage,
+        details: errorMessage // Include original error for debugging
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

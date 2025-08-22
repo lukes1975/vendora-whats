@@ -62,11 +62,20 @@ export function usePaystack() {
 
       if (error) {
         console.error('Payment initialization error:', error);
-        throw new Error(error.message || 'Failed to initialize payment');
+        // Extract more specific error information
+        const errorMsg = error.message || 'Failed to initialize payment';
+        const details = error.details || error.message;
+        
+        // Log detailed error for debugging
+        console.error('Payment error details:', { error, details });
+        
+        throw new Error(errorMsg);
       }
 
       if (!data.success) {
-        throw new Error(data.error || 'Payment initialization failed');
+        const errorMsg = data.error || 'Payment initialization failed';
+        console.error('Payment failed with error:', errorMsg);
+        throw new Error(errorMsg);
       }
 
       return data;
