@@ -14,8 +14,12 @@ export interface SubdomainInfo {
 export const getSubdomainInfo = (): SubdomainInfo => {
   const hostname = window.location.hostname;
   
-  // For development
-  if (hostname === 'localhost' || hostname.includes('127.0.0.1') || hostname.includes('lovableproject.com') || hostname.includes('lovable.app')) {
+  // For development - check Lovable domains first to avoid conflicts
+  if (hostname === 'localhost' || 
+      hostname.includes('127.0.0.1') || 
+      hostname.includes('lovableproject.com') || 
+      hostname.includes('lovable.app') || 
+      hostname.includes('id-preview--')) {
     return {
       isSubdomain: false,
       subdomain: null,
@@ -44,7 +48,7 @@ export const getSubdomainInfo = (): SubdomainInfo => {
     };
   }
   
-  // Default fallback
+  // Default fallback - treat as main domain to avoid routing conflicts
   return {
     isSubdomain: false,
     subdomain: null,

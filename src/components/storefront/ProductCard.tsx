@@ -108,13 +108,12 @@ const ProductCard = ({ product, store }: ProductCardProps) => {
             className="block"
             onClick={handleWhatsAppClick}
           >
-            <Button className="w-full rounded-full">
+            <Button variant="outline" className="w-full rounded-full">
               <MessageSquare className="mr-2 h-4 w-4" />
               Order via WhatsApp
             </Button>
           </a>
 
-          {/*
           <PaymentButton
             productId={product.id}
             productName={product.name}
@@ -123,7 +122,6 @@ const ProductCard = ({ product, store }: ProductCardProps) => {
             storeName={store.name}
             className="w-full rounded-full"
           />
-          */}
         </div>
       </CardContent>
     </Card>

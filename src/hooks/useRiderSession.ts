@@ -34,8 +34,8 @@ export function useRiderSession() {
 
   const fetchRiderStatus = useCallback(async () => {
     try {
-      const { data, error } = await supabase.functions.invoke("rider-session", {
-        body: {},
+      const { data, error } = await supabase.functions.invoke("rider-session?action=status", {
+        method: 'GET'
       });
       if (error) throw error;
       setRider(data?.rider || null);
@@ -48,7 +48,8 @@ export function useRiderSession() {
   const registerRider = useCallback(async (name: string, phone: string, lat?: number, lng?: number) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("rider-session", {
+      const { data, error } = await supabase.functions.invoke("rider-session?action=register", {
+        method: 'POST',
         body: { rider_name: name, phone, lat, lng },
       });
       if (error) throw error;
@@ -64,7 +65,8 @@ export function useRiderSession() {
 
   const updateLocation = useCallback(async (lat: number, lng: number, isAvailable?: boolean) => {
     try {
-      const { data, error } = await supabase.functions.invoke("rider-session", {
+      const { data, error } = await supabase.functions.invoke("rider-session?action=update_location", {
+        method: 'POST',
         body: { lat, lng, is_available: isAvailable },
       });
       if (error) throw error;

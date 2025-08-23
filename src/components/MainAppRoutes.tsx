@@ -30,6 +30,7 @@ const MainAppRoutes = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/checkout" element={<Checkout />} />
+        {/* Priority route for bike delivery to avoid conflicts */}
         <Route path="/bikemendelivery" element={<BikeDelivery />} />
         <Route 
           path="/dashboard" 
