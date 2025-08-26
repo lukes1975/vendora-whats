@@ -276,52 +276,73 @@ export type Database = {
           accepted_at: string | null
           completed_at: string | null
           created_at: string
+          customer_rating: number | null
+          delivery_address: string | null
+          delivery_fee_kobo: number | null
           delivery_lat: number
           delivery_lng: number
+          delivery_notes: string | null
           distance_km: number | null
           estimated_duration_minutes: number | null
           id: string
           offered_at: string
           order_id: string | null
+          pickup_address: string | null
           pickup_lat: number
           pickup_lng: number
+          proof_of_delivery_url: string | null
           rider_session_id: string | null
           status: string | null
           updated_at: string
+          vendor_id: string | null
         }
         Insert: {
           accepted_at?: string | null
           completed_at?: string | null
           created_at?: string
+          customer_rating?: number | null
+          delivery_address?: string | null
+          delivery_fee_kobo?: number | null
           delivery_lat: number
           delivery_lng: number
+          delivery_notes?: string | null
           distance_km?: number | null
           estimated_duration_minutes?: number | null
           id?: string
           offered_at?: string
           order_id?: string | null
+          pickup_address?: string | null
           pickup_lat: number
           pickup_lng: number
+          proof_of_delivery_url?: string | null
           rider_session_id?: string | null
           status?: string | null
           updated_at?: string
+          vendor_id?: string | null
         }
         Update: {
           accepted_at?: string | null
           completed_at?: string | null
           created_at?: string
+          customer_rating?: number | null
+          delivery_address?: string | null
+          delivery_fee_kobo?: number | null
           delivery_lat?: number
           delivery_lng?: number
+          delivery_notes?: string | null
           distance_km?: number | null
           estimated_duration_minutes?: number | null
           id?: string
           offered_at?: string
           order_id?: string | null
+          pickup_address?: string | null
           pickup_lat?: number
           pickup_lng?: number
+          proof_of_delivery_url?: string | null
           rider_session_id?: string | null
           status?: string | null
           updated_at?: string
+          vendor_id?: string | null
         }
         Relationships: [
           {
@@ -418,6 +439,57 @@ export type Database = {
           ip_address?: unknown | null
           success?: boolean
           user_agent?: string | null
+        }
+        Relationships: []
+      }
+      manual_payment_confirmations: {
+        Row: {
+          amount_kobo: number
+          bank_details: Json
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          currency: string
+          customer_reference: string | null
+          id: string
+          order_id: string
+          proof_image_url: string | null
+          rejected_reason: string | null
+          status: string
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          amount_kobo: number
+          bank_details?: Json
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          currency?: string
+          customer_reference?: string | null
+          id?: string
+          order_id: string
+          proof_image_url?: string | null
+          rejected_reason?: string | null
+          status?: string
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          amount_kobo?: number
+          bank_details?: Json
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          currency?: string
+          customer_reference?: string | null
+          id?: string
+          order_id?: string
+          proof_image_url?: string | null
+          rejected_reason?: string | null
+          status?: string
+          updated_at?: string
+          vendor_id?: string
         }
         Relationships: []
       }
@@ -675,6 +747,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payment_reconciliation: {
+        Row: {
+          created_at: string
+          id: string
+          manual_confirmation_id: string | null
+          notes: string | null
+          order_id: string
+          payment_method: string
+          paystack_reference: string | null
+          reconciled_amount_kobo: number
+          reconciled_by: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          manual_confirmation_id?: string | null
+          notes?: string | null
+          order_id: string
+          payment_method: string
+          paystack_reference?: string | null
+          reconciled_amount_kobo: number
+          reconciled_by?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          manual_confirmation_id?: string | null
+          notes?: string | null
+          order_id?: string
+          payment_method?: string
+          paystack_reference?: string | null
+          reconciled_amount_kobo?: number
+          reconciled_by?: string | null
+          status?: string
+        }
+        Relationships: []
       }
       payments: {
         Row: {
