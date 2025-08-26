@@ -67,34 +67,77 @@ serve(async (req) => {
 
     const paymentData = paystackResult.data;
     const isSuccessful = paymentData.status === "success";
-    const amount = paymentData.amount / 100; // Convert from kobo to naira
 
     logStep("Payment verification result", {
       reference,
       status: paymentData.status,
-      amount,
+      amount: paymentData.amount,
       customer: paymentData.customer?.email
     });
 
-    // Update order status in database if payment was successful
-    if (isSuccessful && paymentData.metadata?.vendora_store_id) {
-      const { error: updateError } = await supabaseService
-        .from("orders")
-        .update({ 
-          status: "paid",
-          updated_at: new Date().toISOString()
-        })
-        .eq("vendor_id", paymentData.metadata.vendora_user_id)
-        .eq("store_id", paymentData.metadata.vendora_store_id)
-        .ilike("order_notes", `%${reference}%`);
+    // Update order status in orders_v2 table if payment was successful
+    if (isSuccessful) {
+      // Find the order by payment reference
+      const { data: orderData, error: findError } = await supabaseService
+        .from("orders_v2")
+        .select("*")
+        .eq("payment_reference", reference)
+        .maybeSingle();
 
-      if (updateError) {
-        logStep("Failed to update order status", updateError);
+      if (findError) {
+        logStep("Error finding order", findError);
+      } else if (orderData) {
+        // Update order status to paid
+        const { error: updateError } = await supabaseService
+          .from("orders_v2")
+          .update({ 
+            status: "paid",
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", orderData.id);
+
+        if (updateError) {
+          logStep("Failed to update order status", updateError);
+        } else {
+          logStep("Order status updated to paid", { orderId: orderData.id });
+
+          // Create payment reconciliation record
+          const { error: reconciliationError } = await supabaseService
+            .from("payment_reconciliation")
+            .insert({
+              order_id: orderData.id,
+              payment_method: "paystack",
+              paystack_reference: reference,
+              reconciled_amount_kobo: paymentData.amount,
+              status: "reconciled",
+              notes: `Auto-reconciled via Paystack verification`
+            });
+
+          if (reconciliationError) {
+            logStep("Failed to create reconciliation record", reconciliationError);
+          }
+
+          // Auto-assign delivery if enabled
+          if (orderData.vendor_id) {
+            try {
+              const { error: deliveryError } = await supabaseService.functions.invoke('assign-delivery', {
+                body: { order_id: orderData.id }
+              });
+              if (deliveryError) {
+                logStep("Failed to auto-assign delivery", deliveryError);
+              } else {
+                logStep("Delivery assignment triggered", { orderId: orderData.id });
+              }
+            } catch (deliveryErr) {
+              logStep("Error triggering delivery assignment", deliveryErr);
+            }
+          }
+        }
       } else {
-        logStep("Order status updated to paid");
+        logStep("No order found with payment reference", { reference });
       }
 
-      // Update product analytics if product_id is available
+      // Update product analytics if available in metadata
       if (paymentData.metadata?.product_id) {
         const { error: productUpdateError } = await supabaseService
           .from("products")
@@ -116,7 +159,7 @@ serve(async (req) => {
         success: true,
         verified: isSuccessful,
         payment_status: paymentData.status,
-        amount: amount,
+        amount: paymentData.amount / 100, // Convert kobo to naira
         currency: paymentData.currency,
         customer_email: paymentData.customer?.email,
         paid_at: paymentData.paid_at,
