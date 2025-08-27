@@ -145,16 +145,68 @@ const Checkout: React.FC = () => {
       toast({ title: "Add details", description: "Please complete your details and delivery address first." });
       return;
     }
-    const amountNaira = (subtotal + quote.total) / 100; // subtotal and quote are in kobo
-    await processPayment({
-      amount: amountNaira,
-      email: "guest@vendora.app",
-      currency: geo?.currency || "NGN",
-      productName: store?.name ? `${store.name} Order` : "Vendora Order",
-      storeId: store?.id,
-      customerName: form.name,
-      customerPhone: form.phone,
-    });
+    
+    try {
+      // Create order first
+      const orderData = {
+        store_id: store?.id,
+        vendor_id: store?.vendor_id,
+        customer_name: form.name,
+        customer_phone: form.phone,
+        customer_address: { address: form.address },
+        items: items,
+        subtotal: subtotal,
+        delivery_fee: quote.total,
+        total: subtotal + quote.total,
+        status: 'pending_payment',
+        payment_provider: 'paystack',
+        currency: geo?.currency || 'NGN',
+        distance_km: quote.distanceKm,
+        eta_minutes: quote.etaMinutes,
+        meta: {
+          source: 'web_checkout',
+          tracking_code: `WEB${Date.now().toString(36).toUpperCase()}`
+        }
+      };
+
+      const { data: order, error: orderError } = await supabase
+        .from('orders_v2')
+        .insert(orderData)
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Process payment with order context
+      const amountNaira = (subtotal + quote.total) / 100; // subtotal and quote are in kobo
+      const success = await processPayment({
+        amount: amountNaira,
+        email: "guest@vendora.app",
+        currency: geo?.currency || "NGN",
+        productName: store?.name ? `${store.name} Order` : "Vendora Order",
+        storeId: store?.id,
+        customerName: form.name,
+        customerPhone: form.phone,
+        orderId: order.id,
+        metadata: {
+          order_id: order.id,
+          tracking_code: orderData.meta.tracking_code
+        }
+      });
+
+      if (success) {
+        toast({ 
+          title: "Payment initiated", 
+          description: "Complete payment to track your order." 
+        });
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      toast({ 
+        title: "Order creation failed", 
+        description: "Please try again or contact support." 
+      });
+    }
   };
 
   const handleBankTransfer = () => {

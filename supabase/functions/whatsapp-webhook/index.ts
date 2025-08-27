@@ -297,10 +297,16 @@ async function handleUSSDFlow(supabase: any, message: InboundMessage, store: any
 async function createOrder(supabase: any, message: InboundMessage, store: any, state: USSDState) {
   try {
     const subtotal = state.selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const deliveryFee = 0; // TODO: Calculate based on distance
+    
+    // Calculate delivery fee using maps service (estimated 3km = ₦1000)
+    const estimatedDistance = 3; // km - TODO: Use actual address geocoding
+    const deliveryFee = Math.ceil(estimatedDistance / 3) * 1000; // ₦1000 per 3km
     const total = subtotal + deliveryFee;
 
-    // Create order
+    // Generate tracking code
+    const trackingCode = `WA${Date.now().toString(36).toUpperCase()}`;
+
+    // Create order with kobo amounts (multiply by 100)
     const { data: order, error: orderError } = await supabase
       .from('orders_v2')
       .insert({
@@ -311,12 +317,18 @@ async function createOrder(supabase: any, message: InboundMessage, store: any, s
         customer_name: state.customerData.name,
         customer_address: { address: state.customerData.address },
         items: state.selectedItems,
-        subtotal: subtotal,
-        delivery_fee: deliveryFee,
-        total: total,
+        subtotal: Math.round(subtotal * 100), // Convert to kobo
+        delivery_fee: Math.round(deliveryFee * 100),
+        total: Math.round(total * 100),
         status: 'pending_payment',
         payment_provider: 'paystack',
-        currency: 'NGN'
+        currency: 'NGN',
+        distance_km: estimatedDistance,
+        eta_minutes: Math.round(estimatedDistance * 3), // 3 mins per km estimate
+        meta: {
+          source: 'whatsapp',
+          tracking_code: trackingCode
+        }
       })
       .select()
       .single();
@@ -327,7 +339,7 @@ async function createOrder(supabase: any, message: InboundMessage, store: any, s
       return null;
     }
 
-    // Create Paystack payment link
+    // Create payment link with metadata
     const paymentLink = await createPaystackLink(order.id, total, state.customerData.name || 'Customer', message.from);
     
     if (paymentLink) {
@@ -340,9 +352,9 @@ async function createOrder(supabase: any, message: InboundMessage, store: any, s
         })
         .eq('id', order.id);
 
-      // Send payment link
+      // Send payment link with tracking info
       await sendWhatsAppMessage(message.chat_id, 
-        `Payment Required 💳\n\nTotal: ₦${total.toFixed(2)}\n\nPay here: ${paymentLink.authorization_url}\n\nOnce payment is confirmed, we'll process your order!`);
+        `Order Created! 🎉\n\nOrder ID: ${trackingCode}\nTotal: ₦${total.toFixed(2)} (inc. delivery)\n\n💳 Pay here: ${paymentLink.authorization_url}\n\n📍 Track your order: ${Deno.env.get('SUPABASE_URL')?.replace('supabase.co', 'vercel.app') || 'https://vendora.app'}/track/${trackingCode}\n\nOnce payment is confirmed, we'll assign a rider!`);
     }
 
     return order.id;

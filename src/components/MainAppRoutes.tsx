@@ -16,6 +16,7 @@ import NotFound from "@/pages/NotFound";
 import Storefront from "@/pages/Storefront";
 import PaymentSuccess from "@/pages/PaymentSuccess";
 import Checkout from "@/pages/Checkout";
+import OrderTracking from "@/pages/OrderTracking";
 
 /**
  * Main application routes for www.vendora.business
@@ -30,6 +31,7 @@ const MainAppRoutes = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/track/:trackingCode" element={<OrderTracking />} />
         {/* Priority route for bike delivery to avoid conflicts */}
         <Route path="/bikemendelivery" element={<BikeDelivery />} />
         <Route 

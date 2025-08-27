@@ -1,59 +1,92 @@
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, MessageSquare } from "lucide-react";
+import { MessageCircle, ShoppingCart, Package } from "lucide-react";
 import { useCart } from "@/modules/order-flow/hooks/useCart";
-import { buildOrderSummary, getWhatsAppCheckoutLink } from "@/modules/order-flow/hooks/useWhatsAppCheckout";
-import { useMemo } from "react";
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-const DETAILS_KEY = "vendora_delivery_details_v1";
-
-function loadDetails() {
-  try {
-    const raw = localStorage.getItem(DETAILS_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
+interface MobileActionBarProps {
+  store: {
+    whatsapp_number?: string | null;
+    name: string;
+  };
 }
 
-interface Store {
-  name: string;
-  whatsapp_number: string;
-  slug?: string | null;
-}
+export default function MobileActionBar({ store }: MobileActionBarProps) {
+  const { totalItems } = useCart();
+  const [trackingCode, setTrackingCode] = useState("");
+  const [isTrackingOpen, setIsTrackingOpen] = useState(false);
+  
+  const handleWhatsAppContact = () => {
+    if (store.whatsapp_number) {
+      const message = `Hi! I'm interested in your products at ${store.name}`;
+      const whatsappUrl = `https://wa.me/${store.whatsapp_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+  };
 
-export default function MobileActionBar({ store }: { store: Store }) {
-  const { items, subtotal, totalItems } = useCart();
-  const details = useMemo(() => loadDetails(), []);
-
-  if (totalItems === 0) return null;
-
-  const onWhatsAppCheckout = () => {
-    const message = buildOrderSummary({
-      items,
-      total: subtotal,
-      name: details?.name || "",
-      phone: details?.phone || "",
-      address: details?.address || "",
-      etaMinutes: undefined,
-      currency: undefined,
-    });
-    const url = getWhatsAppCheckoutLink({ vendorPhone: store.whatsapp_number || "", message });
-    window.open(url, "_blank");
+  const handleTrackOrder = () => {
+    if (trackingCode.trim()) {
+      window.open(`/track/${trackingCode.trim()}`, '_blank');
+      setIsTrackingOpen(false);
+      setTrackingCode("");
+    }
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 bg-background/95 border-t border-border backdrop-blur supports-[backdrop-filter]:bg-background/80 px-3 sm:px-4 py-2" style={{ paddingBottom: `calc(env(safe-area-inset-bottom) + 0.5rem)` }}>
-      <div className="max-w-4xl mx-auto flex items-center gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="text-sm text-muted-foreground truncate">{totalItems} item{totalItems>1?"s":""} in cart</div>
-          <div className="font-semibold text-foreground truncate">{new Intl.NumberFormat(undefined,{style:"currency",currency:"NGN"}).format(subtotal/100)}</div>
-        </div>
-        <Button variant="outline" className="rounded-full" onClick={() => (window.location.href = store?.slug ? `/checkout?store=${encodeURIComponent(String(store.slug))}` : "/checkout")}> 
-          <ShoppingCart className="h-4 w-4 mr-1" /> Checkout
-        </Button>
-        <Button className="rounded-full" onClick={onWhatsAppCheckout}>
-          <MessageSquare className="h-4 w-4 mr-1" /> WhatsApp
-        </Button>
+    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border p-4 md:hidden z-40">
+      <div className="flex gap-2 max-w-sm mx-auto">
+        {store.whatsapp_number && (
+          <Button 
+            onClick={handleWhatsAppContact}
+            size="lg" 
+            className="flex-1 gap-2"
+          >
+            <MessageCircle size={18} />
+            Chat
+          </Button>
+        )}
+        
+        <Dialog open={isTrackingOpen} onOpenChange={setIsTrackingOpen}>
+          <DialogTrigger asChild>
+            <Button size="lg" variant="outline" className="gap-2">
+              <Package size={18} />
+              Track
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Track Your Order</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Enter tracking code</label>
+                <Input
+                  placeholder="e.g. WA123ABC"
+                  value={trackingCode}
+                  onChange={(e) => setTrackingCode(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleTrackOrder()}
+                />
+              </div>
+              <Button onClick={handleTrackOrder} className="w-full" disabled={!trackingCode.trim()}>
+                Track Order
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        {totalItems > 0 && (
+          <Link to="/checkout" className="flex-1">
+            <Button size="lg" variant="outline" className="w-full gap-2 relative">
+              <ShoppingCart size={18} />
+              Cart
+              <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {totalItems}
+              </span>
+            </Button>
+          </Link>
+        )}
       </div>
     </div>
   );

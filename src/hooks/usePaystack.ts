@@ -11,6 +11,8 @@ interface PaymentData {
   storeId?: string;
   customerName?: string;
   customerPhone?: string;
+  orderId?: string;
+  metadata?: Record<string, any>;
 }
 
 interface PaymentResponse {
@@ -55,7 +57,9 @@ export function usePaystack() {
             product_name: paymentData.productName,
             store_id: paymentData.storeId,
             customer_name: paymentData.customerName,
-            customer_phone: paymentData.customerPhone
+            customer_phone: paymentData.customerPhone,
+            order_id: paymentData.orderId,
+            ...paymentData.metadata
           }
         }
       });
