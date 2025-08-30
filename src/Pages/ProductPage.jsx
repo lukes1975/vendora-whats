@@ -16,7 +16,7 @@ function ProductPage() {
             return e.category === currentCategory;
         }
     });
-
+    console.log(AllData)
     return (
         <main className="overflow-hidden">
             <Header />
