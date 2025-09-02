@@ -908,30 +908,124 @@ export type Database = {
         }
         Relationships: []
       }
+      product_analytics: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          product_id: string
+          user_session_id: string | null
+          vendor_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          product_id: string
+          user_session_id?: string | null
+          vendor_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          product_id?: string
+          user_session_id?: string | null
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_analytics_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_inquiries: {
+        Row: {
+          answer: string | null
+          answered_at: string | null
+          created_at: string
+          id: string
+          inquirer_id: string | null
+          is_public: boolean | null
+          product_id: string
+          question: string
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          answer?: string | null
+          answered_at?: string | null
+          created_at?: string
+          id?: string
+          inquirer_id?: string | null
+          is_public?: boolean | null
+          product_id: string
+          question: string
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          answer?: string | null
+          answered_at?: string | null
+          created_at?: string
+          id?: string
+          inquirer_id?: string | null
+          is_public?: boolean | null
+          product_id?: string
+          question?: string
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_inquiries_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_ratings: {
         Row: {
           created_at: string | null
+          helpful_votes: number | null
           id: string
+          is_verified_purchase: boolean | null
           product_id: string | null
           rating: number | null
+          review_images: Json | null
           review_text: string | null
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
           created_at?: string | null
+          helpful_votes?: number | null
           id?: string
+          is_verified_purchase?: boolean | null
           product_id?: string | null
           rating?: number | null
+          review_images?: Json | null
           review_text?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           created_at?: string | null
+          helpful_votes?: number | null
           id?: string
+          is_verified_purchase?: boolean | null
           product_id?: string | null
           rating?: number | null
+          review_images?: Json | null
           review_text?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -1465,6 +1559,48 @@ export type Database = {
           },
         ]
       }
+      student_verifications_enhanced: {
+        Row: {
+          created_at: string
+          department: string | null
+          id: string
+          level_of_study: string | null
+          student_id: string
+          university_email: string
+          updated_at: string
+          user_id: string
+          verification_code: string | null
+          verification_status: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          id?: string
+          level_of_study?: string | null
+          student_id: string
+          university_email: string
+          updated_at?: string
+          user_id: string
+          verification_code?: string | null
+          verification_status?: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          id?: string
+          level_of_study?: string | null
+          student_id?: string
+          university_email?: string
+          updated_at?: string
+          user_id?: string
+          verification_code?: string | null
+          verification_status?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           amount: number
@@ -1579,6 +1715,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_vendor_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_vendor_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_vendor_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       user_metrics: {
         Row: {
           created_at: string
@@ -1662,6 +1819,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_wishlists: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_wishlists_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vendor_ratings: {
         Row: {
@@ -1861,6 +2047,10 @@ export type Database = {
       bootstrap_admin_user: {
         Args: { user_email: string }
         Returns: boolean
+      }
+      calculate_trending_score: {
+        Args: { days_back?: number; product_id: string }
+        Returns: number
       }
       check_rate_limit: {
         Args: {

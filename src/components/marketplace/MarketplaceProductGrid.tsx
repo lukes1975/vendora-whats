@@ -3,9 +3,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, ShoppingCart, MessageCircle, MapPin, Eye } from "lucide-react";
+import { Star, ShoppingCart, MessageCircle, MapPin, Eye, UserPlus, UserCheck } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useMarketplaceAnalytics } from "@/hooks/useMarketplaceAnalytics";
+import { useWishlist } from "@/hooks/useWishlist";
+import { useVendorFollow } from "@/hooks/useVendorFollow";
+import { WishlistButton } from "./WishlistButton";
 
 interface Product {
   id: string;
@@ -42,6 +46,9 @@ interface MarketplaceProductGridProps {
 const MarketplaceProductGrid = ({ products, loading }: MarketplaceProductGridProps) => {
   const [viewedProducts, setViewedProducts] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+  const { trackProductView, trackWhatsAppClick } = useMarketplaceAnalytics();
+  const { isInWishlist } = useWishlist();
+  const { isFollowing, followVendor, unfollowVendor } = useVendorFollow();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-NG', {
@@ -56,11 +63,13 @@ const MarketplaceProductGrid = ({ products, loading }: MarketplaceProductGridPro
     return ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length;
   };
 
-  const handleViewProduct = (productId: string) => {
+  const handleViewProduct = (productId: string, vendorId: string) => {
     setViewedProducts(prev => new Set([...prev, productId]));
+    trackProductView(productId, vendorId);
   };
 
   const handleWhatsAppInquiry = (product: Product) => {
+    trackWhatsAppClick(product.id, product.vendor_id);
     const message = `Hi! I'm interested in your product: ${product.name} (${formatPrice(product.price)}) from FUOYE Marketplace. Can you provide more details?`;
     const whatsappUrl = `https://wa.me/${product.stores.name}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
@@ -69,6 +78,15 @@ const MarketplaceProductGrid = ({ products, loading }: MarketplaceProductGridPro
       title: "WhatsApp opened",
       description: "You can now chat with the vendor",
     });
+  };
+
+  const handleFollowVendor = async (vendorId: string) => {
+    const isCurrentlyFollowing = isFollowing(vendorId);
+    if (isCurrentlyFollowing) {
+      await unfollowVendor(vendorId);
+    } else {
+      await followVendor(vendorId);
+    }
   };
 
   if (products.length === 0 && !loading) {
@@ -135,6 +153,16 @@ const MarketplaceProductGrid = ({ products, loading }: MarketplaceProductGridPro
                       New
                     </Badge>
                   )}
+                  
+                  {/* Wishlist Button */}
+                  <div className="absolute bottom-2 right-2">
+                    <WishlistButton 
+                      productId={product.id}
+                      vendorId={product.vendor_id}
+                      isInWishlist={isInWishlist(product.id)}
+                      size="sm"
+                    />
+                  </div>
                 </div>
 
                 <div className="p-4 space-y-3">
@@ -182,6 +210,24 @@ const MarketplaceProductGrid = ({ products, loading }: MarketplaceProductGridPro
                         FUOYE Vendor
                       </p>
                     </div>
+                    <Button
+                      variant={isFollowing(product.vendor_id) ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handleFollowVendor(product.vendor_id)}
+                      className="text-xs px-2 h-7"
+                    >
+                      {isFollowing(product.vendor_id) ? (
+                        <>
+                          <UserCheck className="h-3 w-3 mr-1" />
+                          Following
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="h-3 w-3 mr-1" />
+                          Follow
+                        </>
+                      )}
+                    </Button>
                   </div>
 
                   {/* Action Buttons */}
@@ -189,7 +235,7 @@ const MarketplaceProductGrid = ({ products, loading }: MarketplaceProductGridPro
                     <Button
                       asChild
                       className="flex-1"
-                      onClick={() => handleViewProduct(product.id)}
+                      onClick={() => handleViewProduct(product.id, product.vendor_id)}
                     >
                       <Link to={`/${product.stores.slug}`}>
                         <Eye className="h-4 w-4 mr-2" />

@@ -18,6 +18,7 @@ import PaymentSuccess from "@/pages/PaymentSuccess";
 import Checkout from "@/pages/Checkout";
 import OrderTracking from "@/pages/OrderTracking";
 import FUOYEMarketplace from "@/pages/FUOYEMarketplace";
+import Wishlist from "@/pages/Wishlist";
 
 /**
  * Main application routes for www.vendora.business
@@ -34,6 +35,7 @@ const MainAppRoutes = () => {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/track/:trackingCode" element={<OrderTracking />} />
         <Route path="/fuoye-market" element={<FUOYEMarketplace />} />
+        <Route path="/wishlist" element={<Wishlist />} />
         {/* Priority route for bike delivery to avoid conflicts */}
         <Route path="/bikemendelivery" element={<BikeDelivery />} />
         <Route 

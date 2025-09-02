@@ -5,7 +5,11 @@ import MarketplaceHeader from "@/components/marketplace/MarketplaceHeader";
 import MarketplaceFilters from "@/components/marketplace/MarketplaceFilters";
 import MarketplaceProductGrid from "@/components/marketplace/MarketplaceProductGrid";
 import MarketplaceSearchBar from "@/components/marketplace/MarketplaceSearchBar";
+import TrendingSection from "@/components/marketplace/TrendingSection";
+import StudentVerificationBanner from "@/components/marketplace/StudentVerificationBanner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Product {
   id: string;
@@ -50,7 +54,9 @@ const FUOYEMarketplace = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
   const [sortBy, setSortBy] = useState<string>("recent");
+  const [activeTab, setActiveTab] = useState("all");
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchMarketplaceData();
@@ -193,6 +199,10 @@ const FUOYEMarketplace = () => {
       <MarketplaceHeader />
       
       <div className="container mx-auto px-4 py-8">
+        <StudentVerificationBanner />
+        
+        <TrendingSection />
+        
         <MarketplaceSearchBar 
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -200,24 +210,81 @@ const FUOYEMarketplace = () => {
           onSortChange={setSortBy}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-8">
-          <div className="lg:col-span-1">
-            <MarketplaceFilters
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
-              priceRange={priceRange}
-              onPriceRangeChange={setPriceRange}
-            />
-          </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="all">All Products</TabsTrigger>
+            <TabsTrigger value="new">New This Week</TabsTrigger>
+            <TabsTrigger value="departments">By Department</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="all" className="mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <div className="lg:col-span-1">
+                <MarketplaceFilters
+                  categories={categories}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedCategory}
+                  priceRange={priceRange}
+                  onPriceRangeChange={setPriceRange}
+                />
+              </div>
 
-          <div className="lg:col-span-3">
-            <MarketplaceProductGrid 
-              products={filteredProducts}
-              loading={loading}
-            />
-          </div>
-        </div>
+              <div className="lg:col-span-3">
+                <MarketplaceProductGrid 
+                  products={filteredProducts}
+                  loading={loading}
+                />
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="new" className="mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <div className="lg:col-span-1">
+                <MarketplaceFilters
+                  categories={categories}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedCategory}
+                  priceRange={priceRange}
+                  onPriceRangeChange={setPriceRange}
+                />
+              </div>
+
+              <div className="lg:col-span-3">
+                <MarketplaceProductGrid 
+                  products={filteredProducts.filter(p => {
+                    const productDate = new Date(p.created_at);
+                    const weekAgo = new Date();
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    return productDate > weekAgo;
+                  })}
+                  loading={loading}
+                />
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="departments" className="mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <div className="lg:col-span-1">
+                <MarketplaceFilters
+                  categories={categories}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedCategory}
+                  priceRange={priceRange}
+                  onPriceRangeChange={setPriceRange}
+                />
+              </div>
+
+              <div className="lg:col-span-3">
+                <MarketplaceProductGrid 
+                  products={filteredProducts}
+                  loading={loading}
+                />
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
