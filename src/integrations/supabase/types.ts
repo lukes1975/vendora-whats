@@ -493,6 +493,50 @@ export type Database = {
         }
         Relationships: []
       }
+      marketplace_categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          sort_order: number | null
+          university_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          sort_order?: number | null
+          university_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          sort_order?: number | null
+          university_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_categories_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "university_marketplaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           created_at: string
@@ -864,6 +908,51 @@ export type Database = {
         }
         Relationships: []
       }
+      product_ratings: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_id: string | null
+          rating: number | null
+          review_text: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          rating?: number | null
+          review_text?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          rating?: number | null
+          review_text?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_ratings_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_ratings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string | null
@@ -872,10 +961,12 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          marketplace_category_id: string | null
           name: string
           price: number
           status: string | null
           store_id: string
+          university_marketplace_id: string | null
           updated_at: string | null
           vendor_id: string
           views: number | null
@@ -888,10 +979,12 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          marketplace_category_id?: string | null
           name: string
           price: number
           status?: string | null
           store_id: string
+          university_marketplace_id?: string | null
           updated_at?: string | null
           vendor_id: string
           views?: number | null
@@ -904,10 +997,12 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          marketplace_category_id?: string | null
           name?: string
           price?: number
           status?: string | null
           store_id?: string
+          university_marketplace_id?: string | null
           updated_at?: string | null
           vendor_id?: string
           views?: number | null
@@ -922,10 +1017,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "products_marketplace_category_id_fkey"
+            columns: ["marketplace_category_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_categories"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "products_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_university_marketplace_id_fkey"
+            columns: ["university_marketplace_id"]
+            isOneToOne: false
+            referencedRelation: "university_marketplaces"
             referencedColumns: ["id"]
           },
         ]
@@ -1302,6 +1411,60 @@ export type Database = {
         }
         Relationships: []
       }
+      student_verifications: {
+        Row: {
+          created_at: string | null
+          department: string | null
+          graduation_year: number | null
+          id: string
+          student_id: string
+          university_id: string | null
+          updated_at: string | null
+          user_id: string | null
+          verification_status: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          department?: string | null
+          graduation_year?: number | null
+          id?: string
+          student_id: string
+          university_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          department?: string | null
+          graduation_year?: number | null
+          id?: string
+          student_id?: string
+          university_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_verifications_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "university_marketplaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_verifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_plans: {
         Row: {
           amount: number
@@ -1329,6 +1492,39 @@ export type Database = {
           is_active?: boolean | null
           paystack_plan_code?: string
           plan_name?: string
+        }
+        Relationships: []
+      }
+      university_marketplaces: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1466,6 +1662,54 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      vendor_ratings: {
+        Row: {
+          created_at: string | null
+          customer_id: string | null
+          id: string
+          order_id: string | null
+          rating: number | null
+          review_text: string | null
+          updated_at: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id?: string | null
+          id?: string
+          order_id?: string | null
+          rating?: number | null
+          review_text?: string | null
+          updated_at?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string | null
+          id?: string
+          order_id?: string | null
+          rating?: number | null
+          review_text?: string | null
+          updated_at?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_ratings_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_ratings_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wa_chats: {
         Row: {
