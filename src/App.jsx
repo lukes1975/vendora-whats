@@ -18,7 +18,7 @@ const queryClient = new QueryClient({
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors (client errors)
         if (error && typeof error === 'object' && 'status' in error) {
-          const status = (error as any).status;
+          const status = error.status;
           if (status >= 400 && status < 500) return false;
         }
         return failureCount < 2;
@@ -47,7 +47,7 @@ const App = () => {
             <GuestSessionInitializer />
             {subdomainInfo.isSubdomain ? (
               // Subdomain routing: show storefront for the subdomain
-              <StorefrontApp storeSlug={subdomainInfo.subdomain!} />
+              <StorefrontApp storeSlug={subdomainInfo.subdomain} />
             ) : (
               // Main domain routing: show full app
               <MainAppRoutes />
