@@ -193,7 +193,7 @@ const TrendingSection = () => {
                       className="flex-1 h-7 text-xs"
                       onClick={() => handleProductView(product)}
                     >
-                      <Link to={`/${product.stores.slug}`}>
+                      <Link to={`/product/${product.id}`}>
                         <Eye className="h-3 w-3 mr-1" />
                         View
                       </Link>

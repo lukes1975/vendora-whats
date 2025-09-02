@@ -237,9 +237,9 @@ const MarketplaceProductGrid = ({ products, loading }: MarketplaceProductGridPro
                       className="flex-1"
                       onClick={() => handleViewProduct(product.id, product.vendor_id)}
                     >
-                      <Link to={`/${product.stores.slug}`}>
+                      <Link to={`/product/${product.id}`}>
                         <Eye className="h-4 w-4 mr-2" />
-                        View Store
+                        View Product
                       </Link>
                     </Button>
                     <Button
