@@ -14,7 +14,7 @@ import BikeDelivery from "@/pages/BikeDelivery";
 import Pricing from "@/pages/Pricing";
 import NotFound from "@/pages/NotFound";
 import Storefront from "@/pages/Storefront";
-import PaymentSuccess from "@/pages/PaymentSuccess";
+
 import Checkout from "@/pages/Checkout";
 import OrderTracking from "@/pages/OrderTracking";
 import FUOYEMarketplace from "@/pages/FUOYEMarketplace";
@@ -30,7 +30,7 @@ const MainAppRoutes = () => {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
+        
         <Route path="/signup" element={<Signup />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/checkout" element={<Checkout />} />

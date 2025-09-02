@@ -15,7 +15,7 @@ import { useSecureForm, commonValidationRules } from '@/hooks/useSecureForm';
 import { sanitizeTextInput, logSecurityEvent } from '@/utils/security';
 import { WhatsAppSettings } from '@/components/settings/WhatsAppSettings';
 import { CreditManagement } from '@/components/credit/CreditManagement';
-import { SubscriptionManagement } from '@/components/subscription/SubscriptionManagement';
+
 import BankAccountForm from '@/components/dashboard/setup-forms/BankAccountForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -759,7 +759,7 @@ const Settings = () => {
               </CardContent>
             </Card>
 
-            <SubscriptionManagement />
+            
           </TabsContent>
 
           <TabsContent value="credits" className="space-y-6">

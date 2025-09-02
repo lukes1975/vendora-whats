@@ -5,13 +5,13 @@ import { useEffect, useState } from "react";
 
 export function CheckoutOptions({
   onWhatsAppCheckout,
-  onCardPayment,
+  onDirectOrder,
   onBankTransfer,
   loading,
   defaultPhone,
 }: {
   onWhatsAppCheckout: (vendorPhone: string) => void;
-  onCardPayment?: () => void;
+  onDirectOrder?: () => void;
   onBankTransfer?: () => void;
   loading?: boolean;
   defaultPhone?: string;
@@ -42,10 +42,10 @@ export function CheckoutOptions({
         <Button
           className="w-full"
           variant="outline"
-          disabled={loading || !onCardPayment}
-          onClick={() => onCardPayment?.()}
+          disabled={loading || !onDirectOrder}
+          onClick={() => onDirectOrder?.()}
         >
-          Pay with card
+          Place Order
         </Button>
         {onBankTransfer && (
           <Button

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { usePaystackSubaccount } from '@/hooks/usePaystackSubaccount';
+
 import { useBankResolution } from '@/hooks/useBankResolution';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,7 +21,7 @@ interface BankAccountFormProps {
 export default function BankAccountForm({ open, onOpenChange, onComplete }: BankAccountFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { createSubaccount, checkSubaccountStatus, isCreating } = usePaystackSubaccount();
+  const [isCreating, setIsCreating] = useState(false);
   const { banks, resolveAccount, isResolvingAccount } = useBankResolution();
   
   const [formData, setFormData] = useState({
@@ -44,30 +44,28 @@ export default function BankAccountForm({ open, onOpenChange, onComplete }: Bank
 
   const checkExistingSubaccount = async () => {
     setIsLoading(true);
-    const status = await checkSubaccountStatus();
-    setSubaccountStatus(status);
-    
-    if (status !== 'none') {
-      // Load existing bank account details
-      try {
-        const { data } = await supabase
-          .from('bank_accounts')
-          .select('*')
-          .eq('user_id', user?.id)
-          .single();
-        
-        if (data) {
-          setFormData({
-            business_name: data.account_holder_name || '',
-            bank_code: data.bank_code || '',
-            account_number: data.account_number || '',
-            account_holder_name: data.account_holder_name || '',
-            percentage_charge: 2.0
-          });
-        }
-      } catch (error) {
-        console.error('Error loading bank account:', error);
+    try {
+      const { data } = await supabase
+        .from('bank_accounts')
+        .select('*')
+        .eq('user_id', user?.id)
+        .single();
+      
+      if (data) {
+        setSubaccountStatus('active');
+        setFormData({
+          business_name: data.account_holder_name || '',
+          bank_code: data.bank_code || '',
+          account_number: data.account_number || '',
+          account_holder_name: data.account_holder_name || '',
+          percentage_charge: 2.0
+        });
+      } else {
+        setSubaccountStatus('none');
       }
+    } catch (error) {
+      console.error('Error loading bank account:', error);
+      setSubaccountStatus('none');
     }
     setIsLoading(false);
   };
@@ -102,24 +100,37 @@ export default function BankAccountForm({ open, onOpenChange, onComplete }: Bank
     }
 
     try {
-      const result = await createSubaccount({
-        business_name: formData.business_name,
-        settlement_bank: formData.bank_code,
-        account_number: formData.account_number,
-        percentage_charge: formData.percentage_charge
-      });
-
-      if (result.success) {
-        toast({
-          title: 'Success!',
-          description: 'Bank account connected successfully. You can now receive payments.'
+      setIsCreating(true);
+      const { error } = await supabase
+        .from('bank_accounts')
+        .upsert({
+          user_id: user?.id,
+          bank_code: formData.bank_code,
+          account_number: formData.account_number,
+          account_holder_name: formData.account_holder_name,
+          bank_name: banks.find(b => b.code === formData.bank_code)?.name || '',
+          is_active: true
         });
-        
-        onComplete?.();
-        onOpenChange(false);
-      }
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success!',
+        description: 'Bank account connected successfully. You can now receive direct payments.'
+      });
+      
+      setSubaccountStatus('active');
+      onComplete?.();
+      onOpenChange(false);
     } catch (error) {
       console.error('Bank account setup error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save bank account. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsCreating(false);
     }
   };
 

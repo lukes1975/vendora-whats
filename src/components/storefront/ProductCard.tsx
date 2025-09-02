@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Plus, Minus } from "lucide-react";
 import { generateSecureWhatsAppUrl } from "@/utils/security";
-import PaymentButton from "@/components/payment/PaymentButton";
+
 import { useCart } from "@/modules/order-flow/hooks/useCart";
 
 interface Product {
@@ -114,14 +114,6 @@ const ProductCard = ({ product, store }: ProductCardProps) => {
             </Button>
           </a>
 
-          <PaymentButton
-            productId={product.id}
-            productName={product.name}
-            price={product.price}
-            storeId={store.id}
-            storeName={store.name}
-            className="w-full rounded-full"
-          />
         </div>
       </CardContent>
     </Card>

@@ -10,7 +10,7 @@ import { buildOrderSummary, getWhatsAppCheckoutLink } from "@/modules/order-flow
 import { useGeoIP } from "@/modules/order-flow/hooks/useGeoIP";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { usePaystack } from "@/hooks/usePaystack";
+
 const Checkout: React.FC = () => {
   const { items, subtotal, addItem } = useCart();
   const geo = useGeoIP();
@@ -139,15 +139,14 @@ const Checkout: React.FC = () => {
     toast({ title: "Opening WhatsApp", description: "Your order summary is prefilled." });
   };
 
-  const { processPayment } = usePaystack();
-  const handleCardPayment = async () => {
+  const handleDirectOrder = async () => {
     if (!valid || !quote) {
       toast({ title: "Add details", description: "Please complete your details and delivery address first." });
       return;
     }
     
     try {
-      // Create order first
+      // Create order for direct bank transfer
       const orderData = {
         store_id: store?.id,
         vendor_id: store?.vendor_id,
@@ -159,7 +158,7 @@ const Checkout: React.FC = () => {
         delivery_fee: quote.total,
         total: subtotal + quote.total,
         status: 'pending_payment',
-        payment_provider: 'paystack',
+        payment_method: 'bank_transfer',
         currency: geo?.currency || 'NGN',
         distance_km: quote.distanceKm,
         eta_minutes: quote.etaMinutes,
@@ -177,29 +176,16 @@ const Checkout: React.FC = () => {
 
       if (orderError) throw orderError;
 
-      // Process payment with order context
-      const amountNaira = (subtotal + quote.total) / 100; // subtotal and quote are in kobo
-      const success = await processPayment({
-        amount: amountNaira,
-        email: "guest@vendora.app",
-        currency: geo?.currency || "NGN",
-        productName: store?.name ? `${store.name} Order` : "Vendora Order",
-        storeId: store?.id,
-        customerName: form.name,
-        customerPhone: form.phone,
-        orderId: order.id,
-        metadata: {
-          order_id: order.id,
-          tracking_code: orderData.meta.tracking_code
-        }
+      toast({ 
+        title: "Order created", 
+        description: "Your order has been created. Please complete payment via WhatsApp." 
       });
 
-      if (success) {
-        toast({ 
-          title: "Payment initiated", 
-          description: "Complete payment to track your order." 
-        });
-      }
+      // Auto-redirect to WhatsApp with payment details
+      const totalAmount = (subtotal + quote.total) / 100;
+      const message = `Hello! I've placed an order #${orderData.meta.tracking_code} for ₦${totalAmount.toFixed(2)}. Please share your bank details for payment.`;
+      const link = getWhatsAppCheckoutLink({ vendorPhone: store?.whatsapp_number || "", message });
+      window.open(link, "_blank");
     } catch (error) {
       console.error('Error creating order:', error);
       toast({ 
@@ -246,7 +232,7 @@ const Checkout: React.FC = () => {
           <CartSummary items={items} subtotal={subtotal} onAddDemoItem={onAddDemoItem} />
           <CheckoutOptions
             onWhatsAppCheckout={handleWhatsAppCheckout}
-            onCardPayment={handleCardPayment}
+            onDirectOrder={handleDirectOrder}
             onBankTransfer={handleBankTransfer}
             loading={loadingStore}
             defaultPhone={store?.whatsapp_number || ""}
