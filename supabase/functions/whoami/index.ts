@@ -19,11 +19,7 @@ interface WhoAmIResponse {
   ip_hash: string;
   user_agent_hash: string;
   last_seen_at: string;
-  name?: string | null;
-  phone?: string | null;
-  address?: string | null;
-  lat?: number | null;
-  lng?: number | null;
+  // Personal information removed for security - only return session tracking data
 }
 
 function toHex(buffer: ArrayBuffer): string {
@@ -138,16 +134,12 @@ serve(async (req) => {
       sessionRow = inserted as any;
     }
 
+    // Only return session tracking data - no personal information for security
     const resp: WhoAmIResponse = {
       session_id: sessionRow!.id,
       ip_hash,
       user_agent_hash,
       last_seen_at: sessionRow!.last_seen_at,
-      name: sessionRow!.name,
-      phone: sessionRow!.phone,
-      address: sessionRow!.address,
-      lat: sessionRow!.lat,
-      lng: sessionRow!.lng,
     };
 
     return new Response(JSON.stringify(resp), {
