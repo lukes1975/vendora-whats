@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
-export const useWishlist = (userId) => {
+export const useWishlist = () => {
+  const { user } = useAuth();
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const fetchWishlist = async () => {
-    if (!userId) return;
+    if (!user?.id) return;
     
     try {
       setLoading(true);
@@ -30,7 +32,7 @@ export const useWishlist = (userId) => {
             )
           )
         `)
-        .eq('user_id', userId);
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
@@ -68,7 +70,7 @@ export const useWishlist = (userId) => {
   };
 
   const addToWishlist = async (productId) => {
-    if (!userId) {
+    if (!user?.id) {
       toast({
         title: 'Please login',
         description: 'You need to be logged in to add items to wishlist',
@@ -81,7 +83,7 @@ export const useWishlist = (userId) => {
       const { error } = await supabase
         .from('wishlist_items')
         .insert({
-          user_id: userId,
+          user_id: user.id,
           product_id: productId,
         });
 
@@ -108,7 +110,7 @@ export const useWishlist = (userId) => {
       const { error } = await supabase
         .from('wishlist_items')
         .delete()
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .eq('product_id', productId);
 
       if (error) throw error;
@@ -135,7 +137,7 @@ export const useWishlist = (userId) => {
 
   useEffect(() => {
     fetchWishlist();
-  }, [userId]);
+  }, [user?.id]);
 
   return {
     wishlist,
