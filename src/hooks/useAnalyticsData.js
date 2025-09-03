@@ -2,36 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
-interface AnalyticsData {
-  totalRevenue: number;
-  totalOrders: number;
-  totalProducts: number;
-  avgOrderValue: number;
-  topProducts: Array<{
-    id: string;
-    name: string;
-    revenue: number;
-    orders: number;
-  }>;
-  revenueByDay: Array<{
-    date: string;
-    revenue: number;
-    orders: number;
-  }>;
-  lowStockProducts: Array<{
-    id: string;
-    name: string;
-    stock: number;
-    threshold: number;
-  }>;
-}
-
 export const useAnalyticsData = () => {
   const { user } = useAuth();
 
   return useQuery({
     queryKey: ['analytics', user?.id],
-    queryFn: async (): Promise<AnalyticsData> => {
+    queryFn: async () => {
       if (!user?.id) throw new Error('User not authenticated');
 
       try {
@@ -67,7 +43,7 @@ export const useAnalyticsData = () => {
         const productRevenue = orders?.reduce((acc, order) => {
           acc[order.product_id] = (acc[order.product_id] || 0) + order.total_price;
           return acc;
-        }, {} as Record<string, number>) || {};
+        }, {}) || {};
 
         const topProducts = Object.entries(productRevenue)
           .map(([productId, revenue]) => {
@@ -103,12 +79,7 @@ export const useAnalyticsData = () => {
         });
 
         // Get actual low stock products from database
-        const lowStockProducts: Array<{
-          id: string;
-          name: string;
-          stock: number;
-          threshold: number;
-        }> = [];
+        const lowStockProducts = [];
 
         // Simulate some low stock products for demo (remove when real inventory is added)
         if (products && products.length > 0) {
