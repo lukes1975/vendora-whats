@@ -13,7 +13,6 @@ import DashboardLayout from '@/components/DashboardLayout';
 import UpgradePlanButton from '@/components/dashboard/UpgradePlanButton';
 import { useSecureForm, commonValidationRules } from '@/hooks/useSecureForm';
 import { sanitizeTextInput, logSecurityEvent } from '@/utils/security';
-import { WhatsAppSettings } from '@/components/settings/WhatsAppSettings';
 import { CreditManagement } from '@/components/credit/CreditManagement';
 
 import BankAccountForm from '@/components/dashboard/setup-forms/BankAccountForm';
@@ -400,14 +399,10 @@ const Settings = () => {
 
         {/* Settings Tabs */}
         <Tabs defaultValue="branding" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="branding" className="flex items-center gap-2">
               <Palette className="h-4 w-4" />
               Branding
-            </TabsTrigger>
-            <TabsTrigger value="whatsapp" className="flex items-center gap-2">
-              <Phone className="h-4 w-4" />
-              WhatsApp
             </TabsTrigger>
             <TabsTrigger value="billing" className="flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
@@ -686,17 +681,6 @@ const Settings = () => {
                 )}
               </Button>
             </div>
-          </TabsContent>
-
-          <TabsContent value="whatsapp" className="space-y-6">
-            <WhatsAppSettings 
-              store={storeData ? {
-                id: storeData.id,
-                name: storeData.name,
-                use_ai_chat: storeData.use_ai_chat
-              } : null}
-              onStoreUpdate={loadSettings}
-            />
           </TabsContent>
 
           <TabsContent value="billing" className="space-y-6">

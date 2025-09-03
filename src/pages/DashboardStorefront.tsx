@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Store, Users, MessageSquare } from "lucide-react";
 import QRCodeGenerator from "@/components/QRCodeGenerator";
-import WhatsAppTemplates from "@/components/dashboard/WhatsAppTemplates";
 
 const DashboardStorefront = () => {
   const { user } = useAuth();
@@ -95,7 +94,7 @@ const DashboardStorefront = () => {
                 <div className="space-y-2">
                   <div className="flex items-center text-sm">
                     <Users className="h-4 w-4 mr-2" />
-                    <span>WhatsApp: {store.whatsapp_number || "Not configured"}</span>
+                    <span>Store Contact: {store.whatsapp_number || "Not configured"}</span>
                   </div>
                   <div className="flex items-center text-sm">
                     <MessageSquare className="h-4 w-4 mr-2" />
@@ -113,9 +112,6 @@ const DashboardStorefront = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* WhatsApp Templates */}
-        <WhatsAppTemplates />
       </div>
     </DashboardLayout>
   );
