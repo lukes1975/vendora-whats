@@ -1,27 +1,6 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-
-interface StoreData {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  whatsapp_number: string;
-}
-
-interface DashboardStats {
-  totalProducts: number;
-  totalOrders: number;
-  recentOrders: Array<{
-    id: string;
-    customer_name: string;
-    status: string;
-    created_at: string;
-    total_price: number;
-  }>;
-}
 
 export const useDashboardData = () => {
   const { user } = useAuth();
@@ -43,7 +22,7 @@ export const useDashboardData = () => {
         throw error;
       }
       
-      return data as StoreData | null;
+      return data;
     },
     enabled: !!user?.id,
     staleTime: 15 * 60 * 1000, // Store data rarely changes, cache for 15 minutes
@@ -54,7 +33,7 @@ export const useDashboardData = () => {
   // Fetch dashboard statistics - optimized with single aggregated query
   const { data: stats, isLoading: statsLoading, error: statsError } = useQuery({
     queryKey: ['dashboard-stats', user?.id],
-    queryFn: async (): Promise<DashboardStats> => {
+    queryFn: async () => {
       if (!user?.id) throw new Error('User not authenticated');
 
       try {

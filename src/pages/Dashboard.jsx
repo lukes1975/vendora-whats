@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAutoCreateStore } from "@/hooks/useAutoCreateStore";
@@ -11,13 +10,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { LoadingPage } from "@/components/ui/loading-spinner";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
-import ShareStoreCard from "@/components/dashboard/ShareStoreCard";
+import MarketplaceStatsCard from "@/components/dashboard/MarketplaceStatsCard";
 import AnnouncementBanner from "@/components/dashboard/AnnouncementBanner";
 import FirstProductCTA from "@/components/dashboard/FirstProductCTA";
 import SimplifiedStatsGrid from "@/components/dashboard/SimplifiedStatsGrid";
 import EssentialQuickActions from "@/components/dashboard/EssentialQuickActions";
 import LightRecentOrders from "@/components/dashboard/LightRecentOrders";
 import SetupWizard from "@/components/dashboard/SetupWizard";
+import StudentVerificationBanner from "@/components/marketplace/StudentVerificationBanner";
 
 import { Button } from "@/components/ui/button";
 
@@ -38,10 +38,6 @@ const Dashboard = () => {
   React.useEffect(() => {
     track('dashboard_viewed');
   }, [track]);
-
-  const storeUrl = storeData?.slug 
-    ? `https://vendora.business/${storeData.slug}` 
-    : `https://vendora.business/${storeData?.id || 'your-store'}`;
 
   const hasProducts = (analytics?.totalProducts || 0) > 0;
 
@@ -94,12 +90,15 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="space-y-8 pb-24">
+        {/* Student Verification Banner */}
+        <StudentVerificationBanner />
+
         {/* Setup Wizard for new users or manual access */}
         {shouldShowSetupWizard && (
           <div className="space-y-4">
             {showSetupManually && (
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold">Store Setup Guide</h2>
+                <h2 className="text-xl font-semibold">Marketplace Setup Guide</h2>
                 <Button 
                   variant="outline" 
                   size="sm"
@@ -132,13 +131,13 @@ const Dashboard = () => {
             {/* Announcement Banner */}
             <AnnouncementBanner />
 
-            {/* Welcome Header */}
+            {/* Welcome Header - Updated for Marketplace Focus */}
             <div className="rounded-xl p-6 border">
               <WelcomeSection storeName={storeData?.name} />
             </div>
 
-        {/* Share Store Card */}
-        <ShareStoreCard />
+        {/* Marketplace Stats instead of Store Share */}
+        <MarketplaceStatsCard />
 
         {/* Simplified Stats */}
         <SimplifiedStatsGrid 
@@ -162,7 +161,6 @@ const Dashboard = () => {
             📋 Open Setup Guide
           </Button>
         </div>
-
 
             {/* First Product CTA for users with no products */}
             <FirstProductCTA hasProducts={hasProducts} />
