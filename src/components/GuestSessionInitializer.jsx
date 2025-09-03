@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useGuestSession } from "@/hooks/useGuestSession";
 
-const GuestSessionInitializer: React.FC = () => {
+const GuestSessionInitializer = () => {
   const { updateSessionDetails } = useGuestSession();
 
   useEffect(() => {

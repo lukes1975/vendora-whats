@@ -1,26 +1,14 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export interface GuestSession {
-  session_id: string;
-  ip_hash: string;
-  user_agent_hash: string;
-  last_seen_at: string;
-  name?: string | null;
-  phone?: string | null;
-  address?: string | null;
-  lat?: number | null;
-  lng?: number | null;
-}
-
 export function useGuestSession() {
-  const [session, setSession] = useState<GuestSession | null>(null);
+  const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
-  const ensureSession = useCallback(async (payload?: Partial<GuestSession>) => {
+  const ensureSession = useCallback(async (payload) => {
     try {
-      const { data, error } = await supabase.functions.invoke<GuestSession>("whoami", {
+      const { data, error } = await supabase.functions.invoke("whoami", {
         body: payload ?? {},
       });
       if (error) throw error;
@@ -28,7 +16,7 @@ export function useGuestSession() {
         localStorage.setItem("guest_session_id", data.session_id);
         setSession(data);
       }
-    } catch (e: any) {
+    } catch (e) {
       console.error("useGuestSession: whoami failed", e);
       setError(e?.message || "Failed to establish session");
     } finally {
@@ -45,7 +33,7 @@ export function useGuestSession() {
     ensureSession();
   }, [ensureSession]);
 
-  const updateSessionDetails = useCallback(async (details: Partial<GuestSession>) => {
+  const updateSessionDetails = useCallback(async (details) => {
     setLoading(true);
     await ensureSession(details);
   }, [ensureSession]);

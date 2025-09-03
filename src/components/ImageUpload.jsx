@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,24 +8,18 @@ import { useToast } from "@/hooks/use-toast";
 import { logSecurityEvent } from "@/utils/security";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 
-interface ImageUploadProps {
-  currentImageUrl?: string;
-  onImageUpload: (url: string) => void;
-  onImageRemove: () => void;
-}
-
-const ImageUpload: React.FC<ImageUploadProps> = ({
+const ImageUpload = ({
   currentImageUrl,
   onImageUpload,
   onImageRemove,
 }) => {
   const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState<string | null>(currentImageUrl || null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState(currentImageUrl || null);
+  const fileInputRef = useRef(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const validateFile = (file: File): boolean => {
+  const validateFile = (file) => {
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     const maxSize = 2 * 1024 * 1024; // 2MB
 
@@ -61,7 +54,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     return true;
   };
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (event) => {
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
