@@ -20,33 +20,17 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
-interface Review {
-  id: string;
-  rating: number;
-  review_text: string | null;
-  review_images: any; // Json type from Supabase
-  is_verified_purchase: boolean;
-  helpful_votes: number;
-  created_at: string;
-  user_id: string | null;
-}
-
-interface EnhancedProductReviewsProps {
-  productId: string;
-  productName: string;
-}
-
-export const EnhancedProductReviews = ({ productId, productName }: EnhancedProductReviewsProps) => {
-  const [reviews, setReviews] = useState<Review[]>([]);
+const EnhancedProductReviews = ({ productId, productName = "this product" }) => {
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [newReview, setNewReview] = useState({
     rating: 0,
     reviewText: '',
-    images: [] as File[]
+    images: []
   });
   const [submitting, setSubmitting] = useState(false);
-  const [filterBy, setFilterBy] = useState<'all' | 'verified' | 'with-photos'>('all');
+  const [filterBy, setFilterBy] = useState('all');
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -71,7 +55,7 @@ export const EnhancedProductReviews = ({ productId, productName }: EnhancedProdu
     }
   };
 
-  const handleImageUpload = (files: FileList | null) => {
+  const handleImageUpload = (files) => {
     if (files) {
       const validFiles = Array.from(files).filter(file => 
         file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024 // 5MB limit
@@ -92,7 +76,7 @@ export const EnhancedProductReviews = ({ productId, productName }: EnhancedProdu
     }
   };
 
-  const uploadImages = async (images: File[]): Promise<string[]> => {
+  const uploadImages = async (images) => {
     const uploadPromises = images.map(async (image, index) => {
       const fileExt = image.name.split('.').pop();
       const fileName = `review-${productId}-${Date.now()}-${index}.${fileExt}`;
@@ -135,7 +119,7 @@ export const EnhancedProductReviews = ({ productId, productName }: EnhancedProdu
     setSubmitting(true);
 
     try {
-      let imageUrls: string[] = [];
+      let imageUrls = [];
       
       if (newReview.images.length > 0) {
         imageUrls = await uploadImages(newReview.images);
@@ -175,7 +159,7 @@ export const EnhancedProductReviews = ({ productId, productName }: EnhancedProdu
     }
   };
 
-  const handleHelpfulVote = async (reviewId: string) => {
+  const handleHelpfulVote = async (reviewId) => {
     if (!user) {
       toast({
         title: "Login Required",
@@ -188,10 +172,13 @@ export const EnhancedProductReviews = ({ productId, productName }: EnhancedProdu
     try {
       // For simplicity, just increment the helpful votes 
       // In a real app, you'd track user votes to prevent duplicate voting
+      const review = reviews.find(r => r.id === reviewId);
+      if (!review) return;
+
       const { error } = await supabase
         .from('product_ratings')
         .update({ 
-          helpful_votes: reviews.find(r => r.id === reviewId)!.helpful_votes + 1 
+          helpful_votes: review.helpful_votes + 1 
         })
         .eq('id', reviewId);
 
@@ -496,12 +483,12 @@ export const EnhancedProductReviews = ({ productId, productName }: EnhancedProdu
                 {/* Review Images */}
                 {Array.isArray(review.review_images) && review.review_images.length > 0 && (
                   <div className="flex gap-2 flex-wrap">
-                    {review.review_images.map((imageUrl: string, index: number) => (
+                    {review.review_images.map((imageUrl, index) => (
                       <img
                         key={index}
                         src={imageUrl}
-                        alt={`Review image ${index + 1}`}
-                        className="w-20 h-20 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity"
+                        alt={`Review ${index + 1}`}
+                        className="w-20 h-20 object-cover rounded-md cursor-pointer hover:opacity-80"
                         onClick={() => window.open(imageUrl, '_blank')}
                       />
                     ))}
@@ -509,31 +496,35 @@ export const EnhancedProductReviews = ({ productId, productName }: EnhancedProdu
                 )}
 
                 {/* Helpful Vote */}
-                <div className="flex items-center justify-between pt-2 border-t">
+                <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleHelpfulVote(review.id)}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-xs"
                   >
-                    <ThumbsUp className="h-4 w-4 mr-2" />
-                    Helpful ({review.helpful_votes})
+                    <ThumbsUp className="h-3 w-3 mr-1" />
+                    Helpful ({review.helpful_votes || 0})
                   </Button>
                 </div>
               </div>
             ))}
           </div>
+        ) : reviews.length > 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
+            <p>No reviews match the current filter</p>
+          </div>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm">
-              {reviews.length === 0 
-                ? "No reviews yet. Be the first to review!" 
-                : "No reviews match the selected filter"}
-            </p>
+            <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
+            <p>No reviews yet</p>
+            <p className="text-sm">Be the first to review this product!</p>
           </div>
         )}
       </CardContent>
     </Card>
   );
 };
+
+export default EnhancedProductReviews;
