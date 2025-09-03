@@ -1141,6 +1141,8 @@ export type Database = {
           first_login_done: boolean | null
           full_name: string | null
           id: string
+          individual_store_enabled: boolean | null
+          is_student_verified: boolean | null
           next_billing_date: string | null
           onboarding_email_sent: boolean | null
           paystack_customer_code: string | null
@@ -1149,10 +1151,12 @@ export type Database = {
           role: Database["public"]["Enums"]["user_role"] | null
           setup_completed: boolean | null
           setup_completed_at: string | null
+          student_verification_date: string | null
           subdomain: string | null
           subscription_created_at: string | null
           subscription_status: string | null
           subscription_updated_at: string | null
+          university_email: string | null
           updated_at: string | null
         }
         Insert: {
@@ -1162,6 +1166,8 @@ export type Database = {
           first_login_done?: boolean | null
           full_name?: string | null
           id: string
+          individual_store_enabled?: boolean | null
+          is_student_verified?: boolean | null
           next_billing_date?: string | null
           onboarding_email_sent?: boolean | null
           paystack_customer_code?: string | null
@@ -1170,10 +1176,12 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"] | null
           setup_completed?: boolean | null
           setup_completed_at?: string | null
+          student_verification_date?: string | null
           subdomain?: string | null
           subscription_created_at?: string | null
           subscription_status?: string | null
           subscription_updated_at?: string | null
+          university_email?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1183,6 +1191,8 @@ export type Database = {
           first_login_done?: boolean | null
           full_name?: string | null
           id?: string
+          individual_store_enabled?: boolean | null
+          is_student_verified?: boolean | null
           next_billing_date?: string | null
           onboarding_email_sent?: boolean | null
           paystack_customer_code?: string | null
@@ -1191,10 +1201,12 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"] | null
           setup_completed?: boolean | null
           setup_completed_at?: string | null
+          student_verification_date?: string | null
           subdomain?: string | null
           subscription_created_at?: string | null
           subscription_status?: string | null
           subscription_updated_at?: string | null
+          university_email?: string | null
           updated_at?: string | null
         }
         Relationships: []
