@@ -133,30 +133,41 @@ const FUOYEMarketplace = () => {
       }
 
       // Fetch marketplace stats
-      const [
-        { count: totalProducts },
-        { count: totalStores },
-        { count: totalStudents }
-      ] = await Promise.all([
-        supabase
-          .from('products')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'active'),
-        supabase
-          .from('stores')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_active', true),
-        supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_student_verified', true)
-      ]);
+      try {
+        const [
+          { count: totalProducts },
+          { count: totalStores },
+          { count: totalStudents }
+        ] = await Promise.all([
+          supabase
+            .from('products')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'active'),
+          supabase
+            .from('stores')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_active', true),
+          supabase
+            .from('profiles')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_student_verified', true)
+        ]);
 
-      setStats({
-        totalProducts: totalProducts || 0,
-        totalStores: totalStores || 0,
-        totalStudents: totalStudents || 0
-      });
+        setStats({
+          totalProducts: totalProducts || 0,
+          totalStores: totalStores || 0,
+          totalStudents: totalStudents || 0
+        });
+      } catch (statsError) {
+        console.error('Error fetching marketplace stats:', statsError);
+        // Set default stats on error
+        setStats({
+          totalProducts: 0,
+          totalStores: 0,
+          totalStudents: 0
+        });
+      }
+
 
     } catch (error) {
       console.error('Error fetching marketplace data:', error);
