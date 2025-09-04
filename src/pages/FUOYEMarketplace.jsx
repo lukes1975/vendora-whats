@@ -188,40 +188,40 @@ const FUOYEMarketplace = () => {
         {/* Student Verification Banner */}
         <StudentVerificationBanner />
         
-        {/* Marketplace Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        {/* Marketplace Stats - Mobile Optimized */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Card>
-            <CardContent className="flex items-center justify-between p-6">
+            <CardContent className="flex items-center justify-between p-4 sm:p-6">
               <div>
-                <p className="text-sm font-medium text-gray-600">Active Products</p>
-                <p className="text-2xl font-bold">{stats.totalProducts}</p>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Active Products</p>
+                <p className="text-xl sm:text-2xl font-bold">{stats.totalProducts}</p>
               </div>
-              <div className="p-3 bg-blue-100 rounded-full">
-                <TrendingUp className="h-6 w-6 text-blue-600" />
+              <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/20 rounded-full">
+                <TrendingUp className="h-4 w-4 sm:h-6 sm:w-6 text-blue-600" />
               </div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardContent className="flex items-center justify-between p-6">
+            <CardContent className="flex items-center justify-between p-4 sm:p-6">
               <div>
-                <p className="text-sm font-medium text-gray-600">Active Stores</p>
-                <p className="text-2xl font-bold">{stats.totalStores}</p>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Active Stores</p>
+                <p className="text-xl sm:text-2xl font-bold">{stats.totalStores}</p>
               </div>
-              <div className="p-3 bg-green-100 rounded-full">
-                <Users className="h-6 w-6 text-green-600" />
+              <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/20 rounded-full">
+                <Users className="h-4 w-4 sm:h-6 sm:w-6 text-green-600" />
               </div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardContent className="flex items-center justify-between p-6">
+            <CardContent className="flex items-center justify-between p-4 sm:p-6">
               <div>
-                <p className="text-sm font-medium text-gray-600">Verified Students</p>
-                <p className="text-2xl font-bold">{stats.totalStudents}</p>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Verified Students</p>
+                <p className="text-xl sm:text-2xl font-bold">{stats.totalStudents}</p>
               </div>
-              <div className="p-3 bg-purple-100 rounded-full">
-                <GraduationCap className="h-6 w-6 text-purple-600" />
+              <div className="p-2 sm:p-3 bg-purple-100 dark:bg-purple-900/20 rounded-full">
+                <GraduationCap className="h-4 w-4 sm:h-6 sm:w-6 text-purple-600" />
               </div>
             </CardContent>
           </Card>
@@ -232,88 +232,93 @@ const FUOYEMarketplace = () => {
           <TrendingSection />
         </div>
 
-        {/* Filters */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
+        {/* Filters - Mobile Optimized */}
+        <Card className="mb-4 sm:mb-6">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
               Find Products
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <CardContent className="pt-0">
+            {/* Mobile-First Layout */}
+            <div className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
+              {/* Search - Full width on mobile */}
+              <div className="relative sm:col-span-2 lg:col-span-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search products..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-12 sm:h-10"
                 />
               </div>
               
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <Select value={priceRange} onValueChange={setPriceRange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Price Range" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Any Price</SelectItem>
-                  <SelectItem value="0-1000">Under ₦1,000</SelectItem>
-                  <SelectItem value="1000-5000">₦1,000 - ₦5,000</SelectItem>
-                  <SelectItem value="5000-10000">₦5,000 - ₦10,000</SelectItem>
-                  <SelectItem value="10000-50000">₦10,000 - ₦50,000</SelectItem>
-                  <SelectItem value="50000">Above ₦50,000</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sort By" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                  <SelectItem value="popular">Most Popular</SelectItem>
-                  <SelectItem value="price_low">Price: Low to High</SelectItem>
-                  <SelectItem value="price_high">Price: High to Low</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* Filters in grid on mobile */}
+              <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 sm:col-span-2 lg:col-span-3">
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="h-12 sm:h-10">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Categories</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <Select value={priceRange} onValueChange={setPriceRange}>
+                  <SelectTrigger className="h-12 sm:h-10">
+                    <SelectValue placeholder="Price Range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Any Price</SelectItem>
+                    <SelectItem value="0-1000">Under ₦1,000</SelectItem>
+                    <SelectItem value="1000-5000">₦1,000 - ₦5,000</SelectItem>
+                    <SelectItem value="5000-10000">₦5,000 - ₦10,000</SelectItem>
+                    <SelectItem value="10000-50000">₦10,000 - ₦50,000</SelectItem>
+                    <SelectItem value="50000">Above ₦50,000</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="h-12 sm:h-10">
+                    <SelectValue placeholder="Sort By" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest First</SelectItem>
+                    <SelectItem value="popular">Most Popular</SelectItem>
+                    <SelectItem value="price_low">Price: Low to High</SelectItem>
+                    <SelectItem value="price_high">Price: High to Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Products Grid */}
+        {/* Products Grid - Mobile Optimized */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             {[...Array(12)].map((_, i) => (
               <Card key={i} className="animate-pulse">
-                <div className="aspect-square bg-gray-200"></div>
-                <CardContent className="p-4">
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                <div className="aspect-square bg-muted"></div>
+                <CardContent className="p-3 sm:p-4">
+                  <div className="h-4 bg-muted rounded mb-2"></div>
+                  <div className="h-3 bg-muted rounded w-2/3 mb-2"></div>
+                  <div className="h-4 bg-muted rounded w-1/2"></div>
                 </CardContent>
               </Card>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             {products.map((product) => (
-              <Card key={product.id} className="group hover:shadow-lg transition-shadow duration-200">
-                <div className="relative aspect-square overflow-hidden rounded-t-lg bg-gray-100">
+              <Card key={product.id} className="group hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+                <div className="relative aspect-square overflow-hidden bg-muted">
                   <Link to={`/product/${product.id}`}>
                     {product.image_url ? (
                       <img
@@ -323,28 +328,28 @@ const FUOYEMarketplace = () => {
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-400">No image</span>
+                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <span className="text-muted-foreground text-sm">No image</span>
                       </div>
                     )}
                   </Link>
                   
-                  {/* Wishlist Button */}
+                  {/* Wishlist Button - Mobile Optimized */}
                   <div className="absolute top-2 right-2">
                     <WishlistButton productId={product.id} />
                   </div>
                 </div>
                 
-                <CardContent className="p-4">
+                <CardContent className="p-3 sm:p-4">
                   <Link to={`/product/${product.id}`} className="block">
-                    <h3 className="font-semibold text-sm mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                    <h3 className="font-semibold text-sm sm:text-base mb-1 line-clamp-2 group-hover:text-primary transition-colors">
                       {product.name}
                     </h3>
                   </Link>
                   
                   {product.stores && (
                     <Link to={`/${product.stores.slug}`} className="block mb-2">
-                      <p className="text-xs text-gray-600 hover:text-blue-600 transition-colors">
+                      <p className="text-xs text-muted-foreground hover:text-primary transition-colors">
                         by {product.stores.name}
                       </p>
                     </Link>
@@ -352,25 +357,25 @@ const FUOYEMarketplace = () => {
                   
                   <div className="flex items-center gap-1 mb-2">
                     {renderStars(Math.round(product.average_rating))}
-                    <span className="text-xs text-gray-600 ml-1">
+                    <span className="text-xs text-muted-foreground ml-1">
                       ({product.product_ratings?.length || 0})
                     </span>
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <p className="text-lg font-bold text-green-600">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-base sm:text-lg font-bold text-green-600">
                       ₦{product.price?.toLocaleString()}
                     </p>
                     
                     {product.marketplace_categories && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
                         {product.marketplace_categories.name}
                       </Badge>
                     )}
                   </div>
                   
                   <Link to={`/product/${product.id}`}>
-                    <Button className="w-full mt-3" size="sm">
+                    <Button className="w-full h-10" size="sm">
                       View Details
                     </Button>
                   </Link>

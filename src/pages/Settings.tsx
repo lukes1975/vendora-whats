@@ -397,58 +397,61 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Settings Tabs */}
-        <Tabs defaultValue="branding" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="branding" className="flex items-center gap-2">
-              <Palette className="h-4 w-4" />
-              Branding
+        {/* Settings Tabs - Mobile Optimized */}
+        <Tabs defaultValue="branding" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-3 bg-secondary p-1 rounded-xl h-12 sm:h-14">
+            <TabsTrigger value="branding" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Palette className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Branding</span>
+              <span className="sm:hidden">Brand</span>
             </TabsTrigger>
-            <TabsTrigger value="billing" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              Billing
+            <TabsTrigger value="billing" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Billing</span>
+              <span className="sm:hidden">Bills</span>
             </TabsTrigger>
-            <TabsTrigger value="credits" className="flex items-center gap-2">
-              <Zap className="h-4 w-4" />
-              Credits
+            <TabsTrigger value="credits" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Zap className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Credits</span>
+              <span className="sm:hidden">Credits</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="branding" className="space-y-6">
-            {/* Settings Form */}
-            <div className="grid gap-8 lg:grid-cols-2">
+          <TabsContent value="branding" className="space-y-4 sm:space-y-6">
+            {/* Settings Form - Mobile Optimized */}
+            <div className="grid gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-2">
               {/* Store Information */}
               <Card className="border-0 shadow-lg">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-3 text-xl">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Store className="h-5 w-5 text-primary" />
+                <CardHeader className="pb-3 sm:pb-4 px-4 sm:px-6">
+                  <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
+                    <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                      <Store className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     </div>
-                    Business Information
+                    <span className="text-base sm:text-xl">Business Information</span>
                   </CardTitle>
-                  <p className="text-muted-foreground">Essential details for your storefront</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Essential details for your storefront</p>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
                   <div className="space-y-2">
-                    <Label htmlFor="storeName">Business Name</Label>
+                    <Label htmlFor="storeName" className="text-sm font-medium">Business Name</Label>
                     <div className="relative">
-                      <Store className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Store className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="storeName"
                         value={values.store_name}
                         onChange={(e) => setValue('store_name', e.target.value)}
                         placeholder="Enter your business name"
-                        className="pl-10"
+                        className="pl-10 h-11 sm:h-12"
                         required
                       />
                       {errors.store_name && (
-                        <p className="text-sm text-red-600 mt-1">{errors.store_name}</p>
+                        <p className="text-sm text-destructive mt-1">{errors.store_name}</p>
                       )}
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="whatsappNumber">WhatsApp Number (Optional)</Label>
+                    <Label htmlFor="whatsappNumber" className="text-sm font-medium">WhatsApp Number (Optional)</Label>
                     <div className="relative flex">
                       <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md border-input">
                         <Phone className="h-4 w-4 text-muted-foreground mr-2" />
@@ -463,17 +466,17 @@ const Settings = () => {
                           setValue('whatsapp_number', value ? `+234${value}` : '');
                         }}
                         placeholder="8012345678"
-                        className="rounded-l-none"
+                        className="rounded-l-none h-11 sm:h-12"
                         maxLength={10}
                       />
                     </div>
                     {phoneNumber && phoneNumber.length > 0 && phoneNumber.length < 10 && (
-                      <p className="text-sm text-red-600 mt-1">
+                      <p className="text-sm text-destructive mt-1">
                         Please enter a valid 10-digit number
                       </p>
                     )}
                     {errors.whatsapp_number && (
-                      <p className="text-sm text-red-600 mt-1">
+                      <p className="text-sm text-destructive mt-1">
                         {errors.whatsapp_number}
                       </p>
                     )}
@@ -481,16 +484,16 @@ const Settings = () => {
                 </CardContent>
               </Card>
 
-              {/* Store Logo */}
+              {/* Store Logo - Mobile Optimized */}
               <Card className="border-0 shadow-lg">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-3 text-xl">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <ImageIcon className="h-5 w-5 text-primary" />
+                <CardHeader className="pb-3 sm:pb-4 px-4 sm:px-6">
+                  <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
+                    <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                      <ImageIcon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     </div>
-                    Brand Logo
+                    <span className="text-base sm:text-xl">Brand Logo</span>
                   </CardTitle>
-                  <p className="text-muted-foreground">Upload your professional logo</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Upload your professional logo</p>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">

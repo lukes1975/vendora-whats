@@ -222,26 +222,26 @@ const Products = () => {
         </div>
 
         <Tabs defaultValue="products" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-secondary p-1 rounded-xl h-12">
-              <TabsTrigger value="products" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm font-medium">
+            <TabsList className="grid w-full grid-cols-2 bg-secondary p-1 rounded-xl h-12 sm:h-14">
+              <TabsTrigger value="products" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm font-medium text-sm">
                 <Package className="h-4 w-4" />
                 <span className="hidden sm:inline">Products</span>
                 <span className="sm:hidden">Items</span>
               </TabsTrigger>
-              <TabsTrigger value="categories" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm font-medium">
+              <TabsTrigger value="categories" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm font-medium text-sm">
                 <FolderOpen className="h-4 w-4" />
                 <span className="hidden sm:inline">Categories</span>
                 <span className="sm:hidden">Groups</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="products" className="space-y-6 mt-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-gradient-to-r from-primary/5 to-purple-500/5 rounded-2xl border">
+            <TabsContent value="products" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 bg-gradient-to-r from-primary/5 to-purple-500/5 rounded-2xl border">
                 <div>
-                  <h3 className="text-xl font-semibold text-foreground">Manage Your Products</h3>
-                  <p className="text-muted-foreground mt-1">Showcase what you offer to potential customers</p>
+                  <h3 className="text-lg sm:text-xl font-semibold text-foreground">Manage Your Products</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground mt-1">Showcase what you offer to potential customers</p>
                 </div>
-                <Button onClick={handleOpenProductForm} size="lg" className="bg-primary hover:bg-primary/90 shadow-lg">
+                <Button onClick={handleOpenProductForm} size="lg" className="bg-primary hover:bg-primary/90 shadow-lg h-12 w-full sm:w-auto">
                   <Plus className="mr-2 h-4 w-4" />
                   <span className="hidden sm:inline">Add New Item</span>
                   <span className="sm:hidden">Add Item</span>
@@ -289,7 +289,7 @@ const Products = () => {
                   </div>
                 </div>
               ) : products && products.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                   {products.map((product) => (
                     <Card key={product.id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden border-0 shadow-md">
                       <div className="relative">
@@ -302,35 +302,35 @@ const Products = () => {
                             />
                           </div>
                         )}
-                        <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-lg px-3 py-1">
-                          <span className="text-lg font-bold text-primary">₦{product.price.toFixed(2)}</span>
+                        <div className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-card/90 backdrop-blur-sm rounded-lg px-2 sm:px-3 py-1">
+                          <span className="text-sm sm:text-lg font-bold text-primary">₦{product.price.toFixed(2)}</span>
                         </div>
                       </div>
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-lg group-hover:text-primary transition-colors">{product.name}</CardTitle>
+                      <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-6">
+                        <CardTitle className="text-base sm:text-lg group-hover:text-primary transition-colors line-clamp-2">{product.name}</CardTitle>
                         {product.description && (
-                          <CardDescription className="line-clamp-2">{product.description}</CardDescription>
+                          <CardDescription className="line-clamp-2 text-xs sm:text-sm">{product.description}</CardDescription>
                         )}
                       </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="flex gap-2">
+                      <CardContent className="pt-0 p-3 sm:p-6">
+                        <div className="grid grid-cols-2 gap-2">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleEditProduct(product)}
-                            className="flex-1 hover:bg-primary hover:text-primary-foreground transition-colors"
+                            className="flex-1 hover:bg-primary hover:text-primary-foreground transition-colors h-10"
                           >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
+                            <Edit className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                            <span className="text-xs sm:text-sm">Edit</span>
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleDeleteProduct(product)}
-                            className="flex-1 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                            className="flex-1 hover:bg-destructive hover:text-destructive-foreground transition-colors h-10"
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
+                            <Trash2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                            <span className="text-xs sm:text-sm">Delete</span>
                           </Button>
                         </div>
                       </CardContent>

@@ -57,18 +57,20 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <GraduationCap className="h-6 w-6 text-primary" />
+              <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
               <div>
-                <div className="font-bold text-lg">Vendora</div>
-                <div className="text-xs text-muted-foreground">FUOYE Marketplace</div>
+                <div className="font-bold text-base sm:text-lg">Vendora</div>
+                <div className="text-xs text-muted-foreground hidden sm:block">FUOYE Marketplace</div>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-3 lg:gap-4">
               <Link to="/fuoye-market">
                 <Button variant="ghost" size="sm">Browse Market</Button>
               </Link>
@@ -81,55 +83,70 @@ const Index = () => {
                 </Button>
               </Link>
             </div>
+
+            {/* Mobile Navigation */}
+            <div className="md:hidden flex items-center gap-2">
+              <Link to="/fuoye-market">
+                <Button variant="ghost" size="sm" className="px-3">
+                  Browse
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button variant="outline" size="sm" className="px-3">
+                  Login
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-20">
+      <section className="py-12 sm:py-16 lg:py-20">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto">
-            <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
+            <Badge className="mb-4 sm:mb-6 bg-primary/10 text-primary border-primary/20 text-xs sm:text-sm">
               🎓 Nigeria's #1 University Marketplace
             </Badge>
             
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-4 sm:mb-6 px-2">
               Where FUOYE Students{" "}
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Build Empires
               </span>
             </h1>
             
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed px-2">
               Buy, sell, and connect with over 10,000 verified FUOYE students. From textbooks to tech, 
               food to fashion - your campus commerce journey starts here.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
-              <Link to="/signup">
-                <Button size="lg" className="px-8 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90">
+            {/* Mobile CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 px-4">
+              <Link to="/signup" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto px-6 sm:px-8 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 min-h-[48px]">
                   🚀 Launch Your Business
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </Link>
-              <Link to="/fuoye-market">
-                <Button variant="outline" size="lg" className="px-8">
+              <Link to="/fuoye-market" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto px-6 sm:px-8 min-h-[48px]">
                   🛍️ Start Shopping
                 </Button>
               </Link>
             </div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {/* Quick Stats - Mobile Optimized */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
               {stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
                   <div key={index} className="text-center">
-                    <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-full mb-2">
-                      <Icon className="h-6 w-6 text-primary" />
+                    <div className="inline-flex items-center justify-center p-2 sm:p-3 bg-primary/10 rounded-full mb-2">
+                      <Icon className="h-4 w-4 sm:h-6 sm:w-6 text-primary" />
                     </div>
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                    <div className="text-sm text-muted-foreground">{stat.label}</div>
+                    <div className="text-lg sm:text-2xl font-bold">{stat.value}</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">{stat.label}</div>
                   </div>
                 );
               })}
