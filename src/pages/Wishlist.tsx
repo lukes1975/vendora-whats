@@ -173,9 +173,9 @@ const Wishlist = () => {
                     {/* Vendor Info */}
                     <div className="flex items-center gap-3 py-2 border-t">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src="" />
+                        <AvatarImage src={item.products.stores?.logo_url || ''} />
                         <AvatarFallback className="text-xs">
-                          {item.products.stores?.name?.charAt(0).toUpperCase()}
+                          {item.products.stores?.name?.charAt(0).toUpperCase() || 'S'}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">

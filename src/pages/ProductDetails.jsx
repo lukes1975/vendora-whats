@@ -318,17 +318,17 @@ const ProductDetails = () => {
                 <CardContent>
                   <div className="flex items-center gap-3 mb-3">
                     <Avatar>
-                      <AvatarImage src={product.stores.logo_url} />
+                      <AvatarImage src={product.stores?.logo_url || ''} />
                       <AvatarFallback>
-                        {product.stores.name?.charAt(0).toUpperCase()}
+                        {product.stores?.name?.charAt(0).toUpperCase() || 'S'}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <Link 
-                        to={`/${product.stores.slug}`}
+                        to={`/${product.stores?.slug || ''}`}
                         className="font-semibold hover:text-blue-600 transition-colors"
                       >
-                        {product.stores.name}
+                        {product.stores?.name || 'Unknown Store'}
                       </Link>
                       <p className="text-sm text-gray-600">Verified Seller</p>
                     </div>

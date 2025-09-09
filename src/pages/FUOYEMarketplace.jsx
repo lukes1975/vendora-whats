@@ -108,12 +108,10 @@ const FUOYEMarketplace = () => {
 
       if (error) throw error;
 
-      // Format the data to handle the stores array structure
+      // Format the data to handle the stores relationship structure
       const formattedProducts = data?.map(product => ({
         ...product,
-        stores: Array.isArray(product.stores) && product.stores.length > 0 
-          ? product.stores[0] // Take the first store
-          : null,
+        stores: product.stores || null, // Handle null stores
         average_rating: product.product_ratings?.length > 0 
           ? product.product_ratings.reduce((sum, rating) => sum + rating.rating, 0) / product.product_ratings.length 
           : 0
@@ -376,7 +374,7 @@ const FUOYEMarketplace = () => {
                       ₦{product.price?.toLocaleString()}
                     </p>
                     
-                    {product.marketplace_categories && (
+                    {product.marketplace_categories?.name && (
                       <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
                         {product.marketplace_categories.name}
                       </Badge>
