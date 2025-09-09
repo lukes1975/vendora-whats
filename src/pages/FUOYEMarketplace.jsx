@@ -272,7 +272,6 @@ const FUOYEMarketplace = () => {
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Categories</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
@@ -286,7 +285,6 @@ const FUOYEMarketplace = () => {
                     <SelectValue placeholder="Price Range" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any Price</SelectItem>
                     <SelectItem value="0-1000">Under ₦1,000</SelectItem>
                     <SelectItem value="1000-5000">₦1,000 - ₦5,000</SelectItem>
                     <SelectItem value="5000-10000">₦5,000 - ₦10,000</SelectItem>
