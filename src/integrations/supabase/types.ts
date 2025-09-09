@@ -881,6 +881,30 @@ export type Database = {
           },
         ]
       }
+      performance_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          metric_type: string
+          metric_value: number
+          tags: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metric_type: string
+          metric_value: number
+          tags?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metric_type?: string
+          metric_value?: number
+          tags?: Json | null
+        }
+        Relationships: []
+      }
       pro_interest: {
         Row: {
           email: string
@@ -1643,6 +1667,45 @@ export type Database = {
         }
         Relationships: []
       }
+      system_audit_log: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       university_marketplaces: {
         Row: {
           code: string
@@ -2053,7 +2116,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      unified_orders: {
+        Row: {
+          created_at: string | null
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          id: string | null
+          source_table: string | null
+          status: string | null
+          store_id: string | null
+          total_amount: number | null
+          updated_at: string | null
+          vendor_id: string | null
+        }
+        Relationships: []
+      }
+      vendor_analytics_summary: {
+        Row: {
+          avg_order_value: number | null
+          last_order_date: string | null
+          orders_last_30d: number | null
+          orders_last_7d: number | null
+          revenue_last_30d: number | null
+          revenue_last_7d: number | null
+          total_orders: number | null
+          total_revenue: number | null
+          vendor_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       bootstrap_admin_user: {
@@ -2093,12 +2185,24 @@ export type Database = {
           last_4: string
         }[]
       }
+      log_performance_metric: {
+        Args: {
+          metric_type_param: string
+          metric_value_param: number
+          tags_param?: Json
+        }
+        Returns: undefined
+      }
       log_security_event: {
         Args: {
           event_details?: Json
           event_type: string
           target_user_id?: string
         }
+        Returns: undefined
+      }
+      refresh_vendor_analytics: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       send_email_reminders: {
