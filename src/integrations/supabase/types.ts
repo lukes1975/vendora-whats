@@ -2185,6 +2185,20 @@ export type Database = {
           last_4: string
         }[]
       }
+      get_vendor_analytics: {
+        Args: { vendor_id_param: string }
+        Returns: {
+          avg_order_value: number
+          last_order_date: string
+          orders_last_30d: number
+          orders_last_7d: number
+          revenue_last_30d: number
+          revenue_last_7d: number
+          total_orders: number
+          total_revenue: number
+          vendor_id: string
+        }[]
+      }
       log_performance_metric: {
         Args: {
           metric_type_param: string
