@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAutoCreateStore } from "@/hooks/useAutoCreateStore";
-import { useDashboardData } from "@/hooks/useDashboardData";
+import { useProductionDashboardData } from "@/hooks/useProductionDashboardData";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { ProductionAnalyticsDashboard } from "@/components/dashboard/ProductionAnalyticsDashboard";
+import { RealTimeOrdersWidget } from "@/components/dashboard/RealTimeOrdersWidget";
+import { PerformanceMonitor } from "@/components/dashboard/PerformanceMonitor";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +21,7 @@ import LightRecentOrders from "@/components/dashboard/LightRecentOrders";
 import SetupWizard from "@/components/dashboard/SetupWizard";
 import StudentVerificationBanner from "@/components/marketplace/StudentVerificationBanner";
 
+import { ProductionErrorBoundary } from "@/components/dashboard/ErrorBoundaryDashboard";
 import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
@@ -30,8 +33,18 @@ const Dashboard = () => {
 
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { storeData, storeLoading, storeError, stats, statsLoading, statsError } = useDashboardData();
-  const { data: analytics, isLoading: analyticsLoading, error: analyticsError } = useAnalyticsData();
+  
+  // Use production dashboard data
+  const { 
+    storeData, 
+    analytics, 
+    recentOrders, 
+    totalProducts, 
+    isLoading, 
+    error: dashboardError,
+    refreshAnalytics 
+  } = useProductionDashboardData();
+  
   const { track } = useAnalytics();
 
   // Track dashboard view
@@ -39,7 +52,7 @@ const Dashboard = () => {
     track('dashboard_viewed');
   }, [track]);
 
-  const hasProducts = (analytics?.totalProducts || 0) > 0;
+  const hasProducts = totalProducts > 0;
 
   // Show setup wizard logic - only show if setup is not completed
   const { data: profileData } = useQuery({
@@ -61,13 +74,12 @@ const Dashboard = () => {
   const shouldShowSetupWizard = (profileData?.setup_completed === false || profileData?.setup_completed === null) || showSetupManually;
 
   // Show loading state while critical data is being fetched
-  if (storeLoading) {
+  if (isLoading) {
     return <LoadingPage />;
   }
 
   // Show error state with retry option
-  if (storeError || (statsError && !stats) || (analyticsError && !analytics)) {
-    const error = storeError || statsError || analyticsError;
+  if (dashboardError) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px] p-4">
@@ -75,7 +87,7 @@ const Dashboard = () => {
             <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
             <h2 className="text-xl font-semibold">Unable to load dashboard</h2>
             <p className="text-muted-foreground">
-              {error?.message || 'There was a problem loading your dashboard data.'}
+              {dashboardError?.message || 'There was a problem loading your dashboard data.'}
             </p>
             <Button onClick={() => window.location.reload()} variant="outline">
               <RefreshCw className="mr-2 h-4 w-4" />
@@ -88,8 +100,9 @@ const Dashboard = () => {
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-8 pb-24">
+    <ProductionErrorBoundary>
+      <DashboardLayout>
+        <div className="space-y-8 pb-24">
         {/* Student Verification Banner */}
         <StudentVerificationBanner />
 
@@ -136,39 +149,46 @@ const Dashboard = () => {
               <WelcomeSection storeName={storeData?.name} />
             </div>
 
-        {/* Marketplace Stats instead of Store Share */}
-        <MarketplaceStatsCard />
+            {/* Performance Monitor */}
+            <PerformanceMonitor />
 
-        {/* Simplified Stats */}
-        <SimplifiedStatsGrid 
-          totalRevenue={analytics?.totalRevenue || 0}
-          totalOrders={analytics?.totalOrders || 0}
-          totalProducts={analytics?.totalProducts || 0}
-        />
+            {/* Production Analytics Dashboard */}
+            <ProductionAnalyticsDashboard 
+              analytics={analytics}
+              totalProducts={totalProducts}
+              refreshAnalytics={refreshAnalytics}
+              isLoading={isLoading}
+            />
 
-        {/* Essential Quick Actions */}
-        <EssentialQuickActions />
+            {/* Real-time Orders Widget */}
+            <RealTimeOrdersWidget 
+              orders={recentOrders}
+              isLoading={isLoading}
+            />
 
-        {/* Recent Orders */}
-        <LightRecentOrders orders={stats?.recentOrders || []} />
+            {/* Marketplace Stats */}
+            <MarketplaceStatsCard />
 
-        {/* Setup Guide Access */}
-        <div className="text-center">
-          <Button 
-            variant="outline" 
-            onClick={() => setShowSetupManually(true)}
-          >
-            📋 Open Setup Guide
-          </Button>
-        </div>
+            {/* Essential Quick Actions */}
+            <EssentialQuickActions />
+
+            {/* Setup Guide Access */}
+            <div className="text-center">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowSetupManually(true)}
+              >
+                📋 Open Setup Guide
+              </Button>
+            </div>
 
             {/* First Product CTA for users with no products */}
             <FirstProductCTA hasProducts={hasProducts} />
           </>
         )}
       </div>
-
     </DashboardLayout>
+  </ProductionErrorBoundary>
   );
 };
 

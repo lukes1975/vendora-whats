@@ -2116,36 +2116,7 @@ export type Database = {
       }
     }
     Views: {
-      unified_orders: {
-        Row: {
-          created_at: string | null
-          customer_email: string | null
-          customer_name: string | null
-          customer_phone: string | null
-          id: string | null
-          source_table: string | null
-          status: string | null
-          store_id: string | null
-          total_amount: number | null
-          updated_at: string | null
-          vendor_id: string | null
-        }
-        Relationships: []
-      }
-      vendor_analytics_summary: {
-        Row: {
-          avg_order_value: number | null
-          last_order_date: string | null
-          orders_last_30d: number | null
-          orders_last_7d: number | null
-          revenue_last_30d: number | null
-          revenue_last_7d: number | null
-          total_orders: number | null
-          total_revenue: number | null
-          vendor_id: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       bootstrap_admin_user: {
@@ -2183,6 +2154,22 @@ export type Database = {
           exp_month: string
           exp_year: string
           last_4: string
+        }[]
+      }
+      get_unified_orders: {
+        Args: { vendor_id_param: string }
+        Returns: {
+          created_at: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          id: string
+          source_table: string
+          status: string
+          store_id: string
+          total_amount: number
+          updated_at: string
+          vendor_id: string
         }[]
       }
       get_vendor_analytics: {
