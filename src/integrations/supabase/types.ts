@@ -2129,7 +2129,7 @@ export type Database = {
       }
       check_rate_limit: {
         Args: {
-          client_ip: unknown
+          client_ip: string
           max_attempts?: number
           user_email: string
           window_minutes?: number
