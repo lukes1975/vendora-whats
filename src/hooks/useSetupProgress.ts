@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useTaskValidation } from "./useTaskValidation";
 
 interface TaskProgress {
   taskId: string;
@@ -59,7 +58,6 @@ const ALL_REQUIRED_TASKS = [
 export const useSetupProgress = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { validateTask } = useTaskValidation();
 
   // Fetch setup progress from database with auto-refresh
   const { data: setupProgress, isLoading, error } = useQuery({
@@ -336,51 +334,16 @@ export const useSetupProgress = () => {
     });
   };
 
-  // Smart task validation
+  // Simplified task validation - just return completed status
   const validateAndUpdateTask = async (taskId: string, sectionId: string) => {
-    if (!user?.id) return;
-    
-    try {
-      const validation = await validateTask(taskId, user.id);
-      updateTaskProgress.mutate({
-        taskId,
-        sectionId,
-        completed: validation.isCompleted
-      });
-      return validation;
-    } catch (error) {
-      console.error(`Error validating task ${taskId}:`, error);
-    }
+    console.log('Task validation simplified - manual completion only');
+    return { isCompleted: false, message: 'Manual validation required' };
   };
 
-  // Auto-validate all tasks
+  // Simplified validation - detect completion based on data
   const validateAllTasks = async () => {
-    if (!user?.id) return;
-
-    try {
-      // Validate all tasks in parallel
-      const validationPromises = Object.entries(TASK_DEFINITIONS).flatMap(([sectionId, taskIds]) =>
-        taskIds.map(async (taskId) => {
-          const validation = await validateTask(taskId, user.id);
-          return { taskId, sectionId, validation };
-        })
-      );
-
-      const results = await Promise.all(validationPromises);
-      
-      // Update all tasks based on validation results
-      results.forEach(({ taskId, sectionId, validation }) => {
-        updateTaskProgress.mutate({
-          taskId,
-          sectionId,
-          completed: validation.isCompleted
-        });
-      });
-      
-      return results;
-    } catch (error) {
-      console.error('Error validating all tasks:', error);
-    }
+    console.log('All task validation simplified - use detectTaskCompletion instead');
+    await detectTaskCompletion();
   };
 
   return {

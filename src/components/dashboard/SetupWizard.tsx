@@ -28,7 +28,6 @@ import { useSetupProgress } from '@/hooks/useSetupProgress';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import SetupCompletionCelebration from './SetupCompletionCelebration';
 import BankAccountForm from './setup-forms/BankAccountForm';
 import DeliveryOptionsForm from './setup-forms/DeliveryOptionsForm';
 import NotificationPreferencesForm from './setup-forms/NotificationPreferencesForm';
@@ -426,16 +425,18 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Setup Completion Celebration */}
+        {/* Setup completion message */}
         {showCelebration && (
-          <SetupCompletionCelebration
-            onDismiss={() => {
+          <div className="text-center p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+            <h3 className="text-lg font-semibold text-green-800 mb-2">🎉 Setup Complete!</h3>
+            <p className="text-green-600 mb-4">Your store is ready to start selling!</p>
+            <Button onClick={() => {
               setShowCelebration(false);
               onSetupComplete?.();
-            }}
-            storeName="My Store" // TODO: Get actual store name
-            storeSlug="my-store" // TODO: Get actual store slug
-          />
+            }}>
+              Continue to Dashboard
+            </Button>
+          </div>
         )}
 
         {/* Header */}

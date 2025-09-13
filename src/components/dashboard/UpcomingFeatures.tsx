@@ -1,17 +1,14 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, MessageSquare } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FeatureSuggestionModal } from "./FeatureSuggestionModal";
 
 export const UpcomingFeatures = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const comingThisMonth = [
     "AI Order Assistant for WhatsApp – Smart agent that takes orders conversationally.",
@@ -110,26 +107,10 @@ export const UpcomingFeatures = () => {
                 <FeatureList items={futureAddOns} />
               </div>
 
-              {/* Suggest Feature Button */}
-              <div className="pt-4 border-t">
-                <Button 
-                  onClick={() => setIsModalOpen(true)}
-                  variant="outline" 
-                  className="w-full sm:w-auto"
-                >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  💬 Suggest a Feature
-                </Button>
-              </div>
             </CardContent>
           </CollapsibleContent>
         </Collapsible>
       </Card>
-
-      <FeatureSuggestionModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
     </>
   );
 };

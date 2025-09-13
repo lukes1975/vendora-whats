@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Store, Users, MessageSquare } from "lucide-react";
-import QRCodeGenerator from "@/components/QRCodeGenerator";
 
 const DashboardStorefront = () => {
   const { user } = useAuth();
@@ -101,13 +100,6 @@ const DashboardStorefront = () => {
                     <span>Branded Store Link: {storeUrl}</span>
                   </div>
                 </div>
-              </div>
-              <div className="flex justify-center">
-                <QRCodeGenerator 
-                  url={storeUrl}
-                  size={150}
-                  storeName={store.name}
-                />
               </div>
             </div>
           </CardContent>

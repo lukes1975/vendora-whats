@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Check, ArrowLeft } from 'lucide-react';
-import ProInterestModal from '@/components/dashboard/ProInterestModal';
 
 interface PricingPlan {
   title: string;
@@ -147,11 +146,9 @@ const Pricing = () => {
             <p className="text-gray-600 mb-6">
               Get notified as soon as advanced features like custom branding, inventory tracking, and WhatsApp automation become available.
             </p>
-            <ProInterestModal>
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                Get Early Access to Pro
-              </Button>
-            </ProInterestModal>
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+              Coming Soon
+            </Button>
           </div>
         </div>
 

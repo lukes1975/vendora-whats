@@ -13,7 +13,6 @@ import DashboardLayout from '@/components/DashboardLayout';
 import UpgradePlanButton from '@/components/dashboard/UpgradePlanButton';
 import { useSecureForm, commonValidationRules } from '@/hooks/useSecureForm';
 import { sanitizeTextInput, logSecurityEvent } from '@/utils/security';
-import { CreditManagement } from '@/components/credit/CreditManagement';
 
 import BankAccountForm from '@/components/dashboard/setup-forms/BankAccountForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -399,7 +398,7 @@ const Settings = () => {
 
         {/* Settings Tabs - Mobile Optimized */}
         <Tabs defaultValue="branding" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-secondary p-1 rounded-xl h-12 sm:h-14">
+          <TabsList className="grid w-full grid-cols-2 bg-secondary p-1 rounded-xl h-12 sm:h-14">
             <TabsTrigger value="branding" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
               <Palette className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Branding</span>
@@ -409,11 +408,6 @@ const Settings = () => {
               <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Billing</span>
               <span className="sm:hidden">Bills</span>
-            </TabsTrigger>
-            <TabsTrigger value="credits" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-              <Zap className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Credits</span>
-              <span className="sm:hidden">Credits</span>
             </TabsTrigger>
           </TabsList>
 
@@ -747,10 +741,6 @@ const Settings = () => {
             </Card>
 
             
-          </TabsContent>
-
-          <TabsContent value="credits" className="space-y-6">
-            <CreditManagement />
           </TabsContent>
 
         </Tabs>

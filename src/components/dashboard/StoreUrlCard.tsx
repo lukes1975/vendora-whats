@@ -1,10 +1,8 @@
 
-import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, QrCode, ExternalLink } from "lucide-react";
+import { Copy, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import QRCodeGenerator from "@/components/QRCodeGenerator";
 
 interface StoreUrlCardProps {
   storeUrl: string;
@@ -12,7 +10,6 @@ interface StoreUrlCardProps {
 }
 
 const StoreUrlCard = ({ storeUrl, storeName }: StoreUrlCardProps) => {
-  const [showQR, setShowQR] = useState(false);
 
   const copyStoreUrl = () => {
     const fullUrl = storeUrl.includes('://') ? storeUrl : `https://${storeUrl}`;
@@ -35,13 +32,6 @@ const StoreUrlCard = ({ storeUrl, storeName }: StoreUrlCardProps) => {
             <Button variant="outline" size="sm" onClick={copyStoreUrl}>
               <Copy className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setShowQR(!showQR)}
-            >
-              <QrCode className="h-4 w-4" />
-            </Button>
             <Button variant="outline" size="sm" asChild>
               <a href={storeUrl.includes('://') ? storeUrl : `https://${storeUrl}`} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-4 w-4" />
@@ -49,11 +39,6 @@ const StoreUrlCard = ({ storeUrl, storeName }: StoreUrlCardProps) => {
             </Button>
           </div>
         </div>
-        {showQR && (
-          <div className="flex justify-center pt-4 border-t">
-            <QRCodeGenerator url={storeUrl.includes('://') ? storeUrl : `https://${storeUrl}`} storeName={storeName} />
-          </div>
-        )}
       </CardContent>
     </Card>
   );

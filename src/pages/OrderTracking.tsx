@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Package, Truck, CheckCircle, Phone } from "lucide-react";
-import { DeliveryTrackingMap } from "@/components/delivery/DeliveryTrackingMap";
 import { formatCurrencyKobo } from "@/modules/order-flow/hooks/useWhatsAppCheckout";
 
 interface Order {
@@ -307,11 +306,8 @@ export default function OrderTracking() {
               </p>
             </CardHeader>
             <CardContent>
-              <div className="h-96 rounded-lg overflow-hidden">
-                <DeliveryTrackingMap
-                  orderId={order.id}
-                  showControls={false}
-                />
+              <div className="h-96 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                <p className="text-muted-foreground">Live tracking coming soon</p>
               </div>
             </CardContent>
           </Card>
