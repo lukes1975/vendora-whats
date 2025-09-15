@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAutoCreateStore } from "@/hooks/useAutoCreateStore";
-import { useProductionDashboardData } from "@/hooks/useProductionDashboardData";
+import { useDashboardData } from "@/hooks/useDashboardData";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { ProductionAnalyticsDashboard } from "@/components/dashboard/ProductionAnalyticsDashboard";
-import { RealTimeOrdersWidget } from "@/components/dashboard/RealTimeOrdersWidget";
-import { PerformanceMonitor } from "@/components/dashboard/PerformanceMonitor";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,7 +31,7 @@ const Dashboard = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   
-  // Use production dashboard data
+  // Use dashboard data
   const { 
     storeData, 
     analytics, 
@@ -42,8 +39,8 @@ const Dashboard = () => {
     totalProducts, 
     isLoading, 
     error: dashboardError,
-    refreshAnalytics 
-  } = useProductionDashboardData();
+    refreshData
+  } = useDashboardData();
   
   const { track } = useAnalytics();
 
@@ -122,12 +119,13 @@ const Dashboard = () => {
               </div>
             )}
             <SetupWizard 
-              onTaskComplete={() => {
-                // Refresh data when task is completed
-                queryClient.invalidateQueries({ queryKey: ['store', user?.id] });
-                queryClient.invalidateQueries({ queryKey: ['dashboard-stats', user?.id] });
-                queryClient.invalidateQueries({ queryKey: ['profile-setup', user?.id] });
-              }}
+               onTaskComplete={() => {
+                 // Refresh data when task is completed
+                 queryClient.invalidateQueries({ queryKey: ['store', user?.id] });
+                 queryClient.invalidateQueries({ queryKey: ['dashboard-stats', user?.id] });
+                 queryClient.invalidateQueries({ queryKey: ['profile-setup', user?.id] });
+                 if (refreshData) refreshData();
+               }}
               onSetupComplete={() => {
                 // Hide setup wizard when complete
                 setShowSetupManually(false);
@@ -149,19 +147,15 @@ const Dashboard = () => {
               <WelcomeSection storeName={storeData?.name} />
             </div>
 
-            {/* Performance Monitor */}
-            <PerformanceMonitor />
-
-            {/* Production Analytics Dashboard */}
-            <ProductionAnalyticsDashboard 
+            {/* Simplified Stats Grid */}
+            <SimplifiedStatsGrid 
               analytics={analytics}
               totalProducts={totalProducts}
-              refreshAnalytics={refreshAnalytics}
               isLoading={isLoading}
             />
 
-            {/* Real-time Orders Widget */}
-            <RealTimeOrdersWidget 
+            {/* Recent Orders */}
+            <LightRecentOrders 
               orders={recentOrders}
               isLoading={isLoading}
             />
