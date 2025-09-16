@@ -1,21 +1,17 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { getSubdomainInfo } from "@/utils/subdomain";
-import MainAppRoutes from "@/components/MainAppRoutes";
-import StorefrontApp from "@/components/StorefrontApp";
+import { AuthProvider } from '@/contexts/AuthContext';
+import Header from '@/components/Header';
+import Home from '@/pages/Home';
+import Dashboard from '@/pages/Dashboard';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 15 * 60 * 1000, // 15 minutes - longer cache for better performance
-      gcTime: 30 * 60 * 1000, // 30 minutes - keep in memory longer (renamed from cacheTime in react-query v5)
+      staleTime: 15 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
       retry: (failureCount, error) => {
-        // Don't retry on 4xx errors (client errors)
         if (error && typeof error === 'object' && 'status' in error) {
           const status = error.status;
           if (status >= 400 && status < 500) return false;
@@ -23,7 +19,7 @@ const queryClient = new QueryClient({
         return failureCount < 2;
       },
       refetchOnWindowFocus: false,
-      refetchOnMount: false, // Prevent unnecessary refetches
+      refetchOnMount: false,
       networkMode: 'offlineFirst',
     },
     mutations: {
@@ -34,25 +30,19 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  const subdomainInfo = getSubdomainInfo();
-
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <AuthProvider>
-          <BrowserRouter>
-            {subdomainInfo.isSubdomain ? (
-              // Subdomain routing: show storefront for the subdomain
-              <StorefrontApp storeSlug={subdomainInfo.subdomain} />
-            ) : (
-              // Main domain routing: show full app
-              <MainAppRoutes />
-            )}
-          </BrowserRouter>
-        </AuthProvider>
-      </TooltipProvider>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-gray-50">
+            <Header />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Routes>
+          </div>
+        </Router>
+      </AuthProvider>
     </QueryClientProvider>
   );
 };

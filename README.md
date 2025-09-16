@@ -1,122 +1,95 @@
 
-# Welcome to your Lovable project
+# Vendora - Simple JavaScript App with Firebase
 
-## Project info
+A simple, clean JavaScript-only application built with React and Firebase.
 
-**URL**: https://lovable.dev/projects/095f283b-0986-4f5b-b287-0fbcd183e18c
+## Features
 
-## How can I edit this code?
+- 🔥 Firebase Authentication
+- 📱 Responsive Design
+- ⚡ Fast and Lightweight
+- 🎨 Modern UI with Tailwind CSS
 
-There are several ways of editing your application.
+## Setup
 
-**Use Lovable**
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/095f283b-0986-4f5b-b287-0fbcd183e18c) and start prompting.
+2. **Configure Firebase**
+   - Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
+   - Enable Authentication with Email/Password
+   - Enable Firestore Database
+   - Enable Storage
+   - Copy your Firebase config and update `src/config/firebase.js`
 
-Changes made via Lovable will be committed automatically to this repo.
+3. **Firebase Configuration**
+   Replace the placeholder values in `src/config/firebase.js` with your actual Firebase config:
+   ```javascript
+   const firebaseConfig = {
+     apiKey: "your-actual-api-key",
+     authDomain: "your-project.firebaseapp.com",
+     projectId: "your-project-id",
+     storageBucket: "your-project.appspot.com",
+     messagingSenderId: "123456789",
+     appId: "your-app-id"
+   };
+   ```
 
-**Use your preferred IDE**
+4. **Start development server**
+   ```bash
+   npm run dev
+   ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Project Structure
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+src/
+├── components/
+│   └── Header.jsx          # Navigation header
+├── contexts/
+│   └── AuthContext.jsx     # Firebase auth context
+├── pages/
+│   ├── Home.jsx           # Landing page
+│   └── Dashboard.jsx      # User dashboard
+├── config/
+│   └── firebase.js        # Firebase configuration
+└── App.jsx               # Main app component
 ```
 
-**Edit a file directly in GitHub**
+## Technologies Used
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
+- React 18
+- Firebase 9+
 - Tailwind CSS
+- Vite
+- React Router
 
-## WhatsApp Integration
+## Next Steps
 
-This project includes a comprehensive WhatsApp integration for business communications. To enable WhatsApp features, you'll need to configure the following environment variables:
+1. Update Firebase configuration with your project details
+2. Customize the UI components in `src/components/`
+3. Add more pages and features as needed
+4. Deploy to your preferred hosting platform
 
-### Required Environment Variables
+## Firebase Security Rules
 
-Copy `.env.example` to `.env.local` and configure:
+Don't forget to configure your Firestore security rules:
 
-```bash
-# WhatsApp Bot API (required for sending/receiving messages)
-VITE_WHATSAPP_API_BASE=https://your-whatsapp-bot-server.com
-VITE_WHATSAPP_API_KEY=your_bot_api_key
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
 ```
 
-### Setting Up WhatsApp Bot Server
+## Available Scripts
 
-1. **Deploy a WhatsApp Bot**: Use [Baileys](https://github.com/WhiskeySockets/Baileys) or similar library to create your WhatsApp bot server
-2. **API Endpoints**: Your bot server should provide:
-   - `POST /send` - Send messages
-   - `GET /status` - Check connection status
-   - WebSocket support for real-time events
-3. **Authentication**: Secure your bot API with an API key
-4. **QR Code Flow**: Support QR code generation for WhatsApp Web authentication
-
-### Security Features
-
-- **E.164 Phone Validation**: All phone numbers are validated before API calls
-- **PII Redaction**: Automatic redaction of sensitive data in logs
-- **Request Timeouts**: 15s timeout for message sending
-- **Correlation IDs**: Request tracing for debugging
-- **Idempotency**: Prevent duplicate message sends
-
-### Testing
-
-Run the WhatsApp integration tests:
-
-```bash
-npm run test src/test/whatsapp*
-```
-
-### Manual Testing
-
-1. Set environment variables in `.env.local`
-2. Start the development server: `npm run dev`
-3. Navigate to WhatsApp settings in the dashboard
-4. Verify API authentication and connection status
-5. Test message sending functionality
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/095f283b-0986-4f5b-b287-0fbcd183e18c) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
