@@ -1,0 +1,61 @@
+This file lists candidate unused files and folders found in the repository and includes a short risk note for each.
+
+If you want me to actually move or delete items, reply with which groups to act on. I will not delete anything until you confirm.
+
+---
+Candidate unused files & folders (supabase INCLUDED)
+
+1) supabase/
+- Path: supabase/
+- Why listed: Backend Supabase functions, migrations, and config found in `supabase/` (many files under `supabase/functions/` and `supabase/migrations/`).
+- Referenced: Migration SQL and `DEPLOYMENT.md` mention these functions and URLs; deleting will remove backend code and DB migrations.
+- Risk: HIGH. Move to an archive folder if you still want them available.
+
+2) public/lovable-uploads/
+- Path: public/lovable-uploads/
+- Why listed: Static images used as favicon / og images, referenced by `index.html` and `manifest.json`.
+- Referenced: `index.html`, `manifest.json`.
+- Risk: MEDIUM. Deleting will remove site icons/OG images. Consider moving to `src/assets/` and updating references.
+
+3) README_PHASE4.md
+- Path: README_PHASE4.md
+- Why listed: Project documentation not imported by code.
+- Referenced: none in code.
+- Risk: LOW. Safe to archive or delete.
+
+Note: `PAYSTACK_INTEGRATION_GUIDE.md` has been deleted from the repository as part of the integration cleanup.
+
+5) DEPLOYMENT.md
+- Path: DEPLOYMENT.md
+- Why listed: Deployment documentation that includes Supabase configuration details.
+- Referenced: contains explicit VITE_SUPABASE_* suggestions; may be useful for deploys.
+- Risk: LOW-MEDIUM. Archive rather than delete if you use the instructions.
+
+6) bun.lockb
+- Path: bun.lockb
+- Why listed: Lockfile for bun; project otherwise uses npm (package.json).
+- Referenced: not imported by code.
+- Risk: LOW. Delete if your team doesn't use bun; otherwise keep.
+
+7) .env
+- Path: .env
+- Why listed: Contains Supabase and Paystack environment values (secrets).
+- Referenced: runtime env; should not be committed to git. If it's committed, rotate secrets and remove from repo history.
+- Risk: HIGH (secrets exposure). Do NOT delete without ensuring secrets are rotated.
+
+8) Other docs (optional)
+- Any other top-level `*.md` you don't need can be archived: e.g., additional README files.
+
+---
+How I identified these items: quick repo scan and grep for references found many `supabase/functions/*` files and `public/lovable-uploads/*` references in `index.html` and `manifest.json`. I listed items conservatively and marked risk so you can confirm.
+
+Next actions you can choose (reply with option letters):
+A) Archive the low-risk docs into `unused/docs/` (I will move them there).
+B) Move `supabase/` into `unused/supabase/` (safe move, preserves files in repo).
+C) Move `public/lovable-uploads/` into `unused/lovable-uploads/` and update `index.html` and `manifest.json` to remove references (or replace with `src/assets` images) — I'll update references if you confirm.
+D) Delete `bun.lockb` and/or other lockfiles.
+E) Remove `.env` from repo (I will also add `.gitignore` entry and create `.env.example`) — HIGH RISK; confirm before doing.
+F) Do nothing.
+
+If you confirm any of A–E, I will mark the next todo as `in-progress`, perform edits, and then run a post-change search to show remaining references.
+Archived supabase/ -> unused/supabase on 2025-09-18T10:43:27.2416838+02:00

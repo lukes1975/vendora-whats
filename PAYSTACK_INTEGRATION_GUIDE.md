@@ -1,7 +1,8 @@
-# Paystack Subaccount & Split Payment Integration Guide
+# Paystack integration (archived)
 
-## Overview
-This guide demonstrates how Vendora integrates with Paystack's Subaccount and Split Payment APIs to enable direct settlement into entrepreneur accounts.
+This document previously described Paystack subaccount and split-payment integration for Vendora. Paystack integration has been removed from the codebase and this file is retained only for archival reference.
+
+If you want the content fully deleted, tell me and I will remove this file.
 
 ## 1. Authentication
 All API requests use your Paystack secret key:

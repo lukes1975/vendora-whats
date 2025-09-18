@@ -28,9 +28,21 @@ export const AuthProvider = ({ children }) => {
         if (firebaseUser) {
           // Get user profile from Firestore
           const profile = await authService.getUserProfile(firebaseUser.uid);
+
+          // If the user is a student and hasn't verified email, sign them out and set an error
+          if (profile && profile.role === authService.USER_ROLES.STUDENT && !firebaseUser.emailVerified) {
+            setUser(null);
+            setUserProfile(null);
+            setError('Email verification required for student accounts. Please verify your email.');
+            // Optionally sign out from Firebase to clear session
+            await authService.logout();
+            setLoading(false);
+            return;
+          }
+
           setUser(firebaseUser);
           setUserProfile(profile);
-          
+
           // Initialize push notifications
           await initializeNotifications(firebaseUser.uid);
         } else {
@@ -137,6 +149,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Resend verification email
+  const resendVerification = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      await authService.resendVerification();
+    } catch (error) {
+      setError(error.message || 'Failed to resend verification');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Role checking helpers
   const isSeller = () => authService.isSeller(userProfile);
   const isCustomer = () => authService.isCustomer(userProfile);
@@ -163,6 +189,8 @@ export const AuthProvider = ({ children }) => {
     isCustomer,
     isRider,
     hasRole,
+  // Verification helpers
+  resendVerification,
     
     // User roles enum
     USER_ROLES: authService.USER_ROLES

@@ -22,13 +22,9 @@
 
 ### 4. Environment Variables
 Set these in Netlify dashboard under Site settings > Environment variables:
-- `VITE_SUPABASE_URL`: `https://ncetgnojwfrnsxpytcia.supabase.co`
-- `VITE_SUPABASE_ANON_KEY`: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZXRnbm9qd2ZybnN4cHl0Y2lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE3MzE0NTUsImV4cCI6MjA2NzMwNzQ1NX0.iqpQuWl2OThOYW2c7lefPOD9bMmU6YutE9HWEewuMw4`
 
-## Supabase Configuration
 
 ### 1. Update Site URL
-In Supabase dashboard:
 1. Go to Authentication > Settings
 2. Update Site URL to: `https://www.vendora.business`
 3. Add redirect URLs:
@@ -36,7 +32,6 @@ In Supabase dashboard:
    - `https://*.vendora.business/**`
 
 ### 2. CORS Configuration
-In Supabase dashboard:
 1. Go to Settings > API
 2. Add CORS origins:
    - `https://www.vendora.business`
@@ -89,7 +84,6 @@ A       @       Netlify Load Balancer IP       3600
 - [ ] `www.vendora.business` loads correctly
 - [ ] `www.vendora.business/dashboard` doesn't 404
 - [ ] `storeslug.vendora.business` shows correct store
-- [ ] Images load from Supabase storage
 - [ ] Authentication works on main domain
 - [ ] Mobile responsive design works
 - [ ] HTTPS enforced everywhere
@@ -135,11 +129,8 @@ A       @       Netlify Load Balancer IP       3600
 ### Common Issues
 1. **404 on refresh**: Check `_redirects` file is deployed
 2. **Subdomain not working**: Verify wildcard DNS record
-3. **Images not loading**: Check Supabase CORS settings
-4. **Auth issues**: Verify Supabase redirect URLs
 
 ### Debug Steps
 1. Check browser console for errors
 2. Verify DNS propagation: `dig storeslug.vendora.business`
 3. Test CORS: Check network tab for failed requests
-4. Verify Supabase settings match production URLs

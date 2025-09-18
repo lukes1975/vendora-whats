@@ -32,9 +32,7 @@ export const PAYMENT_STATUS = {
 
 // Payment methods
 export const PAYMENT_METHODS = {
-  PAYSTACK: 'paystack',
   BANK_TRANSFER: 'bank_transfer',
-  WHATSAPP: 'whatsapp',
   CASH_ON_DELIVERY: 'cash_on_delivery'
 };
 
@@ -90,11 +88,7 @@ export const URL_PATTERNS = {
   PHONE_NIGERIA: /^(\+234|0)[7-9][0-1][0-9]{8}$/
 };
 
-// WhatsApp
-export const WHATSAPP = {
-  BASE_URL: 'https://wa.me/',
-  BUSINESS_ACCOUNT: '+2348000000000' // Replace with actual business number
-};
+// WhatsApp removed from core constants — integration removed
 
 // Notification types
 export const NOTIFICATION_TYPES = {
@@ -117,8 +111,7 @@ export const STORAGE_KEYS = {
 
 // API endpoints (for external services)
 export const API_ENDPOINTS = {
-  PAYSTACK_BASE: 'https://api.paystack.co',
-  GOOGLE_MAPS_BASE: 'https://maps.googleapis.com/maps/api'
+  // External service endpoints removed (Paystack, Google Maps)
 };
 
 // Default values

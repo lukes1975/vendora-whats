@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword, 
   signOut,
   sendPasswordResetEmail,
+  sendEmailVerification,
   updateProfile,
   EmailAuthProvider,
   reauthenticateWithCredential,
@@ -17,6 +18,7 @@ import { auth, db } from './firebase';
 export const USER_ROLES = {
   CUSTOMER: 'customer',
   SELLER: 'seller',
+  STUDENT: 'student',
   RIDER: 'rider',
   ADMIN: 'admin'
 };
@@ -53,8 +55,17 @@ export const signUp = async (email, password, userData = {}) => {
         displayName: userData.displayName
       });
     }
-    
-    // Create user profile in Firestore
+    // Send verification email (best-effort)
+    try {
+      await sendEmailVerification(result.user);
+    } catch (err) {
+      // log and continue — email delivery shouldn't block account creation
+      // eslint-disable-next-line no-console
+      console.warn('sendEmailVerification failed:', err);
+    }
+
+    // Create user profile in Firestore with normalized timestamp strings
+    const now = new Date().toISOString();
     const profileData = {
       email: result.user.email,
       displayName: userData.displayName || '',
@@ -62,12 +73,17 @@ export const signUp = async (email, password, userData = {}) => {
       businessName: userData.businessName || '',
       phone: userData.phone || '',
       address: userData.address || {},
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
       isActive: true,
       emailVerified: result.user.emailVerified
     };
-    
+
+    // Support a student flag for student authentication flows
+    if (userData.isStudent || userData.role === USER_ROLES.STUDENT) {
+      profileData.role = USER_ROLES.STUDENT;
+    }
+
     await setDoc(doc(db, 'users', result.user.uid), profileData);
     
     return {
@@ -206,5 +222,18 @@ const getAuthErrorMessage = (errorCode) => {
       return 'Too many failed attempts. Please try again later';
     default:
       return 'An error occurred during authentication';
+  }
+};
+
+/**
+ * Resend email verification to current user
+ */
+export const resendVerification = async () => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error('No authenticated user to resend verification for');
+    await sendEmailVerification(user);
+  } catch (error) {
+    throw new Error('Failed to resend verification email');
   }
 };
