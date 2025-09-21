@@ -15,6 +15,13 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
+// Basic validation: fail fast with a clearer message if required env vars are missing
+if (!firebaseConfig.apiKey || !firebaseConfig.authDomain) {
+  // eslint-disable-next-line no-console
+  console.error('Missing required Firebase environment variables. Make sure you created a local `.env` with VITE_FIREBASE_API_KEY and VITE_FIREBASE_AUTH_DOMAIN (no quotes).');
+  throw new Error('Missing VITE_FIREBASE_API_KEY or VITE_FIREBASE_AUTH_DOMAIN. See .env.example for template.');
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
@@ -33,8 +40,9 @@ isSupported().then((supported) => {
 
 export { messaging };
 
-// Helper to detect emulator usage via env var or default DEV
-const shouldUseEmulators = import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true' || import.meta.env.DEV;
+// Helper to detect emulator usage via explicit env var only
+// (do not default to DEV to avoid accidental emulator connection when not using them)
+const shouldUseEmulators = import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true';
 
 if (shouldUseEmulators) {
   try {
