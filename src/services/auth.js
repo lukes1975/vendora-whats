@@ -1,239 +1,66 @@
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut,
-  sendPasswordResetEmail,
-  sendEmailVerification,
-  updateProfile,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-  updatePassword
+  setPersistence,
+  browserLocalPersistence,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
-/**
- * User roles for Vendora platform
- */
-export const USER_ROLES = {
-  CUSTOMER: 'customer',
-  SELLER: 'seller',
-  STUDENT: 'student',
-  RIDER: 'rider',
-  ADMIN: 'admin'
-};
-
-/**
- * Sign in user with email and password
- */
+// --- Sign in ---
 export const signIn = async (email, password) => {
-  try {
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    
-    // Get user profile data
-    const userProfile = await getUserProfile(result.user.uid);
-    
-    return {
-      user: result.user,
-      profile: userProfile
-    };
-  } catch (error) {
-    throw new Error(getAuthErrorMessage(error.code));
-  }
-};
+  await setPersistence(auth, browserLocalPersistence);
+  const result = await signInWithEmailAndPassword(auth, email, password);
 
-/**
- * Sign up new user with email and password
- */
-export const signUp = async (email, password, userData = {}) => {
-  try {
-    const result = await createUserWithEmailAndPassword(auth, email, password);
-    
-    // Update display name if provided
-    if (userData.displayName) {
-      await updateProfile(result.user, {
-        displayName: userData.displayName
-      });
-    }
-    // Send verification email (best-effort)
-    try {
-      await sendEmailVerification(result.user);
-    } catch (err) {
-      // log and continue — email delivery shouldn't block account creation
-      // eslint-disable-next-line no-console
-      console.warn('sendEmailVerification failed:', err);
-    }
+  let userProfile = await getUserProfile(result.user.uid);
 
-    // Create user profile in Firestore with normalized timestamp strings
+  if (!userProfile) {
+    // If no profile exists, create one with default role = customer
     const now = new Date().toISOString();
-    const profileData = {
+    userProfile = {
       email: result.user.email,
-      displayName: userData.displayName || '',
-      role: userData.role || USER_ROLES.CUSTOMER,
-      businessName: userData.businessName || '',
-      phone: userData.phone || '',
-      address: userData.address || {},
+      displayName: result.user.displayName || '',
+      role: 'customer', // default if not set
       createdAt: now,
       updatedAt: now,
-      isActive: true,
-      emailVerified: result.user.emailVerified
     };
-
-    // Support a student flag for student authentication flows
-    if (userData.isStudent || userData.role === USER_ROLES.STUDENT) {
-      profileData.role = USER_ROLES.STUDENT;
-    }
-
-    await setDoc(doc(db, 'users', result.user.uid), profileData);
-    
-    return {
-      user: result.user,
-      profile: profileData
-    };
-  } catch (error) {
-    throw new Error(getAuthErrorMessage(error.code));
+    await setDoc(doc(db, 'users', result.user.uid), userProfile);
+  } else {
+    // Update last login timestamp
+    await updateDoc(doc(db, 'users', result.user.uid), {
+      updatedAt: new Date().toISOString(),
+    });
   }
+
+  return { user: result.user, profile: userProfile };
 };
 
-/**
- * Sign out current user
- */
+// --- Sign up ---
+export const signUp = async (email, password, userData = {}) => {
+  const result = await createUserWithEmailAndPassword(auth, email, password);
+
+  const now = new Date().toISOString();
+  const profileData = {
+    email: result.user.email,
+    displayName: userData.displayName || '',
+    role: userData.role || 'customer', // 👈 explicit role stored
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await setDoc(doc(db, 'users', result.user.uid), profileData);
+
+  return { user: result.user, profile: profileData };
+};
+
+// --- Logout ---
 export const logout = async () => {
-  try {
-    await signOut(auth);
-  } catch (error) {
-    throw new Error('Failed to sign out');
-  }
+  await signOut(auth);
 };
 
-/**
- * Send password reset email
- */
-export const resetPassword = async (email) => {
-  try {
-    await sendPasswordResetEmail(auth, email);
-  } catch (error) {
-    throw new Error(getAuthErrorMessage(error.code));
-  }
-};
-
-/**
- * Update user password
- */
-export const changePassword = async (currentPassword, newPassword) => {
-  try {
-    const user = auth.currentUser;
-    if (!user) throw new Error('No authenticated user');
-    
-    // Re-authenticate user
-    const credential = EmailAuthProvider.credential(user.email, currentPassword);
-    await reauthenticateWithCredential(user, credential);
-    
-    // Update password
-    await updatePassword(user, newPassword);
-  } catch (error) {
-    throw new Error(getAuthErrorMessage(error.code));
-  }
-};
-
-/**
- * Get user profile from Firestore
- */
+// --- Get profile ---
 export const getUserProfile = async (userId) => {
-  try {
-    const userDoc = await getDoc(doc(db, 'users', userId));
-    if (userDoc.exists()) {
-      return userDoc.data();
-    }
-    return null;
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
-    return null;
-  }
-};
-
-/**
- * Update user profile in Firestore
- */
-export const updateUserProfile = async (userId, updates) => {
-  try {
-    const updateData = {
-      ...updates,
-      updatedAt: new Date()
-    };
-    
-    await updateDoc(doc(db, 'users', userId), updateData);
-    return updateData;
-  } catch (error) {
-    throw new Error('Failed to update profile');
-  }
-};
-
-/**
- * Check if user has specific role
- */
-export const hasRole = (userProfile, role) => {
-  return userProfile && userProfile.role === role;
-};
-
-/**
- * Check if user is seller
- */
-export const isSeller = (userProfile) => {
-  return hasRole(userProfile, USER_ROLES.SELLER);
-};
-
-/**
- * Check if user is customer
- */
-export const isCustomer = (userProfile) => {
-  return hasRole(userProfile, USER_ROLES.CUSTOMER);
-};
-
-/**
- * Check if user is rider
- */
-export const isRider = (userProfile) => {
-  return hasRole(userProfile, USER_ROLES.RIDER);
-};
-
-/**
- * Get friendly error messages
- */
-const getAuthErrorMessage = (errorCode) => {
-  switch (errorCode) {
-    case 'auth/email-already-in-use':
-      return 'An account with this email already exists';
-    case 'auth/invalid-email':
-      return 'Invalid email address';
-    case 'auth/operation-not-allowed':
-      return 'Email/password accounts are not enabled';
-    case 'auth/weak-password':
-      return 'Password should be at least 6 characters';
-    case 'auth/user-disabled':
-      return 'This account has been disabled';
-    case 'auth/user-not-found':
-      return 'No account found with this email';
-    case 'auth/wrong-password':
-      return 'Incorrect password';
-    case 'auth/invalid-credential':
-      return 'Invalid email or password';
-    case 'auth/too-many-requests':
-      return 'Too many failed attempts. Please try again later';
-    default:
-      return 'An error occurred during authentication';
-  }
-};
-
-/**
- * Resend email verification to current user
- */
-export const resendVerification = async () => {
-  try {
-    const user = auth.currentUser;
-    if (!user) throw new Error('No authenticated user to resend verification for');
-    await sendEmailVerification(user);
-  } catch (error) {
-    throw new Error('Failed to resend verification email');
-  }
+  const snap = await getDoc(doc(db, 'users', userId));
+  return snap.exists() ? snap.data() : null;
 };

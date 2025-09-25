@@ -6,7 +6,7 @@ import { messaging } from './firebase';
  */
 
 // VAPID key for web push (get this from Firebase Console)
-const VAPID_KEY = 'your-vapid-key';
+const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY;
 
 /**
  * Request notification permission and get FCM token
@@ -21,7 +21,53 @@ export const requestNotificationPermission = async () => {
     const permission = await Notification.requestPermission();
     
     if (permission === 'granted') {
-      const token = await getToken(messaging, { vapidKey: VAPID_KEY });
+      // Try to register the service worker explicitly
+      let registration = null;
+      try {
+        if ('serviceWorker' in navigator) {
+          // Check for existing registration first
+          registration = await navigator.serviceWorker.getRegistration('/firebase-cloud-messaging-push-scope');
+          
+          if (!registration) {
+            console.log('Registering new service worker...');
+            registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+              scope: '/firebase-cloud-messaging-push-scope'
+            });
+          } else {
+            console.log('Using existing service worker registration');
+          }
+          
+          console.log('Service worker registration success. Scope:', registration.scope);
+          
+          // Wait for the service worker to be ready
+          await registration.update();
+        }
+      } catch (regErr) {
+        console.error('Service worker registration failed:', regErr);
+        return null;  // Don't proceed if SW registration fails
+      }
+
+      if (!VAPID_KEY || VAPID_KEY === 'YOUR_VAPID_KEY_HERE') {
+        console.error('Missing or invalid VAPID key. Please set VITE_FIREBASE_VAPID_KEY in your .env file');
+        return null;
+      }
+
+      // Validate VAPID key format (should be base64 URL-safe string)
+      const isValidVapidKey = /^[A-Za-z0-9_-]+$/.test(VAPID_KEY);
+      if (!isValidVapidKey) {
+        console.error('Invalid VAPID key format. The key should be the public key in base64 URL-safe format');
+        return null;
+      }
+
+      console.log('Using VAPID key:', VAPID_KEY.substring(0, 8) + '...');
+      
+      // Only proceed with token generation if we have both SW registration and valid VAPID key
+      const getTokenOptions = {
+        vapidKey: VAPID_KEY,
+        serviceWorkerRegistration: registration
+      };
+
+      const token = await getToken(messaging, getTokenOptions);
       console.log('FCM Token:', token);
       return token;
     } else {
