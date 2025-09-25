@@ -4,33 +4,54 @@ import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getMessaging, isSupported } from 'firebase/messaging';
 
-// Read Firebase config from Vite environment variables
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+// Helper: normalize env values (strip quotes/commas)
+const _norm = (v) => {
+  if (v === undefined || v === null) return v;
+  let s = String(v).trim();
+  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+    s = s.slice(1, -1).trim();
+  }
+  if (s.endsWith(',')) s = s.slice(0, -1).trim();
+  return s;
 };
 
-// Basic validation: fail fast with a clearer message if required env vars are missing
+const firebaseConfig = {
+  apiKey: _norm(import.meta.env.VITE_FIREBASE_API_KEY),
+  authDomain: _norm(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN),
+  projectId: _norm(import.meta.env.VITE_FIREBASE_PROJECT_ID),
+  storageBucket: _norm(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET),
+  messagingSenderId: _norm(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
+  appId: _norm(import.meta.env.VITE_FIREBASE_APP_ID),
+  measurementId: _norm(import.meta.env.VITE_FIREBASE_MEASUREMENT_ID),
+};
+
 if (!firebaseConfig.apiKey || !firebaseConfig.authDomain) {
-  // eslint-disable-next-line no-console
-  console.error('Missing required Firebase environment variables. Make sure you created a local `.env` with VITE_FIREBASE_API_KEY and VITE_FIREBASE_AUTH_DOMAIN (no quotes).');
-  throw new Error('Missing VITE_FIREBASE_API_KEY or VITE_FIREBASE_AUTH_DOMAIN. See .env.example for template.');
+  console.error('Missing Firebase env vars. Check .env file.');
+  throw new Error('Missing required Firebase config.');
 }
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase services
+// Core services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
-// Initialize messaging (for push notifications)
+// Use emulators if explicitly enabled
+const shouldUseEmulators = import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true';
+
+if (shouldUseEmulators) {
+  try {
+    connectAuthEmulator(auth, import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_URL || 'http://localhost:9099', { disableWarnings: true });
+    connectFirestoreEmulator(db, import.meta.env.VITE_FIREBASE_FIRESTORE_EMULATOR_HOST || 'localhost', Number(import.meta.env.VITE_FIREBASE_FIRESTORE_EMULATOR_PORT || 8080));
+    connectStorageEmulator(storage, import.meta.env.VITE_FIREBASE_STORAGE_EMULATOR_HOST || 'localhost', Number(import.meta.env.VITE_FIREBASE_STORAGE_EMULATOR_PORT || 9199));
+    console.log('✅ Connected to Firebase Emulators');
+  } catch (error) {
+    console.warn('Emulator connection failed:', error);
+  }
+}
+
+// Messaging
 let messaging = null;
 isSupported().then((supported) => {
   if (supported) {
@@ -38,25 +59,5 @@ isSupported().then((supported) => {
   }
 });
 
-export { messaging };
-
-// Helper to detect emulator usage via explicit env var only
-// (do not default to DEV to avoid accidental emulator connection when not using them)
-const shouldUseEmulators = import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true';
-
-if (shouldUseEmulators) {
-  try {
-    // Connect to emulators with safe calls; avoid relying on private SDK internals
-    connectAuthEmulator(auth, import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_URL || 'http://localhost:9099');
-    connectFirestoreEmulator(db, import.meta.env.VITE_FIREBASE_FIRESTORE_EMULATOR_HOST || 'localhost', Number(import.meta.env.VITE_FIREBASE_FIRESTORE_EMULATOR_PORT || 8080));
-    connectStorageEmulator(storage, import.meta.env.VITE_FIREBASE_STORAGE_EMULATOR_HOST || 'localhost', Number(import.meta.env.VITE_FIREBASE_STORAGE_EMULATOR_PORT || 9199));
-  } catch (error) {
-    // Emulator connectivity is non-fatal for local dev, log for visibility
-    // eslint-disable-next-line no-console
-    console.warn('Emulator connection warning:', error);
-  }
-}
-
-export const isUsingEmulator = shouldUseEmulators;
-
+export { messaging, shouldUseEmulators as isUsingEmulator };
 export default app;

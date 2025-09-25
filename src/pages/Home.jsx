@@ -1,7 +1,9 @@
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -32,11 +34,11 @@ const Home = () => {
                 Create your account to start building your business empire.
               </p>
               <div className="flex justify-center space-x-4">
-                <button className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                <button onClick={() => navigate('/auth?mode=signup')} className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                   Sign Up
                 </button>
-                <button className="px-6 py-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
-                  Learn More
+                <button onClick={() => navigate('/auth?mode=signin')} className="px-6 py-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                  Sign In
                 </button>
               </div>
             </div>
