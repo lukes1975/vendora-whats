@@ -1,4 +1,4 @@
-# Vendora Production Deployment Guide
+# Vendora Production Deployment Guide  //Future Plans
 
 ## Netlify Deployment Setup
 
