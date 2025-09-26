@@ -1,4 +1,4 @@
-# Paystack integration (archived)
+# Paystack integration (archived)// Future Plans
 
 This document previously described Paystack subaccount and split-payment integration for Vendora. Paystack integration has been removed from the codebase and this file is retained only for archival reference.
 
