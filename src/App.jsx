@@ -4,6 +4,8 @@ import ProductPage from "./Pages/ProductPage.jsx";
 import CheckOutPage from "./Pages/CheckOutPage.jsx";
 import ProductDetailsPage from "./Pages/ProductDetailsPage.jsx";
 import VendorProfilePage from "./Pages/VendorProfilePage.jsx";
+import LoginPage from "./Pages/LoginPage.jsx";
+import SignupPage from "./Pages/SignupPage.jsx";
 import Cart from "./components/Cart.jsx";
 
 const App = () => {
@@ -28,6 +30,12 @@ const App = () => {
       <Route element={
         <VendorProfilePage />
       } path="/vendor/:id" />
+      <Route element={
+        <LoginPage />
+      } path="/login" />
+      <Route element={
+        <SignupPage />
+      } path="/signup" />
     </Routes>
 
   );
