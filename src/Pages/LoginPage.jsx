@@ -62,7 +62,7 @@ const LoginPage = () => {
         {/* Logo/Brand */}
         <div className="text-center mb-8">
           <img 
-            src="/images/xora.svg" 
+            src="/images/vendora.png" 
             alt="Logo" 
             className="mx-auto h-16 w-auto mb-4"
           />
@@ -128,7 +128,7 @@ const LoginPage = () => {
                   Remember me
                 </label>
               </div>
-              <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+              <Link to="/forgot-password" className="text-sm text-p1 hover:text-p2 transition-colors duration-200">
                 Forgot password?
               </Link>
             </div>

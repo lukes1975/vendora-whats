@@ -28,7 +28,7 @@ const Header = () => {
     >
       <div className="container flex h-14 items-center max-lg:px-5">
         <a className="lg:hidden flex-1 cursor-pointer z-2">
-          <img src="/images/xora.svg" width={115} height={55} alt="logo" />
+          <img src="/images/vendora.png" width={115} height={55} alt="logo" />
         </a>
 
         <div
@@ -48,7 +48,7 @@ const Header = () => {
                       "max-lg:hidden transition-transform duration-500 cursor-pointer"}
                   >
                     <img
-                      src="/images/xora.svg"
+                      src="/images/vendora.png"
                       width={160}
                       height={55}
                       alt="logo"
@@ -60,9 +60,9 @@ const Header = () => {
                   <NavLink className="base-bold text-p4 uppercase transition-colors duration-500 cursor-pointer hover:text-p1 max-lg:my-4 max-lg:h5"
                     to="/home#home" > Home</NavLink>
                   <NavLink className="base-bold text-p4 uppercase transition-colors duration-500 cursor-pointer hover:text-p1 max-lg:my-4 max-lg:h5"
-                    to="/home#about" > About</NavLink>
+                    to="/" > marketplace</NavLink>
                   <NavLink className="base-bold text-p4 uppercase transition-colors duration-500 cursor-pointer hover:text-p1 max-lg:my-4 max-lg:h5"
-                    to="/" > product</NavLink>
+                    to="/home#about" > About</NavLink>
                   {/* <Link to="/">Product</Link> */}
                   <NavLink className="base-bold text-p4 uppercase transition-colors duration-500 cursor-pointer hover:text-p1 max-lg:my-4 max-lg:h5"
                     to="/home#Contact" > Contact</NavLink>

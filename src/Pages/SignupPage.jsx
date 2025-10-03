@@ -84,7 +84,7 @@ const SignupPage = () => {
         {/* Logo/Brand */}
         <div className="text-center mb-8">
           <img 
-            src="/images/xora.svg" 
+            src="/images/vendora.png" 
             alt="Logo" 
             className="mx-auto h-16 w-auto mb-4"
           />

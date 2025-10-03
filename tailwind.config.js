@@ -4,19 +4,42 @@ export default {
   theme: {
     extend: {
       colors: {
-        p1: "#2EF2FF",
-        p2: "#3C52D9",
-        p3: "#C8EA80",
-        p4: "#EAEDFF",
-        p5: "#C4CBF5",
-        s1: "#080D27",
-        s2: "#0C1838",
-        s3: "#334679",
-        s4: "#1959AD",
-        s5: "#263466",
+        // Primary Colors - Modern Purple & Pink Gradient
+        p1: "#8B5CF6", // Vibrant Purple
+        p2: "#EC4899", // Hot Pink
+        p3: "#F59E0B", // Amber Gold
+        p4: "#F3F4F6", // Light Gray
+        p5: "#9CA3AF", // Medium Gray
+        
+        // Secondary Colors - Deep & Rich
+        s1: "#0F0F23", // Deep Navy
+        s2: "#1A1A2E", // Dark Purple
+        s3: "#16213E", // Midnight Blue
+        s4: "#0F3460", // Ocean Blue
+        s5: "#533483", // Royal Purple
+        
+        // Accent Colors - Bright & Energetic
+        accent1: "#06B6D4", // Cyan
+        accent2: "#10B981", // Emerald
+        accent3: "#F97316", // Orange
+        
+        // Neutral Colors
+        neutral: {
+          50: "#FAFAFA",
+          100: "#F5F5F5",
+          200: "#E5E5E5",
+          300: "#D4D4D4",
+          400: "#A3A3A3",
+          500: "#737373",
+          600: "#525252",
+          700: "#404040",
+          800: "#262626",
+          900: "#171717",
+        },
+        
         black: {
           DEFAULT: "#000000",
-          100: "#05091D",
+          100: "#0A0A0A",
         },
       },
       boxShadow: {

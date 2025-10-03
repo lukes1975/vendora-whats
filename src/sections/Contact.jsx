@@ -60,7 +60,7 @@ const Contact = () => {
             <div className="relative border-2 border-s5 p-3 rounded-14 mr-6 flex-540 max-xl:flex-280 max-lg:flex256 max-md:flex-100">
               <div className="mb-1">
                 <img
-                  src="/images/xora.svg"
+                  src="/images/vendora.png"
                   width={160}
                   height={55}
                   alt="xora"

@@ -89,7 +89,7 @@
 //                 <div className="w-80 p-5 bg-white border-2 border-dashed text-center">
 //                     <h2 className="text-lg font-semibold mb-3">Receipt</h2>
 //                     <div className="flex items-center justify-between bg-black-100 rounded text-white p-2">
-//                         <img src="/images/xora.svg" width={115} height={55} alt="logo" />
+//                         <img src="/images/vendora.png" width={115} height={55} alt="logo" />
 //                         <span>{WebsiteName}</span>
 //                     </div>
 //                     <div className="mt-4">
@@ -253,7 +253,7 @@ export const Checkout = () => {
         <div className="w-80 p-5 bg-white border-2 border-dashed text-center">
           <h2 className="text-lg font-semibold mb-3">Receipt</h2>
           <div className="flex items-center justify-between bg-black rounded text-white p-2">
-            <img src="/images/xora.svg" width={115} height={55} alt="logo" />
+            <img src="/images/vendora.png" width={115} height={55} alt="logo" />
             <span>{WebsiteName}</span>
           </div>
           <div className="mt-4">
